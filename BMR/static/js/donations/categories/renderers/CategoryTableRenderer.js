@@ -3,7 +3,7 @@ import { escapeHtml, formatDate } from '../../../shared/utils/domUtils.js';
 
 export class CategoryTableRenderer extends BaseTableRenderer {
     constructor() {
-        super('eventCategoriesTableBody');
+        super('donationCategoriesTableBody');
         this.currentPage = 1;
         this.perPage = 10; // Default items per page
     }
@@ -21,7 +21,6 @@ export class CategoryTableRenderer extends BaseTableRenderer {
     render(categories, currentPage = 1, perPage = 10) {
         // Update pagination info
         this.setPagination(currentPage, perPage);
-        console.log("Render categories")
         if (!categories || categories.length === 0) {
             this.renderEmpty('No Categories Found', '📂');
             return;
@@ -42,6 +41,14 @@ export class CategoryTableRenderer extends BaseTableRenderer {
                     <span class="badge bg-primary text-dark">${serialNumber}</span>
                 </td>
                 <td><p class="f-light mb-0">${escapeHtml(category.title)}</p></td>
+                <td class="text-center">
+                    <span class="fa-solid ${category.is_date_required ? 'fa-check' : 'fa-cross'}">
+                    </span>
+                </td>
+                <td class="text-center">
+                    <span class="fa-solid ${category.is_date_required ? 'fa-check' : 'fa-cross'}">
+                    </span>
+                </td>
                 <td>
                     <span class="badge ${category.is_active ? 'bg-success' : 'bg-warning'}">
                         ${category.is_active ? 'Active' : 'Inactive'}

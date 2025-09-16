@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('i/event/category/list/', views.event_category_list, name='event_category_list'),
+    path('i/event/subcategory/list/', views.event_sub_category_list, name='event_sub_category_list'),
     # path('categories/', views.event_category_list, name='event_category_list'),
     # path('categories/create/', views.event_category_create, name='event_category_create'),
     # path('categories/<int:pk>/update/', views.event_category_update, name='event_category_update'),

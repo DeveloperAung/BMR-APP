@@ -55,6 +55,7 @@ LOCAL_APPS = [
     'core',
     'events',
     'posts',
+    'donations',
     'memberships',
 ]
 

@@ -9,9 +9,16 @@ from .serializers import (
     DonationSubCategorySerializer,
     DonationSubCategoryListSerializer
 )
+from drf_spectacular.utils import (
+    extend_schema, OpenApiExample, OpenApiResponse
+)
 
 
-# Donation Category Views
+@extend_schema(
+    tags=["Donation"],
+    summary="Donation - Category Retrieve Create",
+    description="Donation - Category Retrieve Create"
+)
 class DonationCategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = DonationCategorySerializer
     pagination_class = StandardResultsSetPagination
@@ -46,6 +53,11 @@ class DonationCategoryListCreateView(generics.ListCreateAPIView):
         )
 
 
+@extend_schema(
+    tags=["Donation"],
+    summary="Donation - Category Update Delete",
+    description="Donation - Category Update Delete"
+)
 class DonationCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = DonationCategory.objects.all()
     serializer_class = DonationCategorySerializer
@@ -90,7 +102,11 @@ class DonationCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
         )
 
 
-# Donation Subcategory Views
+@extend_schema(
+    tags=["Donation"],
+    summary="Donation - Sub Category Retrieve Create",
+    description="Donation - Sub Category Retrieve Create"
+)
 class DonationSubCategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = DonationSubCategoryListSerializer
     pagination_class = StandardResultsSetPagination
@@ -137,6 +153,11 @@ class DonationSubCategoryListCreateView(generics.ListCreateAPIView):
         )
 
 
+@extend_schema(
+    tags=["Donation"],
+    summary="Donation - Sub Category Update Delete",
+    description="Donation - Sub Category Update Delete"
+)
 class DonationSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = DonationSubCategory.objects.select_related('donation_category')
     serializer_class = DonationSubCategorySerializer

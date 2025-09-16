@@ -14,67 +14,8 @@ def event_category_list(request):
 
 
 def event_sub_category_list(request):
-    q = request.GET.get('q', '').strip()
-    per_page = request.GET.get('per_page', settings.DEFAULT_PER_PAGE)
-    options = getattr(settings, 'PER_PAGE_OPTIONS', [10, 25, 50, 100])
-    category_id = request.GET.get('category', '')
-    sub_categories = EventSubCategory.objects.select_related('event_category').all()
-    if q:
-        sub_categories = sub_categories.filter(title__icontains=q)
-    if category_id:
-        sub_categories = sub_categories.filter(event_category_id=category_id)
-    try:
-        per_page = int(per_page)
-        if per_page not in options:
-            per_page = settings.DEFAULT_PER_PAGE
-    except ValueError:
-        per_page = settings.DEFAULT_PER_PAGE
-    paginator = Paginator(sub_categories, per_page)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    total_count = paginator.count
-    start_index = page_obj.start_index() if total_count > 0 else 0
-    end_index = page_obj.end_index() if total_count > 0 else 0
-    # Pagination context
-    total_pages = page_obj.paginator.num_pages
-    current_page = page_obj.number
-    if total_pages <= 7:
-        page_numbers = list(range(1, total_pages + 1))
-        show_first_ellipsis = show_last_ellipsis = False
-    else:
-        if current_page <= 4:
-            page_numbers = list(range(1, 6)) + [total_pages]
-            show_first_ellipsis = False
-            show_last_ellipsis = True
-        elif current_page >= total_pages - 3:
-            page_numbers = [1] + list(range(total_pages - 4, total_pages + 1))
-            show_first_ellipsis = True
-            show_last_ellipsis = False
-        else:
-            page_numbers = [1, current_page - 1, current_page, current_page + 1, total_pages]
-            show_first_ellipsis = show_last_ellipsis = True
-    query_params = request.GET.copy()
-    if 'page' in query_params:
-        query_params.pop('page')
-    query_params = query_params.dict()
-    categories = EventCategory.objects.all()
-    context = {
-        'sub_categories': page_obj.object_list,
-        'page_obj': page_obj,
-        'per_page': per_page,
-        'q': q,
-        'category_id': category_id,
-        'categories': categories,
-        'total_count': total_count,
-        'start_index': start_index,
-        'end_index': end_index,
-        'options': options,
-        'query_params': query_params,
-        'page_numbers': page_numbers,
-        'show_first_ellipsis': show_first_ellipsis,
-        'show_last_ellipsis': show_last_ellipsis,
-    }
-    return render(request, 'private/events/sub_category/list.html', context)
+    return render(request, 'private/events/subcategory/list.html')
+
 
 def event_category_create(request):
     if request.method == 'POST':

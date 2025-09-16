@@ -10,11 +10,13 @@ urlpatterns = [
     path('association/', include('association.urls')),
     path('posts/', include('posts.urls')),
     path('events/', include('events.urls')),
+    path('donations/', include('donations.urls')),
 
     path('api/auth/', include('authentication.api.urls')),
     path('api/association/', include('association.api.routers')),
     path('api/posts/', include('posts.api.urls')),
     path('api/events/', include('events.api.urls')),
+    path('api/donations/', include('donations.api.urls')),
     path('api/membership/', include('memberships.api.routers')),
     
     # API Documentation
