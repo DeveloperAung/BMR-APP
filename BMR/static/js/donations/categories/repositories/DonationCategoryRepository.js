@@ -1,8 +1,9 @@
 import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
+import { DONATIONS } from '../../../shared/config/apiConfig.js';
 
 export class DonationCategoryRepository extends BaseRepository {
     constructor(authService) {
-        super('/api/donations/categories/', authService);
+        super(DONATIONS.CATEGORIES, authService);
     }
 
     // Custom method names for your domain

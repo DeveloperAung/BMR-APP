@@ -13,9 +13,9 @@ urlpatterns = [
          name='category-retrieve-update-destroy'),
     
     # Event Sub-Category URLs
-    path('sub-categories/', views.EventSubCategoryListCreateView.as_view(), 
+    path('subcategories/', views.EventSubCategoryListCreateView.as_view(),
          name='sub-category-list-create'),
-    path('sub-categories/<int:pk>/', views.EventSubCategoryRetrieveUpdateDestroyView.as_view(), 
+    path('subcategories/<int:pk>/', views.EventSubCategoryRetrieveUpdateDestroyView.as_view(),
          name='sub-category-retrieve-update-destroy'),
 ]
 

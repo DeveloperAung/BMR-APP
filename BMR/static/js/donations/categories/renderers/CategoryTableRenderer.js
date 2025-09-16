@@ -42,11 +42,11 @@ export class CategoryTableRenderer extends BaseTableRenderer {
                 </td>
                 <td><p class="f-light mb-0">${escapeHtml(category.title)}</p></td>
                 <td class="text-center">
-                    <span class="fa-solid ${category.is_date_required ? 'fa-check' : 'fa-cross'}">
+                    <span class="fa-solid ${category.is_date_required ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td>
                 <td class="text-center">
-                    <span class="fa-solid ${category.is_date_required ? 'fa-check' : 'fa-cross'}">
+                    <span class="fa-solid ${category.is_multi_select_required ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td>
                 <td>

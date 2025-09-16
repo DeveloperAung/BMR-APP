@@ -24,9 +24,8 @@ export class PostTableRenderer extends BaseTableRenderer {
                 </td>
                 <td><p class="f-light mb-0">${escapeHtml(post.title)}</p></td>
                 <td><p class="f-light mb-0">${escapeHtml(truncate(post.content, 150))}</p></td>
-                <td>
-                    <span class="badge ${post.is_published ? 'bg-success' : 'bg-primary'}">
-                        ${post.is_published ? 'Yes' : 'No'}
+                <td class="text-center">
+                    <span class="fa-solid ${post.is_published ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td>
                 <td><p class="f-light mb-0">${post.published_at ? formatDate(post.published_at) : '-'}</p></td>
