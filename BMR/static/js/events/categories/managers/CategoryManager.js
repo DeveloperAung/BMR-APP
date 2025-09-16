@@ -1,5 +1,5 @@
 // static/js/posts/categories/managers/CategoryManager.js
-import { PostCategoryRepository } from '../repositories/PostCategoryRepository.js';
+import { EventCategoryRepository } from '../repositories/EventCategoryRepository.js';
 import { CategoryTableRenderer } from '../renderers/CategoryTableRenderer.js';
 import { PaginationRenderer } from '../../../shared/renderers/PaginationRenderer.js';
 //import { FilterHandler } from '../handlers/CategoryFilterHandler.js';
@@ -11,7 +11,7 @@ export class CategoryManager {
         this.authService = authService;
         this.notificationService = notificationService;
 
-        this.categoryRepository = new PostCategoryRepository(authService);
+        this.categoryRepository = new EventCategoryRepository(authService);
         this.tableRenderer = new CategoryTableRenderer();
         this.currentPage = 1;
         this.perPage = 10;

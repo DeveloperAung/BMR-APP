@@ -3,7 +3,7 @@ import { escapeHtml, formatDate } from '../../../shared/utils/domUtils.js';
 
 export class CategoryTableRenderer extends BaseTableRenderer {
     constructor() {
-        super('postCategoriesTableBody');
+        super('eventCategoriesTableBody');
         this.currentPage = 1;
         this.perPage = 10; // Default items per page
     }
@@ -21,7 +21,6 @@ export class CategoryTableRenderer extends BaseTableRenderer {
     render(categories, currentPage = 1, perPage = 10) {
         // Update pagination info
         this.setPagination(currentPage, perPage);
-        console.log("Render categories")
         if (!categories || categories.length === 0) {
             this.renderEmpty('No Categories Found', '📂');
             return;

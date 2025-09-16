@@ -48,49 +48,5 @@ class CategoryApp {
 document.addEventListener('DOMContentLoaded', () => {
     const app = new CategoryApp();
 
-    // Test util
-    window.testCategoryLoad = async function () {
-        console.log('🧪 Testing category load...');
-        try {
-            const tbody = document.getElementById('postCategoriesTableBody');
-            const spinner = document.getElementById('loadingSpinner');
-            console.log('DOM Elements:', { tbody: !!tbody, spinner: !!spinner });
-
-            const token = localStorage.getItem('access_token');
-            console.log('Token present:', !!token);
-
-            const response = await fetch('/api/posts/categories/', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            console.log('Response status:', response.status);
-
-            if (response.ok) {
-                const responseData = await response.json();
-                const categories = responseData?.data?.results;
-
-                if (tbody && Array.isArray(categories)) {
-                    tbody.innerHTML = categories.map(category => `
-                        <tr>
-                            <td colspan="5">${category.title || 'Unknown Category'}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    console.warn('❌ No categories found in response:', responseData);
-                }
-            } else {
-                console.error('API Error:', await response.text());
-            }
-
-        } catch (error) {
-            console.error('Test failed:', error);
-        }
-    };
-
-    // Run test and init app
-    window.testCategoryLoad();
     app.init();
 });

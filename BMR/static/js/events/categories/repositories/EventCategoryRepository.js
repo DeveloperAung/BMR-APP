@@ -1,8 +1,8 @@
 import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
 
-export class PostCategoryRepository extends BaseRepository {
+export class EventCategoryRepository extends BaseRepository {
     constructor(authService) {
-        super('/api/posts/categories', authService);
+        super('/api/events/categories/', authService);
     }
 
     // Custom method names for your domain

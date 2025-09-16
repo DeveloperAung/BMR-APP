@@ -86,6 +86,17 @@
                     <li><a href="product.html">Post Create</a></li>
                 </ul>
             </li>
+             <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link"
+                                                                             href="javascript:void(0)">
+                <svg class="stroke-icon">
+                    <use href="../assets/svg/iconly-sprite.svg#Bag"></use>
+                </svg>
+                <h6 class="f-w-600">Events</h6><i class="iconly-Arrow-Right-2 icli"> </i></a>
+                <ul class="sidebar-submenu">
+                    <li><a href="{% url 'event_category_list' %}">Category List</a></li>
+                    <li><a href="product.html">Post Create</a></li>
+                </ul>
+            </li>
             <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link"
                                                                              href="javascript:void(0)">
                 <svg class="stroke-icon">
@@ -111,20 +122,15 @@
             </li>
 
             <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link"
-                                                                             href="letter-box.html">
-                <svg class="stroke-icon">
-                    <use href="../assets/svg/iconly-sprite.svg#Message"></use>
-                </svg>
-                <h6 class="f-w-600">Contact Us</h6></a></li>
-            <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link"
                                                                              href="javascript:void(0)">
                 <svg class="stroke-icon">
-                    <use href="{%  static 'assets/svg/iconly-sprite.svg' %}#Info-circle"></use>
+                    <use href="{% static '/assets/svg/iconly-sprite.svg' %}#Profile"></use>
                 </svg>
-                <h6 class="f-w-600">Users</h6><i class="iconly-Arrow-Right-2 icli"></i></a>
+                <h6 class="f-w-600">Association</h6><i class="iconly-Arrow-Right-2 icli"> </i></a>
                 <ul class="sidebar-submenu">
-                    <li><a href="{% url 'association_post_list' %}">List </a></li>
-                    <li><a href="projectcreate.html">Create </a></li>
+                    <li><a href="{% url 'association_post_list' %}">List</a></li>
+                    <li><a href="edit-profile.html">Users Edit</a></li>
+                    <li><a href="user-cards.html">Users Cards </a></li>
                 </ul>
             </li>
         </ul>

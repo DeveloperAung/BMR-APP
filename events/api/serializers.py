@@ -5,7 +5,7 @@ from ..models import EventCategory, EventSubCategory
 class EventCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = EventCategory
-        fields = ['id', 'title', 'created_at']
+        fields = ['id', 'title', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 
