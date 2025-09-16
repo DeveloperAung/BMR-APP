@@ -1,0 +1,38 @@
+<div class="filters-section">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Search Post Title</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="searchInput"
+                       placeholder="Search by post title...">
+                <button class="btn btn-primary" type="button" id="searchBtn">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Sort By</label>
+            <select class="form-select" id="orderingSelect">
+                <option value="-date_joined">Newest First</option>
+                <option value="date_joined">Oldest First</option>
+                <option value="first_name">Name A-Z</option>
+                <option value="-first_name">Name Z-A</option>
+                <option value="email">Email A-Z</option>
+                <option value="-email">Email Z-A</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Per Page</label>
+            <select class="form-select" id="perPageSelect">
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-outline-primary" id="clearFiltersBtn" title="Clear Filters">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+            </button>
+        </div>
+    </div>
+</div>

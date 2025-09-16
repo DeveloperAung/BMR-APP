@@ -1,0 +1,29 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}Users Management{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/users/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% include 'private/users/partials/page-header.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body table-responsive">
+                         {% include 'private/users/partials/filters.html' %}
+                        {% include 'private/users/partials/users-table.html' %}
+                        {% include 'private/users/partials/modals.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% block extra_js %}
+        <script src="{% static 'js/users/dashboard.js' %}" type="module"></script>
+    {% endblock %}
+{% endblock %}
+

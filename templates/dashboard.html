@@ -1,0 +1,271 @@
+{% extends 'public/base.html' %}
+
+{% block title %}Dashboard - Django DRF Auth{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Welcome to Your Dashboard</h3>
+            </div>
+            <div class="card-body" id="profileContent">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading your profile...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary w-100 mb-2" onclick="loadProfile()">
+                    <i class="fas fa-refresh me-2"></i>Refresh Profile
+                </button>
+                <button class="btn btn-warning w-100 mb-2" onclick="showUpdateForm()">
+                    <i class="fas fa-edit me-2"></i>Update Profile
+                </button>
+                <button class="btn btn-danger w-100" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Token Info Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6>Authentication Status</h6>
+            </div>
+            <div class="card-body">
+                <div id="tokenInfo">
+                    <small class="text-muted">Checking authentication...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Profile Modal -->
+<div class="modal fade" id="updateProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateProfileForm">
+                    <div class="mb-3">
+                        <label for="update_username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="update_username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="update_first_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="update_last_name">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile()">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="alertContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let userProfile = null;
+
+    // Check authentication status
+    function checkAuthStatus() {
+        const token = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        const tokenInfo = document.getElementById('tokenInfo');
+
+        if (token) {
+            tokenInfo.innerHTML = `
+                <div class="text-success">
+                    <i class="fas fa-check-circle"></i> Authenticated
+                </div>
+                <small class="text-muted">Token: ${token.substring(0, 20)}...</small>
+            `;
+        } else {
+            tokenInfo.innerHTML = `
+                <div class="text-danger">
+                    <i class="fas fa-times-circle"></i> No token found
+                </div>
+                <small class="text-muted">Redirecting to login...</small>
+            `;
+            setTimeout(() => {
+                window.location.href = '/login/';
+            }, 2000);
+        }
+    }
+
+    // Load user profile
+    async function loadProfile() {
+        try {
+            showAlert('info', 'Loading profile...');
+
+            const response = await axios.get('/api/auth/profile/');
+
+            if (response.data.success) {
+                userProfile = response.data.data;
+                displayProfile(userProfile);
+                showAlert('success', 'Profile loaded successfully');
+            }
+        } catch (error) {
+            console.error('Profile load error:', error);
+
+            if (error.response?.status === 401) {
+                showAlert('danger', 'Session expired. Please login again.');
+                setTimeout(() => {
+                    logout();
+                }, 2000);
+            } else {
+                const message = error.response?.data?.message || 'Failed to load profile';
+                showAlert('danger', message);
+            }
+        }
+    }
+
+    // Display profile information
+    function displayProfile(profile) {
+        const profileContent = document.getElementById('profileContent');
+        profileContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    ${profile.profile_picture ?
+                        `<img src="${profile.profile_picture}" alt="Profile" class="img-fluid rounded-circle mb-3" style="max-width: 100px;">` :
+                        `<div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 100px; height: 100px;">
+                            <i class="fas fa-user fa-3x text-white"></i>
+                        </div>`
+                    }
+                </div>
+                <div class="col-md-9">
+                    <h4>${profile.first_name} ${profile.last_name}</h4>
+                    <p class="mb-2">
+                        <strong><i class="fas fa-envelope me-2"></i>Email:</strong> ${profile.email}
+                    </p>
+                    <p class="mb-2">
+                        <strong><i class="fas fa-user me-2"></i>Username:</strong> ${profile.username}
+                    </p>
+                    <p class="mb-2">
+                        <strong><i class="fas fa-id-card me-2"></i>User ID:</strong> ${profile.id}
+                    </p>
+                    <p class="mb-0">
+                        <strong><i class="fas fa-shield-alt me-2"></i>Email Verified:</strong>
+                        <span class="badge bg-${profile.is_email_verified ? 'success' : 'warning'}">
+                            ${profile.is_email_verified ? 'Verified' : 'Not Verified'}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Show update form
+    function showUpdateForm() {
+        if (userProfile) {
+            document.getElementById('update_username').value = userProfile.username || '';
+            document.getElementById('update_first_name').value = userProfile.first_name || '';
+            document.getElementById('update_last_name').value = userProfile.last_name || '';
+
+            const modal = new bootstrap.Modal(document.getElementById('updateProfileModal'));
+            modal.show();
+        } else {
+            showAlert('warning', 'Please load your profile first.');
+        }
+    }
+
+    // Update profile
+    async function updateProfile() {
+        const updateData = {
+            username: document.getElementById('update_username').value,
+            first_name: document.getElementById('update_first_name').value,
+            last_name: document.getElementById('update_last_name').value
+        };
+
+        try {
+            const response = await axios.put('/api/auth/profile/update/', updateData);
+
+            if (response.data.success) {
+                showAlert('success', response.data.message);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('updateProfileModal'));
+                modal.hide();
+                loadProfile(); // Reload profile
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Failed to update profile';
+            const errors = error.response?.data?.error;
+
+            if (errors) {
+                Object.keys(errors).forEach(field => {
+                    errors[field].forEach(errorMsg => {
+                        showAlert('danger', `${field}: ${errorMsg}`);
+                    });
+                });
+            } else {
+                showAlert('danger', message);
+            }
+        }
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        delete axios.defaults.headers.common['Authorization'];
+
+        showAlert('info', 'Logging out...');
+        setTimeout(() => {
+            window.location.href = '/login/';
+        }, 1000);
+    }
+
+    // Show alert function
+    function showAlert(type, message) {
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Remove existing alerts of the same type
+        alertContainer.querySelectorAll(`.alert-${type}`).forEach(alert => alert.remove());
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+        alert.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.appendChild(alert);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
+    }
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthStatus();
+        loadProfile();
+    });
+</script>
+{% endblock %}

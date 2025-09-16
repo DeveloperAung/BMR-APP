@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Django DRF Auth{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Register</h3>
+            </div>
+            <div class="card-body">
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_confirm" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="password_confirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="alertContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = {
+            email: document.getElementById('email').value,
+            username: document.getElementById('username').value,
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            password: document.getElementById('password').value,
+            password_confirm: document.getElementById('password_confirm').value
+        };
+
+        try {
+            const response = await axios.post('/api/auth/register/', formData);
+
+            if (response.data.success) {
+                showAlert('success', response.data.message);
+                setTimeout(() => {
+                    window.location.href = '/login/';
+                }, 2000);
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Registration failed';
+            const errors = error.response?.data?.error;
+
+            if (errors) {
+                Object.keys(errors).forEach(field => {
+                    errors[field].forEach(errorMsg => {
+                        showAlert('danger', `${field}: ${errorMsg}`);
+                    });
+                });
+            } else {
+                showAlert('danger', message);
+            }
+        }
+    });
+
+    function showAlert(type, message) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.appendChild(alert);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+</script>
+{% endblock %}

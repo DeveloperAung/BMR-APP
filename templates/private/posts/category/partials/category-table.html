@@ -1,0 +1,43 @@
+<!-- Loading Spinner -->
+<div class="loading-spinner" id="loadingSpinner">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading users...</p>
+</div>
+
+<!-- Users Table -->
+<div class="list-product table-responsive">
+    <table class="table mt-3" id="usersTable">
+        <thead>
+        <tr>
+            {% comment %}
+            <th>
+                <div class="form-check">
+                    <input class="form-check-input checkbox-primary" type="checkbox"
+                           id="masterCheckbox"/>
+                </div>
+            </th>
+            {% endcomment %}
+            <th><span class="f-light f-w-600">#</span></th>
+            <th><span class="f-light f-w-600">Title</span></th>
+            <th><span class="f-light f-w-600">Created At</span></th>
+            <th><span class="f-light f-w-600">Status</span></th>
+            <th><span class="f-light f-w-600">Actions</span></th>
+        </tr>
+        </thead>
+        <tbody id="postCategoriesTableBody">
+        <!-- Users will be loaded here via JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Results Info -->
+<div class="results-info" id="resultsInfo">
+    <!-- Results information will be displayed here -->
+</div>
+
+<!-- Pagination -->
+<div id="pagination">
+    <!-- Pagination will be rendered here -->
+</div>

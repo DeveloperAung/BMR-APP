@@ -1,0 +1,84 @@
+{% extends 'public/base.html' %}
+
+{% block title %}Login - Django DRF Auth{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Login</h3>
+            </div>
+            <div class="card-body">
+                <!-- Regular Login Form -->
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <span id="loginBtnText">Login</span>
+                    </button>
+                </form>
+
+                <div class="text-center mb-3">
+                    <span class="text-muted">Or</span>
+                </div>
+
+                <!-- Google Sign-In Button -->
+                <button id="googleSignInBtn" class="btn btn-outline-danger w-100 mb-3">
+                    <i class="fab fa-google me-2"></i>Sign in with Google
+                </button>
+
+                <!-- Test Buttons -->
+                <div class="row">
+                    <div class="col-6">
+                        <button id="testCallback" class="btn btn-outline-info btn-sm w-100">
+                            Test Callback
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button id="checkStorage" class="btn btn-outline-warning btn-sm w-100">
+                            Check Storage
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register link -->
+        <div class="text-center mt-3">
+            <p class="text-muted">
+                Don't have an account?
+                <a href="{% url 'register_page' %}" class="text-decoration-none">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Debug Console -->
+<div class="row justify-content-center mt-3">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h6>Debug Console</h6>
+            </div>
+            <div class="card-body">
+                <div id="debugConsole" style="background: #f8f9fa; padding: 10px; font-family: monospace; font-size: 12px; height: 150px; overflow-y: auto; border: 1px solid #dee2e6;">
+                    <!-- Debug messages will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="alertContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+{% include 'partials/_js_google_auth.html' %}
+{% endblock %}

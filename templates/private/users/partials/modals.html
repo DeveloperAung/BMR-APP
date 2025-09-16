@@ -1,0 +1,399 @@
+<!-- User View Modal -->
+<div class="modal fade" id="userViewModal" tabindex="-1" aria-labelledby="userViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userViewModalLabel">
+                    <i class="fa fa-user-circle me-2"></i>User Profile
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" id="userViewContent">
+                <!-- Content populated by UserProfile component -->
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading user details...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Close
+                </button>
+                <button type="button" class="btn btn-primary" id="editUserFromView" style="display: none;">
+                    <i class="fa fa-edit me-1"></i>Edit User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Edit Modal -->
+<div class="modal fade" id="userEditModal" tabindex="-1" aria-labelledby="userEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userEditModalLabel">
+                    <i class="fa fa-edit me-2"></i>Edit User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userEditForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="editFirstName" name="first_name" required>
+                            <div class="invalid-feedback">Please provide a first name.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="editLastName" name="last_name" required>
+                            <div class="invalid-feedback">Please provide a last name.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="editUsername" name="username" required>
+                        <div class="invalid-feedback">Please provide a username.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editMobile" class="form-label">Mobile</label>
+                            <input type="tel" class="form-control" id="editMobile" name="mobile">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editSecondaryMobile" class="form-label">Secondary Mobile</label>
+                            <input type="tel" class="form-control" id="editSecondaryMobile" name="secondary_mobile">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editIsActive" name="is_active">
+                                <label class="form-check-label" for="editIsActive">Active Account</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editIsStaff" name="is_staff">
+                                <label class="form-check-label" for="editIsStaff">Staff Member</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editIsSuperuser" name="is_superuser">
+                                <label class="form-check-label" for="editIsSuperuser">Superuser</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="editUserId" name="user_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveUserChanges">
+                    <i class="fa fa-save me-1"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Create Modal -->
+<div class="modal fade" id="userCreateModal" tabindex="-1" aria-labelledby="userCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userCreateModalLabel">
+                    <i class="fa fa-user-plus me-2"></i>Create New User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userCreateForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="createFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="createFirstName" name="first_name" required>
+                            <div class="invalid-feedback">Please provide a first name.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="createLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="createLastName" name="last_name" required>
+                            <div class="invalid-feedback">Please provide a last name.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="createEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="createEmail" name="email" required>
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="createUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="createUsername" name="username" required>
+                        <div class="invalid-feedback">Please provide a username.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="createPassword" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="createPassword" name="password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleCreatePassword">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Password must be at least 8 characters long.</div>
+                        <div class="invalid-feedback">Please provide a password (minimum 8 characters).</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="createPasswordConfirm" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="createPasswordConfirm" name="password_confirm" required>
+                        <div class="invalid-feedback">Passwords do not match.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="createMobile" class="form-label">Mobile</label>
+                            <input type="tel" class="form-control" id="createMobile" name="mobile">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="createSecondaryMobile" class="form-label">Secondary Mobile</label>
+                            <input type="tel" class="form-control" id="createSecondaryMobile" name="secondary_mobile">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="createIsActive" name="is_active" checked>
+                                <label class="form-check-label" for="createIsActive">Active Account</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="createIsStaff" name="is_staff">
+                                <label class="form-check-label" for="createIsStaff">Staff Member</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="createIsSuperuser" name="is_superuser">
+                                <label class="form-check-label" for="createIsSuperuser">Superuser</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="createNewUser">
+                    <i class="fa fa-save me-1"></i>Create User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fa fa-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fa fa-trash-alt text-danger" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h5>Delete User Account?</h5>
+                    <p class="text-muted mb-3" id="deleteUserInfo">
+                        Are you sure you want to delete this user account? This action cannot be undone.
+                    </p>
+                    <div class="alert alert-warning">
+                        <i class="fa fa-exclamation-circle me-2"></i>
+                        <strong>Warning:</strong> All user data will be permanently removed.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteUser">
+                    <i class="fa fa-trash me-1"></i>Delete User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Action Confirmation Modal -->
+<div class="modal fade" id="bulkActionModal" tabindex="-1" aria-labelledby="bulkActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="bulkActionHeader">
+                <h5 class="modal-title" id="bulkActionModalLabel">
+                    <i class="fa fa-users me-2"></i>Bulk Action Confirmation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center" id="bulkActionContent">
+                    <!-- Content populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmBulkAction">
+                    <i class="fa fa-check me-1"></i>Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordResetModalLabel">
+                    <i class="fa fa-key me-2"></i>Reset Password
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="passwordResetForm" novalidate>
+                    <div class="text-center mb-4">
+                        <i class="fa fa-user-circle text-primary" style="font-size: 3rem;"></i>
+                        <h6 class="mt-2" id="resetUserName">User Name</h6>
+                        <p class="text-muted" id="resetUserEmail">user@example.com</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Password must be at least 8 characters long.</div>
+                        <div class="invalid-feedback">Please provide a new password (minimum 8 characters).</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmNewPassword" name="confirm_password" required>
+                        <div class="invalid-feedback">Passwords do not match.</div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="sendPasswordEmail" checked>
+                        <label class="form-check-label" for="sendPasswordEmail">
+                            Send password reset notification to user
+                        </label>
+                    </div>
+
+                    <input type="hidden" id="resetUserId" name="user_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="resetUserPassword">
+                    <i class="fa fa-key me-1"></i>Reset Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <!-- Toasts will be dynamically inserted here -->
+</div>
+
+<script>
+// Modal initialization and event handlers
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggles
+    document.getElementById('toggleCreatePassword')?.addEventListener('click', function() {
+        togglePasswordVisibility('createPassword', this);
+    });
+
+    document.getElementById('toggleNewPassword')?.addEventListener('click', function() {
+        togglePasswordVisibility('newPassword', this);
+    });
+
+    // Password confirmation validation
+    const passwordFields = [
+        { password: 'createPassword', confirm: 'createPasswordConfirm' },
+        { password: 'newPassword', confirm: 'confirmNewPassword' }
+    ];
+
+    passwordFields.forEach(({ password, confirm }) => {
+        const passwordInput = document.getElementById(password);
+        const confirmInput = document.getElementById(confirm);
+
+        if (passwordInput && confirmInput) {
+            [passwordInput, confirmInput].forEach(input => {
+                input.addEventListener('input', () => validatePasswordMatch(password, confirm));
+            });
+        }
+    });
+});
+
+function togglePasswordVisibility(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa fa-eye';
+    }
+}
+
+function validatePasswordMatch(passwordId, confirmId) {
+    const password = document.getElementById(passwordId);
+    const confirm = document.getElementById(confirmId);
+
+    if (password.value && confirm.value) {
+        if (password.value !== confirm.value) {
+            confirm.setCustomValidity('Passwords do not match');
+            confirm.classList.add('is-invalid');
+        } else {
+            confirm.setCustomValidity('');
+            confirm.classList.remove('is-invalid');
+            confirm.classList.add('is-valid');
+        }
+    }
+}
+</script>

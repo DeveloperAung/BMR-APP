@@ -1,0 +1,321 @@
+{% load static %}
+<div class="page-main-header col">
+    <div class="header-left">
+        <form class="form-inline search-full col" action="#" method="get">
+            <div class="form-group w-100">
+                <div class="Typeahead Typeahead--twitterUsers">
+                    <div class="u-posRelative">
+                        <input class="demo-input Typeahead-input form-control-plaintext w-100" type="text"
+                               placeholder="Search Admiro .." name="q" title="" autofocus="autofocus"/>
+                        <div class="spinner-border Typeahead-spinner" role="status"><span
+                                class="sr-only">Loading...</span></div>
+                        <i class="close-search" data-feather="x"></i>
+                    </div>
+                    <div class="Typeahead-menu"></div>
+                </div>
+            </div>
+        </form>
+        <div class="form-group-header d-lg-block d-none">
+            <div class="Typeahead Typeahead--twitterUsers">
+                <div class="u-posRelative d-flex align-items-center">
+                    <input class="demo-input py-0 Typeahead-input form-control-plaintext w-100" type="text"
+                           placeholder="Type to Search..." name="q" title=""/><i
+                        class="search-bg iconly-Search icli"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-right">
+        <ul class="header-right">
+            <li class="custom-dropdown">
+                <div class="translate_wrapper">
+                    <div class="current_lang"><a class="lang" href="javascript:void(0)"><i
+                            class="flag-icon flag-icon-us"></i>
+                        <h6 class="lang-txt f-w-700">ENG</h6></a></div>
+                    <ul class="custom-menu profile-menu language-menu py-0 more_lang">
+                        <li class="d-block"><a class="lang" href="#" data-value="English"><i
+                                class="flag-icon flag-icon-us"></i>
+                            <div class="lang-txt">English</div>
+                        </a></li>
+                        <li class="d-block"><a class="lang" href="#" data-value="fr"><i
+                                class="flag-icon flag-icon-fr"></i>
+                            <div class="lang-txt">FranÃ§ais</div>
+                        </a></li>
+                        <li class="d-block"><a class="lang" href="#" data-value="es"><i
+                                class="flag-icon flag-icon-es"></i>
+                            <div class="lang-txt">EspaÃ±ol</div>
+                        </a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="search d-lg-none d-flex"><a href="javascript:void(0)">
+                <svg>
+                    <use href="{% static 'assets/svg/iconly-sprite.svg' %}#Search"></use>
+                </svg>
+            </a></li>
+            <li><a class="dark-mode" href="javascript:void(0)">
+                <svg>
+                    <use href="{% static 'assets/svg/iconly-sprite.svg' %}#moondark"></use>
+                </svg>
+            </a></li>
+            <li class="custom-dropdown"><a href="javascript:void(0)">
+                <svg>
+                    <use href="{% static 'assets/svg/iconly-sprite.svg' %}#notification"></use>
+                </svg>
+            </a><span class="badge rounded-pill badge-primary">4</span>
+                <div class="custom-menu notification-dropdown py-0 overflow-hidden">
+                    <h3 class="title bg-primary-light dropdown-title">Notification <span
+                            class="font-primary">View all</span></h3>
+                    <ul class="activity-timeline">
+                        <li class="d-flex align-items-start">
+                            <div class="activity-line"></div>
+                            <div class="activity-dot-primary"></div>
+                            <div class="flex-grow-1">
+                                <h6 class="f-w-600 font-primary">30-04-2024<span>Today</span><span
+                                        class="circle-dot-primary float-end">
+                            <svg class="circle-color">
+                              <use href="{% static 'assets/svg/iconly-sprite.svg' %}#circle"></use>
+                            </svg></span></h6>
+                                <h5>Alice Goodwin</h5>
+                                <p class="mb-0">Fashion should be fun. It shouldn't be labelled intellectual.</p>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <div class="activity-dot-secondary"></div>
+                            <div class="flex-grow-1">
+                                <h6 class="f-w-600 font-secondary">28-06-2024<span>1 hour ago</span><span
+                                        class="float-end circle-dot-secondary">
+                                          <svg class="circle-color">
+                                            <use href="{% static 'assets/svg/iconly-sprite.svg' %}#circle"></use>
+                                          </svg></span></h6>
+                                <h5>Herry Venter</h5>
+                                <p>I am convinced that there can be luxury in simplicity.</p>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <div class="activity-dot-primary"></div>
+                            <div class="flex-grow-1">
+                                <h6 class="f-w-600 font-primary">04-08-2024<span>Today</span><span
+                                        class="float-end circle-dot-primary">
+                                          <svg class="circle-color">
+                                            <use href="{% static 'assets/svg/iconly-sprite.svg' %}#circle"></use>
+                                          </svg></span></h6>
+                                <h5>Loain Deo</h5>
+                                <p>I feel that things happen for open new opportunities.</p>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <div class="activity-dot-secondary"></div>
+                            <div class="flex-grow-1">
+                                <h6 class="f-w-600 font-secondary">12-11-2024<span>Yesterday</span><span
+                                        class="float-end circle-dot-secondary">
+                                          <svg class="circle-color">
+                                            <use href="{% static 'assets/svg/iconly-sprite.svg' %}#circle"></use>
+                                          </svg></span></h6>
+                                <h5>Fenter Jessy</h5>
+                                <p>Sometimes the simplest things are the most profound.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li><a class="full-screen" href="javascript:void(0)">
+                <svg>
+                    <use href="{% static 'assets/svg/iconly-sprite.svg' %}#scanfull"></use>
+                </svg>
+            </a></li>
+
+            <li class="profile-nav custom-dropdown">
+                <div class="user-wrap">
+                    <div class="user-img"><img src="{% static 'assets/images/profile.png' %}" alt="user"/></div>
+                    <div class="user-content">
+                        <h6 id="navbarUserName">Loading...</h6>
+                        <p class="mb-0">Admin<i class="fa-solid fa-chevron-down"></i></p>
+                    </div>
+                </div>
+                <div class="custom-menu overflow-hidden">
+                    <ul class="profile-body">
+                        <li class="d-flex">
+                            <svg class="svg-color">
+                                <use href="{% static 'assets/svg/iconly-sprite.svg' %}#Profile"></use>
+                            </svg>
+                            <a class="ms-2" href="user-profile.html">Account</a>
+                        </li>
+                        <li class="d-flex">
+                            <svg class="svg-color">
+                                <use href="{% static 'assets/svg/iconly-sprite.svg' %}#Message"></use>
+                            </svg>
+                            <a class="ms-2" href="letter-box.html">Inbox</a>
+                        </li>
+                        <li class="d-flex">
+                            <svg class="svg-color">
+                                <use href="{% static 'assets/svg/iconly-sprite.svg' %}#Document"></use>
+                            </svg>
+                            <a class="ms-2" href="to-do.html">Task</a>
+                        </li>
+                        <li class="d-flex">
+                            <svg class="svg-color">
+                                <use href="{% static 'assets/svg/iconly-sprite.svg' %}#Login"></use>
+                            </svg>
+                            <a class="btn ms-2" onclick="performLogout()" style="cursor: pointer;">Log Out</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Logout Notification Area (Hidden by default) -->
+<div id="logoutNotification" class="alert alert-info" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 9999;">
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        <span>Logging out...</span>
+    </div>
+</div>
+
+<script>
+    // Global logout function that works properly with your JWT setup
+    async function performLogout() {
+        try {
+            // Show logout notification
+            const notification = document.getElementById('logoutNotification');
+            if (notification) {
+                notification.style.display = 'block';
+            }
+
+            // Get the refresh token for proper logout
+            const refreshToken = localStorage.getItem('refresh_token');
+
+            // Call the logout API endpoint if refresh token exists
+            if (refreshToken) {
+                try {
+                    const response = await fetch('/api/auth/logout/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        body: JSON.stringify({
+                            refresh: refreshToken
+                        })
+                    });
+
+                    // Don't worry if the API call fails - continue with client-side cleanup
+                    const data = await response.json();
+                    console.log('Logout API response:', data);
+                } catch (apiError) {
+                    console.log('Logout API call failed, continuing with client-side cleanup:', apiError);
+                }
+            }
+
+            // Clear all authentication data from localStorage
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data'); // if you store user data
+
+            // Clear axios default headers if axios is being used
+            if (typeof axios !== 'undefined') {
+                delete axios.defaults.headers.common['Authorization'];
+            }
+
+            // Clear any session storage items
+            sessionStorage.clear();
+
+            // Update notification message
+            if (notification) {
+                notification.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2 text-success"></i>
+                        <span>Logged out successfully</span>
+                    </div>
+                `;
+                notification.className = 'alert alert-success';
+            }
+
+            // Redirect to login page after a brief delay
+            setTimeout(() => {
+                window.location.href = '/login/';
+            }, 1500);
+
+        } catch (error) {
+            console.error('Logout error:', error);
+
+            // Even if there's an error, still clear local data and redirect
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+
+            const notification = document.getElementById('logoutNotification');
+            if (notification) {
+                notification.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                        <span>Logged out (with warnings)</span>
+                    </div>
+                `;
+                notification.className = 'alert alert-warning';
+            }
+
+            setTimeout(() => {
+                window.location.href = '/login/';
+            }, 2000);
+        }
+    }
+
+    // Helper function to get CSRF token
+    function getCsrfToken() {
+        const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        return tokenElement ? tokenElement.value : '';
+    }
+
+    // Load user profile information for navbar display
+    async function loadNavbarUserInfo() {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const response = await fetch('/api/auth/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const userName = data.data.first_name && data.data.last_name
+                        ? `${data.data.first_name} ${data.data.last_name}`
+                        : data.data.username || 'User';
+
+                    const userNameElement = document.getElementById('navbarUserName');
+                    if (userNameElement) {
+                        userNameElement.textContent = userName;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('Could not load user info for navbar:', error);
+        }
+    }
+
+    // Initialize navbar when document loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load user info for display
+        loadNavbarUserInfo();
+
+        // Check if user is authenticated
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            // If no token, redirect to login
+            window.location.href = '/login/';
+        }
+    });
+
+    // Keep the original function name for backward compatibility
+    function logout() {
+        performLogout();
+    }
+</script>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Origin Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .container { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        input { width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .check-item { margin: 5px 0; }
+        .check-item.success::before { content: "✅ "; }
+        .check-item.error::before { content: "❌ "; }
+        .check-item.warning::before { content: "⚠️ "; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Google OAuth Configuration Checker</h1>
+
+        <div class="status info">
+            <strong>Current Page Origin:</strong> <span id="currentOrigin"></span><br>
+            <strong>Current URL:</strong> <span id="currentUrl"></span>
+        </div>
+
+        <div>
+            <label>Your Google Client ID:</label>
+            <input type="text" id="clientId" placeholder="Paste your Google Client ID here">
+            <button onclick="runTests()">Run Configuration Tests</button>
+        </div>
+
+        <div id="testResults"></div>
+
+        <hr>
+
+        <div id="googleButtonContainer">
+            <p>Google Sign-In button will appear here after tests pass:</p>
+        </div>
+
+        <div id="logs" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer onload="onLibraryLoad()"></script>
+
+    <script>
+        let libraryLoaded = false;
+
+        function onLibraryLoad() {
+            libraryLoaded = true;
+            log('✅ Google Identity Services library loaded successfully');
+        }
+
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function runTests() {
+            const clientId = document.getElementById('clientId').value.trim();
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<h3>🧪 Test Results:</h3>';
+
+            // Test 1: Client ID format
+            let checks = [];
+            if (!clientId) {
+                checks.push({type: 'error', text: 'No Client ID provided'});
+            } else if (!clientId.includes('.apps.googleusercontent.com')) {
+                checks.push({type: 'warning', text: 'Client ID format might be incorrect (should end with .apps.googleusercontent.com)'});
+            } else {
+                checks.push({type: 'success', text: 'Client ID format looks correct'});
+            }
+
+            // Test 2: Library loaded
+            if (libraryLoaded) {
+                checks.push({type: 'success', text: 'Google Identity Services library loaded'});
+            } else {
+                checks.push({type: 'error', text: 'Google Identity Services library not loaded'});
+            }
+
+            // Test 3: Current origin check
+            const origin = window.location.origin;
+            if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+                checks.push({type: 'success', text: `Running on local development server: ${origin}`});
+            } else {
+                checks.push({type: 'warning', text: `Running on: ${origin} - Make sure this is in your Google OAuth origins`});
+            }
+
+            // Display checks
+            checks.forEach(check => {
+                const div = document.createElement('div');
+                div.className = `check-item ${check.type}`;
+                div.textContent = check.text;
+                results.appendChild(div);
+            });
+
+            // Test 4: Try to initialize Google Sign-In
+            if (clientId && libraryLoaded) {
+                results.innerHTML += '<br><strong>🔄 Testing Google Sign-In initialization...</strong><br>';
+
+                try {
+                    window.google.accounts.id.initialize({
+                        client_id: clientId,
+                        callback: handleTestResponse,
+                        auto_select: false
+                    });
+
+                    // Try to render button
+                    const container = document.getElementById('googleButtonContainer');
+                    container.innerHTML = '';
+
+                    window.google.accounts.id.renderButton(container, {
+                        type: 'standard',
+                        shape: 'rectangular',
+                        theme: 'outline',
+                        text: 'signin_with',
+                        size: 'large'
+                    });
+
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'check-item success';
+                    successDiv.textContent = 'Google Sign-In button rendered successfully! Try clicking it.';
+                    results.appendChild(successDiv);
+
+                    log('✅ Google Sign-In initialized and button rendered');
+
+                } catch (error) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'check-item error';
+                    errorDiv.textContent = `Failed to initialize: ${error.message}`;
+                    results.appendChild(errorDiv);
+
+                    log('❌ Initialization error: ' + error.message);
+                }
+            }
+
+            // Add troubleshooting guide
+            results.innerHTML += `
+                <br><div class="status info">
+                    <strong>📋 If you see origin errors:</strong><br>
+                    1. Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a><br>
+                    2. APIs & Services → Credentials<br>
+                    3. Edit your OAuth 2.0 Client ID<br>
+                    4. Add <code>${origin}</code> to "Authorized JavaScript origins"<br>
+                    5. Save and wait 5-10 minutes for changes to propagate<br>
+                    6. Clear browser cache and try again
+                </div>
+            `;
+        }
+
+        function handleTestResponse(response) {
+            log('🎉 Google Sign-In SUCCESS! Token received: ' + response.credential.substring(0, 50) + '...');
+
+            try {
+                const payload = JSON.parse(atob(response.credential.split('.')[1]));
+                log(`👤 Signed in as: ${payload.name} (${payload.email})`);
+
+                const results = document.getElementById('testResults');
+                const successDiv = document.createElement('div');
+                successDiv.className = 'status success';
+                successDiv.innerHTML = `
+                    <strong>🎉 Google Sign-In Test SUCCESSFUL!</strong><br>
+                    User: ${payload.name} (${payload.email})<br>
+                    Your Google OAuth is configured correctly!
+                `;
+                results.appendChild(successDiv);
+
+            } catch (e) {
+                log('⚠️ Token received but could not decode user info');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentOrigin').textContent = window.location.origin;
+            document.getElementById('currentUrl').textContent = window.location.href;
+            log('🚀 Page loaded, origin: ' + window.location.origin);
+        });
+
+        // Monitor for console errors
+        window.addEventListener('error', function(e) {
+            if (e.message.includes('gsi') || e.message.includes('google')) {
+                log('❌ Google-related error: ' + e.message);
+            }
+        });
+    </script>
+</body>
+</html>

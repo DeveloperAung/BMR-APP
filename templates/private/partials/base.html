@@ -1,0 +1,46 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Admiro admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities."/>
+    <meta name="keywords" content="admin template, Admiro admin template, best javascript admin, dashboard template, bootstrap admin template, responsive admin template, web app"/>
+    <meta name="author" content="pixelstrap"/>
+    <title>Admiro - Premium Admin Template</title>
+    <!-- Favicon icon-->
+    {% include 'partials/_css_import.html' %}
+  </head>
+  <body>
+    <!-- page-wrapper Start-->
+    <!-- tap on top starts-->
+    <div class="tap-top"><i class="iconly-Arrow-Up icli"></i></div>
+    <!-- tap on tap ends-->
+    <!-- loader-->
+    <div class="loader-wrapper">
+      <div class="loader"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="page-wrapper compact-wrapper" id="pageWrapper"> 
+      <header class="page-header row">
+        <div class="logo-wrapper d-flex align-items-center col-auto"><a href="index.html"><img class="light-logo img-fluid" src="{% static 'assets/images/logo/logo1.png' %}" alt="logo"/><img class="dark-logo img-fluid" src="{% static 'assets/images/logo/logo-dark.png' %}" alt="logo"/></a><a class="close-btn toggle-sidebar" href="javascript:void(0)">
+            <svg class="svg-color">
+              <use href="{% static 'assets/svg/iconly-sprite.svg' %}#Category"></use>
+            </svg></a></div>
+        {% include 'private/partials/_navbar.html' %}
+      </header>
+      <!-- Page Body Start-->
+      <div class="page-body-wrapper"> 
+        <!-- Page sidebar start-->
+        {% include 'private/partials/_sidebar.html' %}
+        <!-- Page sidebar end-->
+        <div class="page-body">
+            {% block content %}
+            {% endblock %}
+        </div>
+        {% include 'private/partials/_footer.html' %}
+      </div>
+    </div>
+
+    {% include 'partials/_js_import.html' %}
+  </body>
+</html>

@@ -1,0 +1,70 @@
+{% load static %}
+<div class="col-xl-3 xl-30 box-col-12">
+    <div class="email-sidebar md-sidebar"><a class="btn btn-primary email-aside-toggle md-sidebar-toggle">To Do filter</a>
+        <div class="email-left-aside md-sidebar-aside">
+            <div class="card overflow-hidden">
+                <div class="card-body">
+                    <div class="email-app-sidebar left-bookmark custom-scrollbar">
+                        <div class="d-flex align-items-center flex-wrap">
+                            <div class="media-size-email"><img class="me-2 img-40 rounded-circle"
+                                                               src="{% static 'assets/images/user/user.png' %}" alt=""></div>
+                            <div class="flex-grow-1">
+                                <h3 class="f-w-700">Mark Jecno</h3>
+                                <p>Markjecno@gmail.com</p>
+                            </div>
+                        </div>
+                        <ul class="nav main-menu">
+                            <li class="nav-item">
+                                <button class="btn-primary d-block btn-mail w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="feather feather-check-circle me-2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                    To Do List
+                                </button>
+                            </li>
+                            <li class="nav-item"><a href="javascript:void(0)"><span class="iconbg badge-light-primary"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-file-plus"><path
+                                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline
+                                    points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line
+                                    x1="9" y1="15" x2="15" y2="15"></line></svg></span><span
+                                    class="title ms-2">All Task</span></a></li>
+                            <li class="nav-item"><a href="javascript:void(0)"><span class="iconbg badge-light-success"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-check-circle"><path
+                                    d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline
+                                    points="22 4 12 14.01 9 11.01"></polyline></svg></span><span class="title ms-2">Completed</span><span
+                                    class="badge badge-success">3</span></a></li>
+                            <li class="nav-item"><a href="javascript:void(0)"><span class="iconbg badge-light-danger"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-cast"><path
+                                    d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"></path><line
+                                    x1="2" y1="20" x2="2.01" y2="20"></line></svg></span><span class="title ms-2">Pending</span><span
+                                    class="badge badge-danger">2</span></a></li>
+                            <li class="nav-item"><a href="javascript:void(0)"><span class="iconbg badge-light-info"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-activity"><polyline
+                                    points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span><span
+                                    class="title ms-2">In Process</span><span class="badge badge-primary">2</span></a>
+                            </li>
+                            <li class="nav-item"><a href="javascript:void(0)"><span class="iconbg badge-light-danger"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-trash"><polyline
+                                    points="3 6 5 6 21 6"></polyline><path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></span><span
+                                    class="title ms-2">Trash</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
