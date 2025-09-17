@@ -1,9 +1,3 @@
-// static/js/shared/services/AuthService.js
-
-/**
- * Production-ready Authentication Service
- * Handles JWT token management, refresh logic, and authentication state
- */
 export class AuthService {
     constructor() {
         this.tokenKey = 'access_token';

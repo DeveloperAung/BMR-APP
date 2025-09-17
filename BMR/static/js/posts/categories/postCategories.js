@@ -91,6 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Run test and init app
-    window.testCategoryLoad();
+    //    window.testCategoryLoad();
     app.init();
 });

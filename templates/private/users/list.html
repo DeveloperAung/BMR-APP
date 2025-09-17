@@ -14,7 +14,7 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-body table-responsive">
-                         {% include 'private/users/partials/filters.html' %}
+                        {% include 'private/users/partials/filters.html' %}
                         {% include 'private/users/partials/users-table.html' %}
                         {% include 'private/users/partials/modals.html' %}
                     </div>
@@ -23,7 +23,7 @@
         </div>
     </div>
     {% block extra_js %}
-        <script src="{% static 'js/users/dashboard.js' %}" type="module"></script>
+        <script src="{% static 'js/users/user.js' %}" type="module"></script>
     {% endblock %}
 {% endblock %}
 

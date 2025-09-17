@@ -2,12 +2,11 @@
 import { DonationCategoryRepository } from '../repositories/DonationCategoryRepository.js';
 import { CategoryTableRenderer } from '../renderers/CategoryTableRenderer.js';
 import { PaginationRenderer } from '../../../shared/renderers/PaginationRenderer.js';
-//import { FilterHandler } from '../handlers/CategoryFilterHandler.js';
+import { CategoryFilterHandler } from '../handlers/CategoryFilterHandler.js';
 //import { CategoryBulkActionHandler } from '../handlers/CategoryBulkActionHandler.js';
 
 export class CategoryManager {
     constructor({ authService, notificationService }) {
-        console.log('CategoryManager: Constructor called');
         this.authService = authService;
         this.notificationService = notificationService;
 
@@ -17,7 +16,7 @@ export class CategoryManager {
         this.perPage = 10;
         this.paginationRenderer = new PaginationRenderer();
 
-//        this.filterHandler = new FilterHandler(this.handleFiltersChange.bind(this));
+        this.filterHandler = new CategoryFilterHandler(this.handleFiltersChange.bind(this));
 //        this.bulkActionHandler = new CategoryBulkActionHandler();
 
         this.state = {
@@ -33,6 +32,7 @@ export class CategoryManager {
     async init() {
         this.setupEventListeners();
 //        this.bulkActionHandler.init();
+        this.filterHandler.init();
         await this.loadCategories();
     }
 
@@ -50,52 +50,57 @@ export class CategoryManager {
     }
 
     async loadCategories(page = 1) {
-        console.log('CategoryManager: called categories');
         try {
-            this.currentPage = page;
+            this.showLoading(true);
+            this.state.currentPage = page;
 
-            const response = await this.categoryRepository.getCategories({
-                page: this.currentPage,
-                per_page: this.perPage
+            const params = {
+                page: this.state.currentPage,
+                per_page: this.state.perPage,
+                ...this.state.filters
+            };
+
+            // Remove empty filters
+            Object.keys(params).forEach(key => {
+                if (params[key] === '' || params[key] === null || params[key] === undefined) {
+                    delete params[key];
+                }
             });
 
-            // FIX: use response.categories instead of items/results
+            const response = await this.categoryRepository.getCategories(params);
+
             const categories = response.categories || response.items || response.results || [];
-            console.log('categories', categories)
+
+            this.state.Categories = categories;
+            this.state.pagination = response.pagination;
+
             this.tableRenderer.render(
                 categories,
-                this.currentPage,
-                this.perPage
+                this.state.currentPage,
+                this.state.perPage
             );
 
-            // Update pagination UI if you have one
             if (response.pagination) {
                 this.renderPagination(response.pagination);
+                this.updateResultsInfo(response.pagination);
             }
+
         } catch (error) {
-            console.error('Failed to load categories:', error);
+            console.error('Failed to load subcategories:', error);
+            this.renderError('Failed to load subcategories. Please try again.');
+        } finally {
+            this.showLoading(false);
         }
     }
 
-    onPageChange(newPage) {
-        this.loadCategories(newPage);
-    }
-
-    onPerPageChange(newPerPage) {
-        this.perPage = newPerPage;
-        this.currentPage = 1; // Reset to first page
-        this.loadCategories(1);
-    }
-
     renderPagination(pagination) {
-        this.state.pagination = pagination;
         this.paginationRenderer.render(pagination, this.goToPage.bind(this));
     }
 
     updateResultsInfo(pagination) {
         const infoEl = document.getElementById('resultsInfo');
         if (infoEl && pagination) {
-            infoEl.textContent = `Page ${pagination.current_page} of ${pagination.total_pages} (${pagination.total_count} categories)`;
+            infoEl.textContent = `Page ${pagination.current_page} of ${pagination.total_pages} (${pagination.total_count} subcategories)`;
         }
     }
 
@@ -131,12 +136,12 @@ export class CategoryManager {
     handleFiltersChange(filters) {
         this.state.filters = filters;
         this.state.currentPage = 1;
-        this.loadCategories();
+        this.loadCategories(1);
     }
 
     goToPage(page) {
         this.state.currentPage = page;
-        this.loadCategories();
+        this.loadCategories(page);
     }
 
     async viewCategory(categoryId) {

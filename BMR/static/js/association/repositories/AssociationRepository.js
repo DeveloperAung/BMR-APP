@@ -2,8 +2,8 @@ import { BaseRepository } from '../../shared/repositories/BaseRepository.js';
 import { ASSOCIATION } from '../../shared/config/apiConfig.js';
 
 export class AssociationRepository extends BaseRepository {
-    constructor(authService) {
-        super(ASSOCIATION.POSTS, authService);
+    constructor() {
+        super(ASSOCIATION.POSTS);
     }
 
     async getAssoPosts(params = {}) {

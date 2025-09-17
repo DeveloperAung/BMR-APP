@@ -5,9 +5,10 @@ import { apiService as authService } from '../services/authService.js';
  * API Service class that handles HTTP requests with authentication
  */
 class ApiService {
-    constructor(authService) {
+    constructor(authService, router = null) {
         this.authService = authService;
         this.baseUrl = window.location.origin;
+        this.router = router;
     }
 
     /**
@@ -41,7 +42,6 @@ class ApiService {
 
             // Handle 401 Unauthorized
             if (response.status === 401 && token) {
-                // Try to refresh token and retry
                 try {
                     const newToken = await this.authService.refreshToken();
                     headers['Authorization'] = `Bearer ${newToken}`;
@@ -56,6 +56,7 @@ class ApiService {
                 } catch (error) {
                     // Refresh failed, logout user
                     this.authService.logout();
+                    this.redirectToLogin();
                     throw new Error('Authentication failed. Please login again.');
                 }
             }
@@ -64,6 +65,17 @@ class ApiService {
         } catch (error) {
             console.error('Request failed:', error);
             throw error;
+        }
+    }
+
+    redirectToLogin() {
+        if (this.router) {
+            // For React Router
+            this.router.navigate('/login');
+            // Or for Vue Router: this.router.push('/login');
+        } else {
+            // Fallback to window.location
+            window.location.href = '/login';
         }
     }
 
@@ -189,15 +201,15 @@ class ApiService {
 }
 
 // Create API service instance using the auth service
-const apiServiceInstance = new ApiService(authService);
+const apiServiceInstance = new ApiService(authService, null);
 
 /**
  * Base Repository class for data access
  */
 export class BaseRepository {
-    constructor(baseEndpoint) {
+    constructor(baseEndpoint, apiService = apiServiceInstance) {
         this.baseEndpoint = baseEndpoint;
-        this.apiService = apiServiceInstance;
+        this.apiService = apiService;
     }
 
     /**
@@ -208,7 +220,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.get(this.baseEndpoint, params);
             return this.extractListData(jsonData);
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.getList failed:`, error);
+            console.error(`${this.constructor.name}.getList failed:`, error);
             throw error;
         }
     }
@@ -221,7 +233,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.get(`${this.baseEndpoint}/${id}/`);
             return jsonData?.data || jsonData;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.getItem failed:`, error);
+            console.error(`${this.constructor.name}.getItem failed:`, error);
             throw error;
         }
     }
@@ -234,7 +246,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.post(`${this.baseEndpoint}/`, data);
             return jsonData?.data || jsonData;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.createItem failed:`, error);
+            console.error(`${this.constructor.name}.createItem failed:`, error);
             throw error;
         }
     }
@@ -247,7 +259,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.patch(`${this.baseEndpoint}/${id}/`, data);
             return jsonData?.data || jsonData;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.updateItem failed:`, error);
+            console.error(`${this.constructor.name}.updateItem failed:`, error);
             throw error;
         }
     }
@@ -260,7 +272,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.delete(`${this.baseEndpoint}/${id}/`);
             return jsonData?.data || { success: true };
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.deleteItem failed:`, error);
+            console.error(`${this.constructor.name}.deleteItem failed:`, error);
             throw error;
         }
     }
@@ -274,7 +286,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.post(`${this.baseEndpoint}/bulk_${operation}/`, payload);
             return jsonData?.data || jsonData;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.bulk${operation} failed:`, error);
+            console.error(`${this.constructor.name}.bulk${operation} failed:`, error);
             throw error;
         }
     }
@@ -352,7 +364,7 @@ export class BaseRepository {
             const jsonData = await this.apiService.uploadFile(endpoint, file, fieldName, additionalData);
             return jsonData?.data || jsonData;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.uploadFile failed:`, error);
+            console.error(`${this.constructor.name}.uploadFile failed:`, error);
             throw error;
         }
     }
@@ -368,7 +380,7 @@ export class BaseRepository {
             };
             return this.getList(params);
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.search failed:`, error);
+            console.error(`${this.constructor.name}.search failed:`, error);
             throw error;
         }
     }
@@ -380,7 +392,7 @@ export class BaseRepository {
         try {
             return this.getList(filters);
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.getByFilter failed:`, error);
+            console.error(`${this.constructor.name}.getByFilter failed:`, error);
             throw error;
         }
     }
@@ -408,7 +420,7 @@ export class BaseRepository {
             const response = await this.getList({ ...filters, per_page: 1 });
             return response.pagination?.total_count || 0;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}.getTotalCount failed:`, error);
+            console.error(`${this.constructor.name}.getTotalCount failed:`, error);
             return 0;
         }
     }

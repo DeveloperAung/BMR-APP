@@ -43,9 +43,8 @@ export class UserTableRenderer extends BaseTableRenderer {
                         ${user.is_staff ? 'Staff' : 'User'}
                     </span>
                 </td>
-                <td>
-                    <span class="badge ${user.is_email_verified ? 'bg-success' : 'bg-warning'}">
-                        ${user.is_email_verified ? 'Verified' : 'Unverified'}
+                <td class="text-center">
+                    <span class="fa-solid ${user.is_email_verified ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td>
                 <td><p class="f-light mb-0">${formatDate(user.date_joined)}</p></td>

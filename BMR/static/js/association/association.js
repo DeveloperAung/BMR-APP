@@ -2,7 +2,7 @@ import { AssociationManager } from './managers/AssociationManager.js';
 import { NotificationService } from '../shared/services/NotificationService.js';
 import { AuthService } from '../shared/services/AuthService.js';
 
-class DashboardApp {
+class AssociationApp {
     constructor() {
         this.authService = new AuthService();
         this.notificationService = new NotificationService();
@@ -11,13 +11,13 @@ class DashboardApp {
 
     async init() {
         try {
-            // TEMP BYPASS: Disable auth check during development
-            // REMOVE THIS BEFORE PRODUCTION
-            console.warn('⚠️ Auth check bypassed for development');
-            // if (!await this.authService.isAuthenticated()) {
-            //     this.showLoginRequired();
-            //     return;
-            // }
+            const isAuthenticated = await this.authService.isAuthenticated();
+            console.warn('authentication check', isAuthenticated);
+            if (!isAuthenticated) {
+                console.warn('❌ User not authenticated');
+                this.redirectToLogin('Authentication required');
+                return;
+            }
 
             // Initialize users manager
             this.associationManager = new AssociationManager({
@@ -46,7 +46,7 @@ class DashboardApp {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new DashboardApp();
+    const app = new AssociationApp();
 
     // Test util
     window.testUserLoad = async function () {

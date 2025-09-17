@@ -36,7 +36,7 @@ export class SubCategoryTableRenderer extends BaseTableRenderer {
     }
 
     renderSubCategoryRow(subCategory, serialNumber) {
-        const categoryTitle = subCategory.event_category_title || 'N/A';
+        const categoryTitle = subCategory.donation_category_title || 'N/A';
 
         return `
             <tr class="subcategory-row" data-subcategory-id="${subCategory.id}">

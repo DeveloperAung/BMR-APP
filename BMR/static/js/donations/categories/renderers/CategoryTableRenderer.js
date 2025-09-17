@@ -19,6 +19,7 @@ export class CategoryTableRenderer extends BaseTableRenderer {
     }
 
     render(categories, currentPage = 1, perPage = 10) {
+        console.log("categories", categories)
         // Update pagination info
         this.setPagination(currentPage, perPage);
         if (!categories || categories.length === 0) {
@@ -28,7 +29,6 @@ export class CategoryTableRenderer extends BaseTableRenderer {
 
         // Calculate starting serial number based on current page
         const startIndex = (this.currentPage - 1) * this.perPage;
-
         this.tbody.innerHTML = categories
             .map((category, index) => this.renderCategoryRow(category, startIndex + index + 1))
             .join('');

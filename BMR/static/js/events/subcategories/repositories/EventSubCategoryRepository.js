@@ -2,8 +2,8 @@ import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
 import { EVENTS } from '../../../shared/config/apiConfig.js';
 
 export class EventSubCategoryRepository extends BaseRepository {
-    constructor(authService) {
-        super(EVENTS.SUB_CATEGORIES, authService);
+    constructor() {
+        super(EVENTS.SUB_CATEGORIES);
     }
 
     // Custom method names for your domain

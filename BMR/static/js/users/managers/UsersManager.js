@@ -59,10 +59,6 @@ export class UsersManager {
             );
 
             if (result.users.length > 0) {
-                this.log('Users loaded successfully', {
-                    userCount: result.users.length,
-                    totalCount: result.pagination?.total_count
-                });
                 this.renderUsers(result.users);
                 this.renderPagination(result.pagination);
                 this.updateResultsInfo(result.pagination);

@@ -30,7 +30,7 @@ export class SubCategoryManager {
     async init() {
         this.setupEventListeners();
         this.filterHandler.init();
-        await this.loadEventCategories();
+//        await this.loadEventCategories();
         await this.loadSubCategories();
     }
 
@@ -44,36 +44,6 @@ export class SubCategoryManager {
                 this.deleteSubCategory(e.target.dataset.subcategoryId, e.target.dataset.title);
             }
         });
-    }
-
-    async loadEventCategories() {
-        try {
-            const categories = await this.subCategoryRepository.getEventCategories();
-            this.populateCategoryFilter(categories);
-        } catch (error) {
-            console.error('Failed to load event categories:', error);
-        }
-    }
-
-    populateCategoryFilter(categories) {
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (!categoryFilter) return;
-
-        // Keep the "All Categories" option and add categories
-        const currentValue = categoryFilter.value;
-        const optionsHtml = categories.map(category =>
-            `<option value="${category.id}">${category.title}</option>`
-        ).join('');
-
-        categoryFilter.innerHTML = `
-            <option value="">All Categories</option>
-            ${optionsHtml}
-        `;
-
-        // Restore selected value if it exists
-        if (currentValue) {
-            categoryFilter.value = currentValue;
-        }
     }
 
     async loadSubCategories(page = 1) {

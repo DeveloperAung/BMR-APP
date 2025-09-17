@@ -3,7 +3,7 @@ import { UsersManager } from './managers/UsersManager.js';
 import { NotificationService } from '../shared/services/NotificationService.js';
 import { AuthService } from '../shared/services/AuthService.js';
 
-class DashboardApp {
+class UserApp {
     constructor() {
         this.authService = new AuthService();
         this.notificationService = new NotificationService();
@@ -47,52 +47,7 @@ class DashboardApp {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new DashboardApp();
+    const app = new UserApp();
 
-    // Test util
-    window.testUserLoad = async function () {
-        console.log('🧪 Testing user load...');
-        console.log('🚀 dashboard.js loaded');
-        try {
-            const tbody = document.getElementById('usersTableBody');
-            const spinner = document.getElementById('loadingSpinner');
-            console.log('DOM Elements:', { tbody: !!tbody, spinner: !!spinner });
-
-            const token = localStorage.getItem('access_token');
-            console.log('Token present:', !!token);
-
-            const response = await fetch('/api/auth/users/', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            console.log('Response status:', response.status);
-
-            if (response.ok) {
-                const responseData = await response.json();
-                const users = responseData?.data?.results;
-                console.log('response users:', users)
-                if (tbody && Array.isArray(users)) {
-                    tbody.innerHTML = users.map(user => `
-                        <tr>
-                            <td colspan="8">${user.email || user.username || 'Unknown User'}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    console.warn('❌ No users found in response:', responseData);
-                }
-            } else {
-                console.error('API Error:', await response.text());
-            }
-
-        } catch (error) {
-            console.error('Test failed:', error);
-        }
-    };
-
-    // Run test and init app
-    window.testUserLoad();
     app.init();
 });

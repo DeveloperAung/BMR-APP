@@ -2,15 +2,15 @@ import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
 import { DONATIONS } from '../../../shared/config/apiConfig.js';
 
 export class DonationSubCategoryRepository extends BaseRepository {
-    constructor(authService) {
-        super(DONATIONS.SUB_CATEGORIES, authService);
+    constructor() {
+        super(DONATIONS.SUB_CATEGORIES);
     }
 
     // Custom method names for your domain
     async getSubCategories(params = {}) {
-        console.log('SubCategoryRepository: Service called get subcategories');
+//        console.log('SubCategoryRepository: Service called get subcategories');
         const result = await this.getList(params);
-        console.log('SubCategoryRepository: Result completed');
+//        console.log('SubCategoryRepository: Result completed');
 
         return {
             subCategories: result.items,
