@@ -201,6 +201,10 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
 }
 
+# LOGIN_URL='/login/'
+# LOGOUT_URL='/logout/'
+# LOGIN_REDIRECT_URL = '/'
+
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",

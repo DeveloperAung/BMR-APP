@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
 
 from core.utils.pagination import StandardResultsSetPagination
+from core.utils.responses import ok, fail
+
 from ..models import DonationCategory, DonationSubCategory
 from .serializers import (
     DonationCategorySerializer,
@@ -24,7 +26,7 @@ class DonationCategoryListCreateView(generics.ListCreateAPIView):
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title']
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         show_all = self.request.query_params.get('show_all', '').lower() == 'true'
@@ -39,17 +41,14 @@ class DonationCategoryListCreateView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer)
-            return custom_api_response(
-                success=True,
-                message="Donation category created successfully.",
+            return ok(
                 data=serializer.data,
-                status_code=status.HTTP_201_CREATED
+                message="Donation category created successfully.",
+                status=status.HTTP_201_CREATED
             )
-        return custom_api_response(
-            success=False,
-            message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return fail(
+            error=serializer.errors,
+            message="Validation error"
         )
 
 
@@ -67,10 +66,9 @@ class DonationCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return custom_api_response(
-            success=True,
-            message="",
-            data=serializer.data
+        return ok(
+            data=serializer.data,
+            message="Data Retrieve Successfully",
         )
 
     def update(self, request, *args, **kwargs):
@@ -79,26 +77,22 @@ class DonationCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
-            return custom_api_response(
-                success=True,
-                message="Donation category updated successfully.",
-                data=serializer.data
+            return ok(
+                data=serializer.data,
+                message="Donation category updated successfully."
             )
-        return custom_api_response(
-            success=False,
-            message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return fail(
+            error=serializer.errors,
+            message="Validation error"
         )
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.is_active = False
         instance.save(update_fields=['is_active'])
-        return custom_api_response(
-            success=True,
-            message="Donation category has been deactivated successfully.",
-            data={"id": instance.id, "is_active": False}
+        return ok(
+            data={"id": instance.id, "is_active": False},
+            message="Donation category has been deactivated successfully."
         )
 
 
@@ -139,17 +133,14 @@ class DonationSubCategoryListCreateView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer)
-            return custom_api_response(
-                success=True,
-                message="Donation subcategory created successfully.",
+            return ok(
                 data=serializer.data,
-                status_code=status.HTTP_201_CREATED
+                message="Donation subcategory created successfully.",
+                status=status.HTTP_201_CREATED
             )
-        return custom_api_response(
-            success=False,
-            message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return fail(
+            error=serializer.errors,
+            message="Validation error"
         )
 
 
@@ -172,10 +163,10 @@ class DonationSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestro
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return custom_api_response(
-            success=True,
-            message="",
-            data=serializer.data
+        return ok(
+            data=serializer.data,
+            message="Data Retrieve Successfully",
+
         )
 
     def update(self, request, *args, **kwargs):
@@ -184,24 +175,20 @@ class DonationSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestro
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
-            return custom_api_response(
-                success=True,
+            return ok(
+                data=serializer.data,
                 message="Donation subcategory updated successfully.",
-                data=serializer.data
             )
-        return custom_api_response(
-            success=False,
+        return fail(
+            error=serializer.errors,
             message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
         )
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.is_active = False
         instance.save(update_fields=['is_active'])
-        return custom_api_response(
-            success=True,
-            message="Donation subcategory has been deactivated successfully.",
-            data={"id": instance.id, "is_active": False}
+        return ok(
+            data={"id": instance.id, "is_active": False},
+            message="Donation subcategory has been deactivated successfully."
         )

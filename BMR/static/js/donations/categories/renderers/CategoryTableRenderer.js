@@ -19,9 +19,9 @@ export class CategoryTableRenderer extends BaseTableRenderer {
     }
 
     render(categories, currentPage = 1, perPage = 10) {
-        console.log("categories", categories)
         // Update pagination info
         this.setPagination(currentPage, perPage);
+
         if (!categories || categories.length === 0) {
             this.renderEmpty('No Categories Found', '📂');
             return;

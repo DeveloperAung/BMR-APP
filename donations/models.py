@@ -19,7 +19,7 @@ class DonationCategory(AuditModel):
 class DonationSubCategory(AuditModel):
     donation_category = models.ForeignKey(DonationCategory, on_delete=models.SET_NULL, blank=True, null=True,
                                           related_name='donation_sub_category')
-    title = models.CharField(max_length=250, unique=True)
+    title = models.CharField(max_length=250, unique=True, error_messages={'unique': 'Donation Sub Category already exists.'})
 
     class Meta:
         verbose_name_plural = 'Donation Sub Categories'

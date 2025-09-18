@@ -1,37 +1,36 @@
-// static/js/events/subcategories/managers/SubCategoryManager.js
+// static/js/donations/subcategories/managers/SubCategoryManager.js
+import { BaseManager } from '../../../shared/managers/BaseManager.js';
 import { DonationSubCategoryRepository } from '../repositories/DonationSubCategoryRepository.js';
 import { SubCategoryTableRenderer } from '../renderers/SubCategoryTableRenderer.js';
-import { PaginationRenderer } from '../../../shared/renderers/PaginationRenderer.js';
 import { SubCategoryFilterHandler } from '../handlers/SubCategoryFilterHandler.js';
 
-export class SubCategoryManager {
+export class SubCategoryManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        this.authService = authService;
-        this.notificationService = notificationService;
+        const repository = new DonationSubCategoryRepository(authService);
+        const tableRenderer = new SubCategoryTableRenderer();
+        const filterHandler = new SubCategoryFilterHandler();
 
-        this.subCategoryRepository = new DonationSubCategoryRepository(authService);
-        this.tableRenderer = new SubCategoryTableRenderer();
-        this.currentPage = 1;
-        this.perPage = 30;
-        this.paginationRenderer = new PaginationRenderer();
+        super({
+            authService,
+            notificationService,
+            repository,
+            tableRenderer,
+            filterHandler,
+            defaultPerPage: 30,
+            defaultFilters: {
+                event_category: '',
+                ordering: '-created_at'
+            }
+        });
 
+        // Initialize filter handler with callback
         this.filterHandler = new SubCategoryFilterHandler(this.handleFiltersChange.bind(this));
-
-        this.state = {
-            currentPage: 1,
-            perPage: 30,
-            filters: { search: '', event_category: '', ordering: '-created_at' },
-            subCategories: [],
-            pagination: null,
-            loading: false
-        };
     }
 
     async init() {
-        this.setupEventListeners();
-        this.filterHandler.init();
-//        await this.loadEventCategories();
-        await this.loadSubCategories();
+        await super.init();
+        // Load categories for the filter dropdown
+        await this.loadCategoriesForFilter();
     }
 
     setupEventListeners() {
@@ -46,114 +45,92 @@ export class SubCategoryManager {
         });
     }
 
-    async loadSubCategories(page = 1) {
-        console.log('SubCategoryManager: Loading subcategories');
-        try {
-            this.showLoading(true);
-            this.state.currentPage = page;
-
-            const params = {
-                page: this.state.currentPage,
-                per_page: this.state.perPage,
-                ...this.state.filters
-            };
-
-            // Remove empty filters
-            Object.keys(params).forEach(key => {
-                if (params[key] === '' || params[key] === null || params[key] === undefined) {
-                    delete params[key];
-                }
-            });
-
-            const response = await this.subCategoryRepository.getSubCategories(params);
-
-            const subCategories = response.subCategories || response.items || response.results || [];
-
-            this.state.subCategories = subCategories;
-            this.state.pagination = response.pagination;
-
-            this.tableRenderer.render(
-                subCategories,
-                this.state.currentPage,
-                this.state.perPage
-            );
-
-            if (response.pagination) {
-                this.renderPagination(response.pagination);
-                this.updateResultsInfo(response.pagination);
-            }
-
-        } catch (error) {
-            console.error('Failed to load subcategories:', error);
-            this.renderError('Failed to load subcategories. Please try again.');
-        } finally {
-            this.showLoading(false);
-        }
+    // Implement required template methods
+    async getItems(params) {
+        return await this.repository.getSubCategories(params);
     }
 
-    renderPagination(pagination) {
-        this.paginationRenderer.render(pagination, this.goToPage.bind(this));
+    extractItemsFromResponse(response) {
+        return response.subCategories || response.items || response.results || [];
     }
 
-    updateResultsInfo(pagination) {
-        const infoEl = document.getElementById('resultsInfo');
-        if (infoEl && pagination) {
-            infoEl.textContent = `Page ${pagination.current_page} of ${pagination.total_pages} (${pagination.total_count} subcategories)`;
-        }
+    getItemType() {
+        return 'subcategories';
     }
 
-    renderError(message) {
-        this.tableRenderer.renderError(message);
-        this.showNotification(message, 'error');
-    }
-
-    showNotification(message, type = 'info') {
-        if (!this.notificationService) return;
-        switch (type) {
-            case 'success': this.notificationService.showSuccess(message); break;
-            case 'error': this.notificationService.showError(message); break;
-            case 'warning': this.notificationService.showWarning(message); break;
-            default: this.notificationService.showInfo(message);
-        }
-    }
-
-    showLoading(isLoading = true) {
-        this.state.loading = isLoading;
-        const spinner = document.getElementById('loadingSpinner');
-        if (spinner) spinner.style.display = isLoading ? 'block' : 'none';
-    }
-
-    handleFiltersChange(filters) {
-        this.state.filters = filters;
-        this.state.currentPage = 1;
-        this.loadSubCategories(1);
-    }
-
-    goToPage(page) {
-        this.state.currentPage = page;
-        this.loadSubCategories(page);
-    }
-
+    // SubCategory-specific methods
     async viewSubCategory(subCategoryId) {
         console.log(`Viewing subcategory ${subCategoryId}`);
-        // Implement view functionality
+        // Implement specific view logic
     }
 
     async editSubCategory(subCategoryId) {
         console.log(`Editing subcategory ${subCategoryId}`);
-        // Implement edit functionality
+        // Implement specific edit logic
     }
 
     async deleteSubCategory(subCategoryId, title) {
-        if (!confirm(`Delete subcategory "${title}"?`)) return;
+        await this.deleteItem(subCategoryId, title, `Delete subcategory "${title}"?`);
+    }
+
+    // Load categories for filter dropdown
+    async loadCategoriesForFilter() {
+        try {
+            const categories = await this.repository.getEventCategories();
+            this.populateCategoryFilter(categories);
+        } catch (error) {
+            console.error('Failed to load categories for filter:', error);
+        }
+    }
+
+    populateCategoryFilter(categories) {
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter && categories) {
+            // Clear existing options except the first one (All Categories)
+            const firstOption = categoryFilter.querySelector('option[value=""]');
+            categoryFilter.innerHTML = '';
+            if (firstOption) {
+                categoryFilter.appendChild(firstOption);
+            }
+
+            // Add category options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.title;
+                categoryFilter.appendChild(option);
+            });
+        }
+    }
+
+    // Additional subcategory-specific methods
+    async toggleSubCategoryStatus(subCategoryId, currentStatus) {
+        try {
+            const newStatus = !currentStatus;
+            await this.repository.updateSubCategory(subCategoryId, { is_active: newStatus });
+            this.showNotification(`Subcategory status updated successfully`, 'success');
+            await this.loadItems(this.state.currentPage);
+        } catch (error) {
+            console.error('Toggle status error:', error);
+            this.showNotification('Failed to update subcategory status', 'error');
+        }
+    }
+
+    async bulkDeleteSubCategories(subCategoryIds) {
+        if (!confirm(`Delete ${subCategoryIds.length} selected subcategories?`)) return;
 
         try {
-            await this.subCategoryRepository.deleteSubCategory(subCategoryId);
-            this.showNotification(`Subcategory "${title}" deleted successfully`, 'success');
-            await this.loadSubCategories(this.state.currentPage);
+            await this.repository.bulkDeleteSubCategories(subCategoryIds);
+            this.showNotification(`${subCategoryIds.length} subcategories deleted successfully`, 'success');
+            await this.loadItems(this.state.currentPage);
         } catch (error) {
-            console.error('Delete error:', error);
-            this.showNotification('Failed to delete subcategory', 'error');
+            console.error('Bulk delete error:', error);
+            this.showNotification('Failed to delete selected subcategories', 'error');
         }
+    }
+
+    // Filter by specific category
+    filterByCategory(categoryId) {
+        this.updateFilters({ event_category: categoryId });
     }
 }

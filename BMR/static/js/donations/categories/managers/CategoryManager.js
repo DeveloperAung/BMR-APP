@@ -1,43 +1,33 @@
-// static/js/posts/categories/managers/CategoryManager.js
+// static/js/donations/categories/managers/CategoryManager.js
+import { BaseManager } from '../../../shared/managers/BaseManager.js';
 import { DonationCategoryRepository } from '../repositories/DonationCategoryRepository.js';
 import { CategoryTableRenderer } from '../renderers/CategoryTableRenderer.js';
-import { PaginationRenderer } from '../../../shared/renderers/PaginationRenderer.js';
 import { CategoryFilterHandler } from '../handlers/CategoryFilterHandler.js';
-//import { CategoryBulkActionHandler } from '../handlers/CategoryBulkActionHandler.js';
 
-export class CategoryManager {
+export class CategoryManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        this.authService = authService;
-        this.notificationService = notificationService;
+        const repository = new DonationCategoryRepository();
+        const tableRenderer = new CategoryTableRenderer();
+        const filterHandler = new CategoryFilterHandler();
 
-        this.categoryRepository = new DonationCategoryRepository(authService);
-        this.tableRenderer = new CategoryTableRenderer();
-        this.currentPage = 1;
-        this.perPage = 10;
-        this.paginationRenderer = new PaginationRenderer();
+        super({
+            authService,
+            notificationService,
+            repository,
+            tableRenderer,
+            filterHandler,
+            defaultPerPage: 30,
+            defaultFilters: {
+                show_all: '',
+                ordering: '-created_at'
+            }
+        });
 
+        // Initialize filter handler with callback
         this.filterHandler = new CategoryFilterHandler(this.handleFiltersChange.bind(this));
-//        this.bulkActionHandler = new CategoryBulkActionHandler();
-
-        this.state = {
-            currentPage: 1,
-            perPage: 30,
-            filters: { search: '', show_all: '', ordering: '-created_at' },
-            categories: [],
-            pagination: null,
-            loading: false
-        };
-    }
-
-    async init() {
-        this.setupEventListeners();
-//        this.bulkActionHandler.init();
-        this.filterHandler.init();
-        await this.loadCategories();
     }
 
     setupEventListeners() {
-//        this.filterHandler.init();
         document.addEventListener('click', (e) => {
             if (e.target.matches('[data-action="view-category"]')) {
                 this.viewCategory(e.target.dataset.categoryId);
@@ -49,117 +39,158 @@ export class CategoryManager {
         });
     }
 
-    async loadCategories(page = 1) {
+    // Implement required template methods
+    async getItems(params) {
+        return await this.repository.getCategories(params);
+    }
+
+    extractItemsFromResponse(response) {
+        return response.categories || response.items || response.results || [];
+    }
+
+    getItemType() {
+        return 'categories';
+    }
+
+    // Category-specific methods
+    async viewCategory(categoryId) {
+        console.log(`Viewing category ${categoryId}`);
+        // Implement specific view logic - could open modal or navigate to detail page
+        window.location.href = `/donations/categories/${categoryId}/`;
+    }
+
+    async editCategory(categoryId) {
+        console.log(`Editing category ${categoryId}`);
+        // Navigate to edit page
+        window.location.href = `/donations/categories/${categoryId}/edit/`;
+    }
+
+    async deleteCategory(categoryId, title) {
+        await this.deleteItem(categoryId, title, `Delete category "${title}"?`);
+    }
+
+    // Additional category-specific methods
+    async toggleCategoryStatus(categoryId, currentStatus) {
+        try {
+            const newStatus = !currentStatus;
+            await this.repository.toggleCategoryStatus(categoryId, newStatus);
+            this.showNotification(`Category status updated successfully`, 'success');
+            await this.loadItems(this.state.currentPage);
+        } catch (error) {
+            console.error('Toggle status error:', error);
+            this.showNotification('Failed to update category status', 'error');
+        }
+    }
+
+    async bulkDeleteCategories(categoryIds) {
+        if (!confirm(`Delete ${categoryIds.length} selected categories?`)) return;
+
+        try {
+            await this.repository.bulkDeleteCategories(categoryIds);
+            this.showNotification(`${categoryIds.length} categories deleted successfully`, 'success');
+            await this.loadItems(this.state.currentPage);
+        } catch (error) {
+            console.error('Bulk delete error:', error);
+            this.showNotification('Failed to delete selected categories', 'error');
+        }
+    }
+
+    async bulkActivateCategories(categoryIds) {
+        if (!confirm(`Activate ${categoryIds.length} selected categories?`)) return;
+
+        try {
+            await this.repository.bulkActivateCategories(categoryIds);
+            this.showNotification(`${categoryIds.length} categories activated successfully`, 'success');
+            await this.loadItems(this.state.currentPage);
+        } catch (error) {
+            console.error('Bulk activate error:', error);
+            this.showNotification('Failed to activate selected categories', 'error');
+        }
+    }
+
+    async bulkDeactivateCategories(categoryIds) {
+        if (!confirm(`Deactivate ${categoryIds.length} selected categories?`)) return;
+
+        try {
+            await this.repository.bulkDeactivateCategories(categoryIds);
+            this.showNotification(`${categoryIds.length} categories deactivated successfully`, 'success');
+            await this.loadItems(this.state.currentPage);
+        } catch (error) {
+            console.error('Bulk deactivate error:', error);
+            this.showNotification('Failed to deactivate selected categories', 'error');
+        }
+    }
+
+    // Export categories to CSV
+    async exportCategories() {
         try {
             this.showLoading(true);
-            this.state.currentPage = page;
 
-            const params = {
-                page: this.state.currentPage,
-                per_page: this.state.perPage,
-                ...this.state.filters
-            };
-
-            // Remove empty filters
-            Object.keys(params).forEach(key => {
-                if (params[key] === '' || params[key] === null || params[key] === undefined) {
-                    delete params[key];
-                }
+            // Get all categories
+            const response = await this.repository.getCategories({
+                per_page: 1000,
+                show_all: 'true'
             });
 
-            const response = await this.categoryRepository.getCategories(params);
+            const categories = response.categories;
 
-            const categories = response.categories || response.items || response.results || [];
+            // Create CSV content
+            const headers = ['ID', 'Title', 'Require Date', 'Multi Select', 'Status', 'Created'];
+            const csvContent = [
+                headers.join(','),
+                ...categories.map(cat => [
+                    cat.id,
+                    `"${cat.title}"`,
+                    cat.is_date_required ? 'Yes' : 'No',
+                    cat.is_multi_select_required ? 'Yes' : 'No',
+                    cat.is_active ? 'Active' : 'Inactive',
+                    new Date(cat.created_at).toLocaleDateString()
+                ].join(','))
+            ].join('\n');
 
-            this.state.Categories = categories;
-            this.state.pagination = response.pagination;
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `donation_categories_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
 
-            this.tableRenderer.render(
-                categories,
-                this.state.currentPage,
-                this.state.perPage
-            );
-
-            if (response.pagination) {
-                this.renderPagination(response.pagination);
-                this.updateResultsInfo(response.pagination);
-            }
+            this.showNotification('Categories exported successfully', 'success');
 
         } catch (error) {
-            console.error('Failed to load subcategories:', error);
-            this.renderError('Failed to load subcategories. Please try again.');
+            console.error('Export error:', error);
+            this.showNotification('Failed to export categories', 'error');
         } finally {
             this.showLoading(false);
         }
     }
 
-    renderPagination(pagination) {
-        this.paginationRenderer.render(pagination, this.goToPage.bind(this));
-    }
-
-    updateResultsInfo(pagination) {
-        const infoEl = document.getElementById('resultsInfo');
-        if (infoEl && pagination) {
-            infoEl.textContent = `Page ${pagination.current_page} of ${pagination.total_pages} (${pagination.total_count} subcategories)`;
-        }
-    }
-
-    renderError(message) {
-        this.tableRenderer.renderError(message);
-        this.showNotification(message, 'error');
-    }
-
-    showNotification(message, type = 'info') {
-        if (!this.notificationService) return;
-        switch (type) {
-            case 'success': this.notificationService.showSuccess(message); break;
-            case 'error': this.notificationService.showError(message); break;
-            case 'warning': this.notificationService.showWarning(message); break;
-            default: this.notificationService.showInfo(message);
-        }
-    }
-
-    showLoading(isLoading = true) {
-        this.state.loading = isLoading;
-        const spinner = document.getElementById('loadingSpinner');
-        if (spinner) spinner.style.display = isLoading ? 'block' : 'none';
-    }
-
-    buildQueryParams() {
-        const params = new URLSearchParams();
-        params.append('page', this.state.currentPage);
-        params.append('per_page', this.state.perPage);
-        Object.entries(this.state.filters).forEach(([k, v]) => v && params.append(k, v));
-        return params.toString();
-    }
-
-    handleFiltersChange(filters) {
-        this.state.filters = filters;
-        this.state.currentPage = 1;
-        this.loadCategories(1);
-    }
-
-    goToPage(page) {
-        this.state.currentPage = page;
-        this.loadCategories(page);
-    }
-
-    async viewCategory(categoryId) {
-        console.log(`Viewing category ${categoryId}`);
-    }
-
-    async editCategory(categoryId) {
-        console.log(`Editing category ${categoryId}`);
-    }
-
-    async deleteCategory(categoryId, title) {
-        if (!confirm(`Delete category "${title}"?`)) return;
+    // Get category statistics
+    async getCategoryStats() {
         try {
-            await this.categoryRepository.deleteCategory(categoryId);
-            this.showNotification(`Category "${title}" deleted successfully`, 'success');
-            await this.loadCategories();
+            const response = await this.repository.getCategories({
+                per_page: 1000,
+                show_all: 'true'
+            });
+
+            const categories = response.categories;
+
+            const stats = {
+                total: categories.length,
+                active: categories.filter(cat => cat.is_active).length,
+                inactive: categories.filter(cat => !cat.is_active).length,
+                withDateRequired: categories.filter(cat => cat.is_date_required).length,
+                withMultiSelect: categories.filter(cat => cat.is_multi_select_required).length
+            };
+
+            return stats;
         } catch (error) {
-            this.showNotification('Failed to delete category', 'error');
+            console.error('Failed to get category stats:', error);
+            return null;
         }
     }
 }

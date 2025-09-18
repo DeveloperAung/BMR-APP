@@ -15,7 +15,7 @@ export class PaginationRenderer {
         const { current_page, total_pages } = pagination;
 
         let html = `<nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">`;
+            <ul class="pagination justify-content-end">`;
 
         // Previous button
         html += `

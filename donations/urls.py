@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('categories/', views.donation_category_list, name='donation_category_list'),
+    path('categories/create/', views.CategoryCreateView.as_view(), name='donation_category_create'),
+    path('categories/<int:pk>/edit/', views.CategoryEditView.as_view(), name='donation_category_edit'),
     # path('categories/create/', views.donation_category_create, name='donation_category_create'),
     # path('categories/<int:pk>/edit/', views.donation_category_update, name='donation_category_update'),
     # path('categories/<int:pk>/delete/', views.donation_category_delete, name='donation_category_delete'),

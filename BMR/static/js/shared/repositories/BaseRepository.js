@@ -1,5 +1,5 @@
 // static/js/shared/repositories/BaseRepository.js
-import { apiService as authService } from '../services/authService.js';
+import { apiService as authService } from '../services/AuthService.js';
 
 /**
  * API Service class that handles HTTP requests with authentication

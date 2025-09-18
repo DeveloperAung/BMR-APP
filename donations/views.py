@@ -1,16 +1,52 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, JsonResponse
-from django.urls import reverse
-from django.core.paginator import Paginator
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views import View
+
 from .models import DonationCategory, DonationSubCategory
 from .forms import DonationCategoryForm, DonationSubCategoryForm
 import csv
-from django.utils.http import urlencode
-from django.conf import settings
 
 
 def donation_category_list(request):
     return render(request, 'private/donations/category/list.html')
+
+
+class CategoryCreateView(View):
+    """View for creating donation categories - template only, JS handles everything"""
+    template_name = 'private/donations/category/create.html'
+
+    def get(self, request):
+        """Display the category creation form"""
+        context = {
+            'mode': 'create',
+            'page_title': 'Create Donation Category'
+        }
+        return render(request, self.template_name, context)
+
+
+class CategoryEditView(View):
+    """View for editing donation categories - template only, JS handles everything"""
+    template_name = 'private/donations/category/create.html'  # Same template, different mode
+
+    def get(self, request, pk):
+        """Display the category edit form"""
+        # Get category for basic info (title for breadcrumb, etc.)
+        # No auth check here - JS will handle authentication
+        try:
+            category = get_object_or_404(DonationCategory, pk=pk)
+        except:
+            # If category not found, still show template - JS will handle the error
+            category = None
+
+        context = {
+            'mode': 'edit',
+            'category_id': pk,
+            'category': category,  # May be None if not found
+            'page_title': f'Edit Category: {category.title if category else "Unknown"}'
+        }
+        return render(request, self.template_name, context)
 
 
 def donation_sub_category_list(request):
