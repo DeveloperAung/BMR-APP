@@ -147,14 +147,4 @@ export class CategoryManager {
         console.log(`Editing category ${categoryId}`);
     }
 
-    async deleteCategory(categoryId, title) {
-        if (!confirm(`Delete category "${title}"?`)) return;
-        try {
-            await this.categoryRepository.deleteCategory(categoryId);
-            this.showNotification(`Category "${title}" deleted successfully`, 'success');
-            await this.loadCategories();
-        } catch (error) {
-            this.showNotification('Failed to delete category', 'error');
-        }
-    }
 }

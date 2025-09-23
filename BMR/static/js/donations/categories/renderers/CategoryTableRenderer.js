@@ -18,18 +18,18 @@ export class CategoryTableRenderer extends BaseTableRenderer {
         this.perPage = perPage || 10;
     }
 
-    render(categories, currentPage = 1, perPage = 10) {
+    render(donationCategories, currentPage = 1, perPage = 10) {
         // Update pagination info
         this.setPagination(currentPage, perPage);
 
-        if (!categories || categories.length === 0) {
+        if (!donationCategories || donationCategories.length === 0) {
             this.renderEmpty('No Categories Found', '📂');
             return;
         }
 
         // Calculate starting serial number based on current page
         const startIndex = (this.currentPage - 1) * this.perPage;
-        this.tbody.innerHTML = categories
+        this.tbody.innerHTML = donationCategories
             .map((category, index) => this.renderCategoryRow(category, startIndex + index + 1))
             .join('');
     }

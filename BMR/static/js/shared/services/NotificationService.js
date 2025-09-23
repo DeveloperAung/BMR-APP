@@ -37,7 +37,7 @@ export class NotificationService {
         const notification = document.createElement('div');
         notification.className = `alert alert-${type} alert-dismissible fade show`;
         notification.innerHTML = `
-            <strong>${type.charAt(0).toUpperCase() + type.slice(1)}:</strong> ${this.escapeHtml(message)}
+            <strong>${type.charAt(0).toUpperCase() + type.slice(1)}:</strong> ${this.escapeHtml(message).replace(/\n/g, '<br>')}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
 

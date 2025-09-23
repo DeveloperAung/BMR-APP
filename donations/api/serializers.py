@@ -8,6 +8,16 @@ class DonationCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'is_date_required', 'is_multi_select_required', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
 
+    def validate_title(self, value):
+        instance = getattr(self, 'instance', None)
+        if instance:
+            if DonationCategory.objects.exclude(id=instance.id).filter(title=value).exists():
+                raise serializers.ValidationError("A category with this title already exists.")
+        else:
+            if DonationCategory.objects.filter(title=value).exists():
+                raise serializers.ValidationError("A category with this title already exists.")
+        return value
+
 
 class DonationSubCategoryListSerializer(serializers.ModelSerializer):
     donation_category_title = serializers.CharField(source='donation_category.title', read_only=True)
@@ -18,8 +28,18 @@ class DonationSubCategoryListSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'donation_category_title', 'created_at']
 
 
+
 class DonationSubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = DonationSubCategory
         fields = ['id', 'title', 'donation_category', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+    def validate_title(self, value):
+        if self.instance is None:
+            if DonationSubCategory.objects.filter(title__iexact=value).exists():
+                raise serializers.ValidationError("A donation subcategory with this title already exists.")
+        else:
+            if DonationSubCategory.objects.filter(title__iexact=value).exclude(id=self.instance.id).exists():
+                raise serializers.ValidationError("Another donation subcategory with this title already exists.")
+        return value

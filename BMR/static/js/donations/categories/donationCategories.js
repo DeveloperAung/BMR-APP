@@ -1,6 +1,7 @@
 import { CategoryManager } from './managers/CategoryManager.js';
 import { AuthService } from '../../shared/services/AuthService.js';
 import { NotificationService } from '../../shared/services/NotificationService.js';
+import { ApiErrorHandler } from '../../shared/services/ApiErrorHandler.js';
 
 class CategoryApp {
     constructor() {
@@ -16,13 +17,43 @@ class CategoryApp {
                  return;
              }
 
-            // Initialize category manager
             this.categoryManager = new CategoryManager({
                 authService: this.authService,
                 notificationService: this.notificationService
             });
 
             await this.categoryManager.init();
+
+            document.addEventListener('click', async (e) => {
+                const btn = e.target.closest('[data-action="delete-category"]');
+                if (!btn) return;
+
+                const categoryId = btn.dataset.categoryId;
+                const title = btn.dataset.title;
+
+                if (!confirm(`Are you sure you want to deactivate category "${title}"?`)) {
+                    return;
+                }
+
+                try {
+                    const updated = await this.categoryManager.toggleCategoryStatus(categoryId, false);
+
+                    const row = btn.closest('tr');
+                    if (row) {
+                        const statusCell = row.querySelector('[data-field="is_active"]');
+                        if (statusCell) {
+                            statusCell.textContent = updated.is_active ? 'Active' : 'Inactive';
+                            statusCell.className = updated.is_active ? 'text-success' : 'text-danger';
+                        }
+
+                        btn.disabled = true;
+                        btn.title = "Already deactivated";
+                    }
+
+                } catch (error) {
+                    ApiErrorHandler.handle(error, this.notificationService);
+                }
+            });
         } catch (error) {
             this.notificationService.showError('Failed to initialize category management', error);
         }
@@ -41,9 +72,7 @@ class CategoryApp {
     }
 }
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     const app = new CategoryApp();
-
     app.init();
 });

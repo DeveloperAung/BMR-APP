@@ -2,6 +2,7 @@ from rest_framework import status, generics, filters
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
 
+from core.utils.mixins import SoftDeleteMixin
 from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
 
@@ -19,7 +20,15 @@ from drf_spectacular.utils import (
 @extend_schema(
     tags=["Donation"],
     summary="Donation - Category Retrieve Create",
-    description="Donation - Category Retrieve Create"
+    description="Donation - Category Retrieve Create",
+    responses={
+        200: DonationCategorySerializer(many=True),
+        201: DonationCategorySerializer,
+        400: OpenApiResponse(
+            response=None,
+            description="Validation error (e.g., duplicate title)"
+        ),
+    }
 )
 class DonationCategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = DonationCategorySerializer
@@ -57,11 +66,14 @@ class DonationCategoryListCreateView(generics.ListCreateAPIView):
     summary="Donation - Category Update Delete",
     description="Donation - Category Update Delete"
 )
-class DonationCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class DonationCategoryRetrieveUpdateDestroyView(
+        SoftDeleteMixin,
+        generics.RetrieveUpdateDestroyAPIView
+    ):
     queryset = DonationCategory.objects.all()
     serializer_class = DonationCategorySerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -84,15 +96,6 @@ class DonationCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
         return fail(
             error=serializer.errors,
             message="Validation error"
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save(update_fields=['is_active'])
-        return ok(
-            data={"id": instance.id, "is_active": False},
-            message="Donation category has been deactivated successfully."
         )
 
 
@@ -149,7 +152,10 @@ class DonationSubCategoryListCreateView(generics.ListCreateAPIView):
     summary="Donation - Sub Category Update Delete",
     description="Donation - Sub Category Update Delete"
 )
-class DonationSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class DonationSubCategoryRetrieveUpdateDestroyView(
+        SoftDeleteMixin,
+        generics.RetrieveUpdateDestroyAPIView
+    ):
     queryset = DonationSubCategory.objects.select_related('donation_category')
     serializer_class = DonationSubCategorySerializer
     lookup_field = 'pk'
@@ -184,11 +190,3 @@ class DonationSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestro
             message="Validation error",
         )
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save(update_fields=['is_active'])
-        return ok(
-            data={"id": instance.id, "is_active": False},
-            message="Donation subcategory has been deactivated successfully."
-        )

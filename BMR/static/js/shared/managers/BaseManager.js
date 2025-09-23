@@ -10,6 +10,9 @@ export class BaseManager {
         defaultPerPage = 30,
         defaultFilters = {}
     }) {
+        if (!notificationService) {
+            throw new Error('BaseManager requires a NotificationService instance');
+        }
         this.authService = authService;
         this.notificationService = notificationService;
         this.repository = repository;
@@ -110,7 +113,10 @@ export class BaseManager {
     }
 
     showNotification(message, type = 'info') {
-        if (!this.notificationService) return;
+        if (!this.notificationService) {
+            console.warn('NotificationService is missing in BaseManager');
+            return;
+        }
 
         switch (type) {
             case 'success':

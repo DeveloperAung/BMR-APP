@@ -6,7 +6,7 @@ import { CategoryFilterHandler } from '../handlers/CategoryFilterHandler.js';
 
 export class CategoryManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        const repository = new DonationCategoryRepository();
+        const repository = new DonationCategoryRepository({ notificationService });
         const tableRenderer = new CategoryTableRenderer();
         const filterHandler = new CategoryFilterHandler();
 
@@ -23,7 +23,6 @@ export class CategoryManager extends BaseManager {
             }
         });
 
-        // Initialize filter handler with callback
         this.filterHandler = new CategoryFilterHandler(this.handleFiltersChange.bind(this));
     }
 
@@ -52,34 +51,48 @@ export class CategoryManager extends BaseManager {
         return 'categories';
     }
 
+    async createCategory(categoryData) {
+        try {
+            this.notificationService?.showLoading?.('Creating category...');
+            const response = await this.repository.submitCategory(categoryData);
+            this.notificationService?.hideLoading?.();
+            return response;
+        } catch (error) {
+            this.notificationService?.hideLoading?.();
+            throw error;
+        }
+    }
+
+    async updateCategory(categoryId, categoryData) {
+        try {
+            this.notificationService?.showLoading?.('Updating category...');
+            const response = await this.repository.updateCategory(categoryId, categoryData);
+            this.notificationService?.hideLoading?.();
+            return response;
+        } catch (error) {
+            this.notificationService?.hideLoading?.();
+            throw error;
+        }
+    }
+
     // Category-specific methods
     async viewCategory(categoryId) {
         console.log(`Viewing category ${categoryId}`);
         // Implement specific view logic - could open modal or navigate to detail page
-        window.location.href = `/donations/categories/${categoryId}/`;
+        window.location.href = `/donations/i/categories/${categoryId}/`;
     }
 
     async editCategory(categoryId) {
         console.log(`Editing category ${categoryId}`);
         // Navigate to edit page
-        window.location.href = `/donations/categories/${categoryId}/edit/`;
+        window.location.href = `/donations/i/categories/${categoryId}/edit/`;
     }
 
-    async deleteCategory(categoryId, title) {
-        await this.deleteItem(categoryId, title, `Delete category "${title}"?`);
-    }
-
-    // Additional category-specific methods
-    async toggleCategoryStatus(categoryId, currentStatus) {
-        try {
-            const newStatus = !currentStatus;
-            await this.repository.toggleCategoryStatus(categoryId, newStatus);
-            this.showNotification(`Category status updated successfully`, 'success');
-            await this.loadItems(this.state.currentPage);
-        } catch (error) {
-            console.error('Toggle status error:', error);
-            this.showNotification('Failed to update category status', 'error');
-        }
+    async toggleCategoryStatus(id, isActive) {
+        const result = await this.repository.toggleStatus(id, isActive);
+        const action = isActive ? "reactivated" : "deactivated";
+        this.notificationService.showSuccess(`Category ${action} successfully!`);
+        return result;
     }
 
     async bulkDeleteCategories(categoryIds) {
@@ -87,11 +100,12 @@ export class CategoryManager extends BaseManager {
 
         try {
             await this.repository.bulkDeleteCategories(categoryIds);
-            this.showNotification(`${categoryIds.length} categories deleted successfully`, 'success');
+            this.notificationService.showSuccess(`${categoryIds.length} categories deleted successfully`);
+
             await this.loadItems(this.state.currentPage);
         } catch (error) {
             console.error('Bulk delete error:', error);
-            this.showNotification('Failed to delete selected categories', 'error');
+            this.notificationService.showError('Failed to delete selected categories');
         }
     }
 
@@ -100,11 +114,11 @@ export class CategoryManager extends BaseManager {
 
         try {
             await this.repository.bulkActivateCategories(categoryIds);
-            this.showNotification(`${categoryIds.length} categories activated successfully`, 'success');
+            this.notificationService.showSuccess(`${categoryIds.length} categories activated successfully`);
             await this.loadItems(this.state.currentPage);
         } catch (error) {
             console.error('Bulk activate error:', error);
-            this.showNotification('Failed to activate selected categories', 'error');
+            this.notificationService.showError('Failed to activate selected categories');
         }
     }
 
@@ -113,11 +127,11 @@ export class CategoryManager extends BaseManager {
 
         try {
             await this.repository.bulkDeactivateCategories(categoryIds);
-            this.showNotification(`${categoryIds.length} categories deactivated successfully`, 'success');
+            this.notificationService.showSuccess(`${categoryIds.length} categories deactivated successfully`);
             await this.loadItems(this.state.currentPage);
         } catch (error) {
             console.error('Bulk deactivate error:', error);
-            this.showNotification('Failed to deactivate selected categories', 'error');
+            this.notificationService.showError('Failed to deactivate selected categories');
         }
     }
 
@@ -159,11 +173,11 @@ export class CategoryManager extends BaseManager {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
 
-            this.showNotification('Categories exported successfully', 'success');
+            this.notificationService.showSuccess(`Categories exported successfully`);
 
         } catch (error) {
             console.error('Export error:', error);
-            this.showNotification('Failed to export categories', 'error');
+            this.notificationService.showError('Failed to export categories');
         } finally {
             this.showLoading(false);
         }
@@ -189,6 +203,7 @@ export class CategoryManager extends BaseManager {
 
             return stats;
         } catch (error) {
+            this.notificationService.showError('Failed to get category stats');
             console.error('Failed to get category stats:', error);
             return null;
         }

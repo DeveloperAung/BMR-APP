@@ -1,15 +1,27 @@
 {% extends 'private/partials/base.html' %}
 {% load static %}
 
-{% block title %}Donation Category Management{% endblock %}
+{% block title %}Donation - Management{% endblock %}
 
 {% block content %}
     {% include 'private/donations/category/partials/page-header.html' %}
-    <a class="btn btn-primary" href="{% url 'donation_category_create' %}">Create New</a>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 class="mb-0">
+                                    Donation Category List
+                                </h3>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a class="btn btn-primary" href="{% url 'donation_category_create' %}">Create New</a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body table-responsive">
                         {% include 'private/donations/category/partials/filters.html' %}
                         {% include 'private/donations/category/partials/category-table.html' %}

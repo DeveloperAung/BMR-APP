@@ -1,4 +1,3 @@
-// static/js/shared/repositories/BaseRepository.js
 import { apiService as authService } from '../services/AuthService.js';
 
 /**
@@ -84,19 +83,24 @@ class ApiService {
      */
     async handleResponse(response) {
         if (!response.ok) {
-            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-
+            let errorData = null;
             try {
-                const errorData = await response.json();
-                errorMessage = errorData.detail || errorData.message || errorMessage;
+                errorData = await response.json();
             } catch {
-                // Couldn't parse error response
+                // no JSON body
             }
 
-            throw new Error(errorMessage);
+            const error = new Error(
+                errorData?.detail || errorData?.message || `HTTP ${response.status}`
+            );
+            error.status = response.status;
+            error.data = errorData;
+            // mimic axios style for downstream code
+            error.response = { status: response.status, data: errorData, headers: response.headers };
+
+            throw error;
         }
 
-        // Handle empty responses
         if (response.status === 204 || response.headers.get('content-length') === '0') {
             return { success: true };
         }
@@ -243,7 +247,7 @@ export class BaseRepository {
      */
     async createItem(data) {
         try {
-            const jsonData = await this.apiService.post(`${this.baseEndpoint}/`, data);
+            const jsonData = await this.apiService.post(`${this.baseEndpoint}`, data);
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error(`${this.constructor.name}.createItem failed:`, error);
@@ -256,7 +260,7 @@ export class BaseRepository {
      */
     async updateItem(id, data) {
         try {
-            const jsonData = await this.apiService.patch(`${this.baseEndpoint}/${id}/`, data);
+            const jsonData = await this.apiService.patch(`${this.baseEndpoint}${id}/`, data);
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error(`${this.constructor.name}.updateItem failed:`, error);
@@ -264,15 +268,14 @@ export class BaseRepository {
         }
     }
 
-    /**
-     * Delete item
-     */
-    async deleteItem(id) {
+    async toggleStatus(id, isActive) {
+        if (!id) throw new Error("Entity ID is required for toggleStatus");
+
         try {
-            const jsonData = await this.apiService.delete(`${this.baseEndpoint}/${id}/`);
-            return jsonData?.data || { success: true };
+            const jsonData = await this.updateItem(id, { is_active: isActive });
+            return jsonData?.data || jsonData;
         } catch (error) {
-            console.error(`${this.constructor.name}.deleteItem failed:`, error);
+            console.error(`${this.constructor.name}.toggleStatus failed:`, error);
             throw error;
         }
     }
