@@ -2,12 +2,13 @@ import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
 import { DONATIONS } from '../../../shared/config/apiConfig.js';
 
 export class DonationSubCategoryRepository extends BaseRepository {
-    constructor() {
+    constructor({ notificationService }) {
         super(DONATIONS.SUB_CATEGORIES);
+        this.notificationService = notificationService;
     }
 
     // Custom method names for your domain
-    async getSubCategories(params = {}) {
+    async getDonationSubCategories(params = {}) {
 //        console.log('SubCategoryRepository: Service called get subcategories');
         const result = await this.getList(params);
 //        console.log('SubCategoryRepository: Result completed');
@@ -31,7 +32,7 @@ export class DonationSubCategoryRepository extends BaseRepository {
     }
 
     async deleteSubCategory(subCategoryId) {
-        return this.deleteItem(subCategoryId);
+        return this.toggleStatus(subCategoryId, false);
     }
 
     // Bulk operations using the inherited method

@@ -2,14 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('i/event/category/list/', views.event_category_list, name='event_category_list'),
-    path('i/event/subcategory/list/', views.event_sub_category_list, name='event_sub_category_list'),
-    # path('categories/', views.event_category_list, name='event_category_list'),
-    # path('categories/create/', views.event_category_create, name='event_category_create'),
-    # path('categories/<int:pk>/update/', views.event_category_update, name='event_category_update'),
-    # path('categories/<int:pk>/delete/', views.event_category_delete, name='event_category_delete'),
-    # path('sub-categories/', views.event_sub_category_list, name='event_sub_category_list'),
-    # path('sub-categories/create/', views.event_sub_category_create, name='event_sub_category_create'),
-    # path('sub-categories/<int:pk>/update/', views.event_sub_category_update, name='event_sub_category_update'),
-    # path('sub-categories/<int:pk>/delete/', views.event_sub_category_delete, name='event_sub_category_delete'),
-] 
+    # Event Category URLs
+    path('i/categories/', views.EventCategoryList.as_view(), name='event_category_list'),
+    path('i/categories/create/', views.CategoryCreateView.as_view(), name='event_category_create'),
+    path('i/categories/<int:pk>/edit/', views.CategoryEditView.as_view(), name='event_category_edit'),
+    
+    # Event Subcategory URLs
+    path('i/subcategories/', views.EventSubCategoryList.as_view(), name='event_sub_category_list'),
+    path('i/subcategories/create/', views.SubCategoryCreateView.as_view(), name='event_sub_category_create'),
+    path('i/subcategories/<int:pk>/edit/', views.SubCategoryEditView.as_view(), name='event_sub_category_edit'),
+]

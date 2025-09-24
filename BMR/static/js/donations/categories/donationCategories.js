@@ -7,7 +7,7 @@ class CategoryApp {
     constructor() {
         this.authService = new AuthService();
         this.notificationService = new NotificationService();
-        this.categoryManager = null;
+        this.dnCategoryManager = null;
     }
 
     async init() {
@@ -17,46 +17,28 @@ class CategoryApp {
                  return;
              }
 
-            this.categoryManager = new CategoryManager({
+            this.dnCategoryManager = new CategoryManager({
                 authService: this.authService,
                 notificationService: this.notificationService
             });
 
-            await this.categoryManager.init();
-
-            document.addEventListener('click', async (e) => {
-                const btn = e.target.closest('[data-action="delete-category"]');
-                if (!btn) return;
-
-                const categoryId = btn.dataset.categoryId;
-                const title = btn.dataset.title;
-
-                if (!confirm(`Are you sure you want to deactivate category "${title}"?`)) {
-                    return;
-                }
-
-                try {
-                    const updated = await this.categoryManager.toggleCategoryStatus(categoryId, false);
-
-                    const row = btn.closest('tr');
-                    if (row) {
-                        const statusCell = row.querySelector('[data-field="is_active"]');
-                        if (statusCell) {
-                            statusCell.textContent = updated.is_active ? 'Active' : 'Inactive';
-                            statusCell.className = updated.is_active ? 'text-success' : 'text-danger';
-                        }
-
-                        btn.disabled = true;
-                        btn.title = "Already deactivated";
-                    }
-
-                } catch (error) {
-                    ApiErrorHandler.handle(error, this.notificationService);
-                }
-            });
+            await this.dnCategoryManager.init();
+            this.setupEventListeners();
         } catch (error) {
             this.notificationService.showError('Failed to initialize category management', error);
         }
+    }
+
+    setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-action="view-category"]')) {
+                this.dnCategoryManager.viewCategory(e.target.dataset.categoryId);
+            } else if (e.target.matches('[data-action="edit-category"]')) {
+                this.dnCategoryManager.editCategory(e.target.dataset.categoryId);
+            } else if (e.target.matches('[data-action="delete-category"]')) {
+                this.dnCategoryManager.toggleStatus(e.target.dataset.categoryId, false, 'Are you sure you want to deactivate category ' + e.target.dataset.title + '?');
+            }
+        });
     }
 
     showLoginRequired() {

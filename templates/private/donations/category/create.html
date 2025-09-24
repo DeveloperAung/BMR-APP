@@ -18,7 +18,8 @@
                 <div class="card-body">                
                     <div id="result"></div>
                     <!-- Category Form -->
-                    <form id="categoryForm"  data-category-id="{{ category.id|default:category_id }}" class="needs-validation" novalidate>
+                    <form id="categoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
+
                         {% csrf_token %}
                         
                         <!-- Title Field -->

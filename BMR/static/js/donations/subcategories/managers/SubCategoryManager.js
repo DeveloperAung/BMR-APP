@@ -6,7 +6,7 @@ import { SubCategoryFilterHandler } from '../handlers/SubCategoryFilterHandler.j
 
 export class SubCategoryManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        const repository = new DonationSubCategoryRepository(authService);
+        const repository = new DonationSubCategoryRepository({ notificationService });
         const tableRenderer = new SubCategoryTableRenderer();
         const filterHandler = new SubCategoryFilterHandler();
 
@@ -29,25 +29,39 @@ export class SubCategoryManager extends BaseManager {
 
     async init() {
         await super.init();
+        // Setup event listeners for the table actions
+        this.setupEventListeners();
         // Load categories for the filter dropdown
         await this.loadCategoriesForFilter();
     }
 
     setupEventListeners() {
+        // Use event delegation for dynamic elements
         document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-action="view-subcategory"]')) {
-                this.viewSubCategory(e.target.dataset.subcategoryId);
-            } else if (e.target.matches('[data-action="edit-subcategory"]')) {
-                this.editSubCategory(e.target.dataset.subcategoryId);
-            } else if (e.target.matches('[data-action="delete-subcategory"]')) {
-                this.deleteSubCategory(e.target.dataset.subcategoryId, e.target.dataset.title);
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+            
+            const action = target.getAttribute('data-action');
+            const subcategoryId = target.getAttribute('data-subcategory-id');
+            const title = target.getAttribute('data-title');
+            
+            switch (action) {
+                case 'view-subcategory':
+                    this.viewSubCategory(subcategoryId);
+                    break;
+                case 'edit-subcategory':
+                    this.editSubCategory(subcategoryId);
+                    break;
+                case 'delete-subcategory':
+                    this.toggleSubCategoryStatus(subcategoryId, title);
+                    break;
             }
         });
     }
 
     // Implement required template methods
     async getItems(params) {
-        return await this.repository.getSubCategories(params);
+        return await this.repository.getDonationSubCategories(params);
     }
 
     extractItemsFromResponse(response) {
@@ -65,12 +79,24 @@ export class SubCategoryManager extends BaseManager {
     }
 
     async editSubCategory(subCategoryId) {
-        console.log(`Editing subcategory ${subCategoryId}`);
-        // Implement specific edit logic
+        window.location.href = `/donations/i/subcategories/${subCategoryId}/edit/`;
     }
 
-    async deleteSubCategory(subCategoryId, title) {
-        await this.deleteItem(subCategoryId, title, `Delete subcategory "${title}"?`);
+    async toggleSubCategoryStatus(id, isActive, title) {
+        if (!confirm(`Are you sure you want to delete "${title}"?`)) {
+            return;
+        }
+
+        try {
+            const result = await this.repository.toggleStatus(id, false);
+            const action = isActive ? "reactivated" : "deleted";
+            this.notificationService.showSuccess(`Subcategory ${action} successfully!`);
+            await this.loadItems(this.state.currentPage);
+            return result;
+        } catch (error) {
+            this.notificationService.showError(`Failed to update subcategory status: ${error.message}`);
+            throw error;
+        }
     }
 
     // Load categories for filter dropdown
@@ -103,16 +129,26 @@ export class SubCategoryManager extends BaseManager {
         }
     }
 
-    // Additional subcategory-specific methods
-    async toggleSubCategoryStatus(subCategoryId, currentStatus) {
+    // CRUD Operations
+    async createSubCategory(data) {
         try {
-            const newStatus = !currentStatus;
-            await this.repository.updateSubCategory(subCategoryId, { is_active: newStatus });
-            this.showNotification(`Subcategory status updated successfully`, 'success');
-            await this.loadItems(this.state.currentPage);
+            const response = await this.repository.createSubCategory(data);
+            this.showNotification('Subcategory created successfully', 'success');
+            return response;
         } catch (error) {
-            console.error('Toggle status error:', error);
-            this.showNotification('Failed to update subcategory status', 'error');
+            console.error('Create subcategory error:', error);
+            throw error;
+        }
+    }
+
+    async updateSubCategory(subCategoryId, data) {
+        try {
+            const response = await this.repository.updateSubCategory(subCategoryId, data);
+            this.showNotification('Subcategory updated successfully', 'success');
+            return response;
+        } catch (error) {
+            console.error('Update subcategory error:', error);
+            throw error;
         }
     }
 

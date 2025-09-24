@@ -41,7 +41,7 @@ class EventSubCategory(AuditModel):
 #     is_registered = models.BooleanField(default=False)
 #     is_short_course = models.BooleanField(default=False)
 #     max_seat = models.IntegerField(default=0, blank=True)
-#     is_publish = models.BooleanField(default=False)
+#     is_published = models.BooleanField(default=False)
 #     published_at = models.DateTimeField(blank=True, null=True)
 #     published_by = models.ForeignKey(
 #         settings.AUTH_USER_MODEL,

@@ -43,9 +43,8 @@ export class CategoryManager {
                 this.viewCategory(e.target.dataset.categoryId);
             } else if (e.target.matches('[data-action="edit-category"]')) {
                 this.editCategory(e.target.dataset.categoryId);
-            } else if (e.target.matches('[data-action="delete-category"]')) {
-                this.deleteCategory(e.target.dataset.categoryId, e.target.dataset.title);
-            }
+            } 
+            // Delete action is directly called inside donationCategories.js
         });
     }
 

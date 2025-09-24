@@ -11,13 +11,11 @@ class SubCategoryApp {
 
     async init() {
         try {
-            // TEMP BYPASS: Disable auth check during development
-            // REMOVE THIS BEFORE PRODUCTION
-            console.warn('⚠️ Auth check bypassed for development');
-            // if (!await this.authService.isAuthenticated()) {
-            //     this.showLoginRequired();
-            //     return;
-            // }
+
+            if (!await this.authService.isAuthenticated()) {
+                this.showLoginRequired();
+                return;
+            }
 
             // Initialize subcategory manager
             this.subCategoryManager = new SubCategoryManager({

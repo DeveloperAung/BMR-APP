@@ -8,20 +8,67 @@
 <body>
     <div class="table-responsive">
         <table class="table table-hover">
-            <thead>
+            <thead class="table-light">
                 <tr>
-                    <th class="sr-no-header text-center">#</th>
-                    <th>Title</th>
+                    <th width="5%">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAllCheckbox">
+                        </div>
+                    </th>
+                    <th>Name</th>
                     <th>Category</th>
+                    <th>Description</th>
                     <th>Status</th>
-                    <th>Created Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="donationSubCategoriesTableBody">
-                <!-- Table rows will be rendered here -->
+                <!-- Table rows will be rendered here by JavaScript -->
+                <tr id="loadingRow">
+                    <td colspan="7" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 mb-0">Loading subcategories...</p>
+                    </td>
+                </tr>
+                <tr id="emptyState" style="display: none;">
+                    <td colspan="7" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <h5>No subcategories found</h5>
+                            <p class="mb-0">Get started by creating a new subcategory</p>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div id="bulkActions" class="fixed-bottom bg-white shadow-lg p-3" style="display: none;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <span id="selectedCount">0</span> selected
+                    </div>
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            Bulk Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" id="bulkActivateBtn">Activate</a></li>
+                            <li><a class="dropdown-item" href="#" id="bulkDeactivateBtn">Deactivate</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" id="bulkDeleteBtn">Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" id="closeBulkActions" aria-label="Close"></button>
+            </div>
+        </div>
     </div>
 </body>
 </html>

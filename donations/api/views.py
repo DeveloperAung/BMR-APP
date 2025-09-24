@@ -110,7 +110,7 @@ class DonationSubCategoryListCreateView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title']
     filterset_fields = ['donation_category']
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         show_all = self.request.query_params.get('show_all', '').lower() == 'true'
@@ -159,7 +159,7 @@ class DonationSubCategoryRetrieveUpdateDestroyView(
     queryset = DonationSubCategory.objects.select_related('donation_category')
     serializer_class = DonationSubCategorySerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

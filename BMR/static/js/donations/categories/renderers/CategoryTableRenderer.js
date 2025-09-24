@@ -49,7 +49,7 @@ export class CategoryTableRenderer extends BaseTableRenderer {
                     <span class="fa-solid ${category.is_multi_select_required ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td>
-                <td>
+                <td data-field="is_active">
                     <span class="badge ${category.is_active ? 'bg-success' : 'bg-warning'}">
                         ${category.is_active ? 'Active' : 'Inactive'}
                     </span>

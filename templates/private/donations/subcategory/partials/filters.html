@@ -1,48 +1,68 @@
-<div class="filters-section">
+<div class="filters-section mb-4">
     <div class="row g-3 align-items-end">
+        <!-- Search Input -->
         <div class="col-md-3">
-            <label class="form-label">Search Subcategories</label>
-            <div class="input-group">
-                <input type="text" class="form-control" id="searchInput"
-                       placeholder="Search by subcategory title...">
-                <button class="btn btn-primary" type="button" id="searchBtn">
-                    <i class="fa fa-search"></i>
-                </button>
+            <label for="searchInput" class="form-label small fw-bold text-muted mb-1">SEARCH</label>
+            <div class="input-group input-group-merge">
+                <span class="input-group-text bg-transparent"><i class="fas fa-search"></i></span>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       id="searchInput"
+                       placeholder="Search subcategories...">
             </div>
         </div>
+        
+        <!-- Category Filter -->
         <div class="col-md-2">
-            <label class="form-label">Category</label>
-            <select class="form-select" id="categoryFilter">
+            <label for="categoryFilter" class="form-label small fw-bold text-muted mb-1">CATEGORY</label>
+            <select class="form-select form-select-sm" id="categoryFilter">
                 <option value="">All Categories</option>
                 <!-- Categories will be loaded dynamically -->
             </select>
         </div>
+        
+        <!-- Status Filter -->
         <div class="col-md-2">
-            <label class="form-label">Sort By</label>
-            <select class="form-select" id="orderingSelect">
-                <option value="-created_at">Newest First</option>
-                <option value="created_at">Oldest First</option>
-                <option value="title">Title A-Z</option>
-                <option value="-title">Title Z-A</option>
+            <label for="statusFilter" class="form-label small fw-bold text-muted mb-1">STATUS</label>
+            <select class="form-select form-select-sm" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
             </select>
         </div>
+        
+        <!-- Sort By -->
         <div class="col-md-2">
-            <label class="form-label">Per Page</label>
-            <select class="form-select" id="perPageSelect">
-                <option value="30">30</option>
+            <label for="orderingSelect" class="form-label small fw-bold text-muted mb-1">SORT BY</label>
+            <select class="form-select form-select-sm" id="orderingSelect">
+                <option value="-created_at">Newest First</option>
+                <option value="created_at">Oldest First</option>
+                <option value="name">Name A-Z</option>
+                <option value="-name">Name Z-A</option>
+            </select>
+        </div>
+        
+        <!-- Per Page -->
+        <div class="col-md-1">
+            <label for="perPageSelect" class="form-label small fw-bold text-muted mb-1">PER PAGE</label>
+            <select class="form-select form-select-sm" id="perPageSelect">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
             </select>
         </div>
-        <div class="col-md-1">
-            <button class="btn btn-outline-primary" id="clearFiltersBtn" title="Clear Filters">
-                <i class="fa-solid fa-filter-circle-xmark"></i>
-            </button>
-        </div>
-        <div class="col-md-2">
-            <a href="#" class="btn btn-success">
-                <i class="fa-solid fa-plus"></i> Add Subcategory
-            </a>
+        
+        <!-- Action Buttons -->
+        <div class="col-md-2 d-flex align-items-end">
+            <div class="btn-group w-100">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearFiltersBtn">
+                    <i class="fas fa-undo me-1"></i> Reset
+                </button>
+                <a href="{% url 'donation_sub_category_create' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add New
+                </a>
+            </div>
         </div>
     </div>
 </div>

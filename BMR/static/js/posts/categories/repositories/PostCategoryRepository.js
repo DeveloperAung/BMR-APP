@@ -31,9 +31,9 @@ export class PostCategoryRepository extends BaseRepository {
         return this.updateItem(categoryId, categoryData);
     }
 
-    async deleteCategory(categoryId) {
-        return this.deleteItem(categoryId);
-    }
+    // async deleteCategory(categoryId) {
+    //     return this.deleteItem(categoryId);
+    // }
 
     // Bulk operations using the inherited method
     async bulkDeleteCategories(categoryIds) {

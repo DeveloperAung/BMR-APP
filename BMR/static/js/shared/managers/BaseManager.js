@@ -7,6 +7,9 @@ export class BaseManager {
         repository,
         tableRenderer,
         filterHandler,
+        getItemsFn = null,
+        extractItemsFn = null,
+        itemType = null,
         defaultPerPage = 30,
         defaultFilters = {}
     }) {
@@ -18,6 +21,10 @@ export class BaseManager {
         this.repository = repository;
         this.tableRenderer = tableRenderer;
         this.filterHandler = filterHandler;
+
+        this.getItemsFn = getItemsFn;
+        this.extractItemsFn = extractItemsFn;
+        this.itemType = itemType;
 
         this.paginationRenderer = new PaginationRenderer();
 
@@ -109,28 +116,7 @@ export class BaseManager {
 
     renderError(message) {
         this.tableRenderer.renderError(message);
-        this.showNotification(message, 'error');
-    }
-
-    showNotification(message, type = 'info') {
-        if (!this.notificationService) {
-            console.warn('NotificationService is missing in BaseManager');
-            return;
-        }
-
-        switch (type) {
-            case 'success':
-                this.notificationService.showSuccess(message);
-                break;
-            case 'error':
-                this.notificationService.showError(message);
-                break;
-            case 'warning':
-                this.notificationService.showWarning(message);
-                break;
-            default:
-                this.notificationService.showInfo(message);
-        }
+        this.notificationService.showError(message);
     }
 
     showLoading(isLoading = true) {
@@ -152,33 +138,57 @@ export class BaseManager {
         this.loadItems(page);
     }
 
-    // Template methods that should be implemented by child classes
     async getItems(params) {
-        throw new Error('getItems method must be implemented by child class');
+        if (this.getItemsFn) {
+            return this.getItemsFn(params);
+        }
+        if (this.repository?.getList) {
+            return this.repository.getList(params);
+        }
+        throw new Error('No getItemsFn or repository.getList defined');
     }
 
     extractItemsFromResponse(response) {
-        // Default implementation, can be overridden
+        if (this.extractItemsFn) {
+            return this.extractItemsFn(response);
+        }
         return response.items || response.results || [];
     }
 
     getItemType() {
-        // Should return a string like 'categories', 'subcategories', etc.
-        throw new Error('getItemType method must be implemented by child class');
+        if (this.itemType) {
+            return this.itemType;
+        }
+        return 'items';
     }
 
-    // Common CRUD operations that can be used by child classes
-    async deleteItem(itemId, title, confirmMessage = null) {
+    async toggleStatus(id, isActive, confirmMessage = null) {
         const message = confirmMessage || `Delete ${this.getItemType().slice(0, -1)} "${title}"?`;
         if (!confirm(message)) return;
 
         try {
-            await this.repository.deleteItem(itemId);
-            this.showNotification(`${title} deleted successfully`, 'success');
+            const result = await this.repository.toggleStatus(id, isActive);
+            const action = isActive ? "Activated" : "Deactivated";
+            this.notificationService.showSuccess(`Item ${action} successfully!`);
             await this.loadItems(this.state.currentPage);
         } catch (error) {
-            console.error('Delete error:', error);
-            this.showNotification(`Failed to delete ${this.getItemType().slice(0, -1)}`, 'error');
+            this.notificationService.showError(`Failed to update status: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async togglePublish(id, isPublished, confirmMessage = null) {
+        const toggleMessage = confirmMessage || `Publish ${this.getItemType().slice(0, -1)} "${title}"?`;
+        if (!confirm(toggleMessage)) return;
+
+        try {
+            const result = await this.repository.togglePublish(id, isPublished);
+            const action = isPublished ? "Published" : "Unpublished";
+            this.notificationService.showSuccess(`Item ${action} successfully!`);
+            await this.loadItems(this.state.currentPage);
+        } catch (error) {
+            this.notificationService.showError(`Failed to update status: ${error.message}`);
+            throw error;
         }
     }
 

@@ -1,0 +1,128 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Donation Subcategory{% endblock %}
+
+{% block content %}
+{% include 'private/donations/subcategory/partials/page-header.html' %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                        {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Subcategory
+                    </h5>
+                </div>
+                <div class="card-body">                
+                    <div id="result"></div>
+                    <form id="subCategoryForm" data-subcategory-id="{{ subcategory.id|default:'' }}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">
+                                Name <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="title" 
+                                name="title"
+                                placeholder="Enter subcategory name"
+                                required
+                                {% if mode == 'edit' and subcategory %}
+                                    value="{{ subcategory.title }}"
+                                {% endif %}
+                            >
+                            <div class="invalid-feedback">
+                                Please provide a subcategory name.
+                            </div>
+                        </div>
+                        
+                        <!-- Category Selection -->
+                        <div class="mb-4">
+                            <label for="category" class="form-label fw-bold">
+                                Category <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select form-select-lg" id="category" name="category" required>
+                                <option value="" disabled {% if not subcategory or not subcategory.category_id %}selected{% endif %}>Select a category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" 
+                                            {% if mode == 'edit' and subcategory and subcategory.donation_category_id == category.id %}selected{% endif %}>
+                                        {{ category.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a category.
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">
+                                Description
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="description" 
+                                name="description"
+                                rows="3"
+                                placeholder="Enter a description (optional)"
+                            >{% if mode == 'edit' and subcategory %}{{ subcategory.description|default:'' }}{% endif %}</textarea>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="form-check form-switch mb-4">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="is_active"
+                                name="is_active"
+                                {% if mode == 'edit' and subcategory.is_active or mode != 'edit' %}checked{% endif %}
+                            >
+                            <label class="form-check-label fw-bold" for="is_active">
+                                Active
+                            </label>
+                            <div class="form-text">
+                                Inactive subcategories won't be available for selection.
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                            <a href="{% url 'donation_sub_category_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to List
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light me-2">
+                                    <i class="fas fa-undo me-1"></i> Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="button-text">
+                                        <i class="fas fa-save me-1"></i>
+                                        {% if mode == 'edit' %}Update{% else %}Create{% endif %} Subcategory
+                                    </span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script type="module">        
+    import { initDonationSubCategoryCreate } from "{% static 'js/donations/subcategories/donationSubCategoryCreate.js' %}";
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initDonationSubCategoryCreate();
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

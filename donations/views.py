@@ -9,7 +9,7 @@ from .forms import DonationCategoryForm, DonationSubCategoryForm
 import csv
 
 
-def donation_category_list(request):
+def DonationCategoryList(request):
     return render(request, 'private/donations/category/list.html')
 
 
@@ -49,8 +49,50 @@ class CategoryEditView(View):
         return render(request, self.template_name, context)
 
 
-def donation_sub_category_list(request):
+def DonationSubCategoryList(request):
+    """View for listing donation subcategories"""
     return render(request, 'private/donations/subcategory/list.html')
+
+
+class SubCategoryCreateView(View):
+    """View for creating donation subcategories - template only, JS handles everything"""
+    template_name = 'private/donations/subcategory/create.html'
+    
+    def get(self, request):
+        """Display the subcategory creation form"""
+        # Get active categories for the dropdown
+        categories = DonationCategory.objects.filter(is_active=True).order_by('title')
+        
+        context = {
+            'mode': 'create',
+            'page_title': 'Create Donation Subcategory',
+            'categories': categories
+        }
+        return render(request, self.template_name, context)
+
+
+class SubCategoryEditView(View):
+    """View for editing donation subcategories - template only, JS handles everything"""
+    template_name = 'private/donations/subcategory/create.html'  
+    
+    def get(self, request, pk):
+        """Display the subcategory edit form"""
+        
+        categories = DonationCategory.objects.filter(is_active=True).order_by('title')
+                
+        try:
+            subcategory = get_object_or_404(DonationSubCategory, pk=pk)
+        except:
+            subcategory = None
+
+        context = {
+            'mode': 'edit',
+            'subcategory_id': pk,
+            'subcategory': subcategory,  # May be None if not found
+            'categories': categories,
+            'page_title': f'Edit Subcategory: {subcategory.title if subcategory else "Unknown"}'
+        }
+        return render(request, self.template_name, context)
 
 
 def donation_category_create(request):

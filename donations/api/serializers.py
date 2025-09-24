@@ -34,6 +34,12 @@ class DonationSubCategorySerializer(serializers.ModelSerializer):
         model = DonationSubCategory
         fields = ['id', 'title', 'donation_category', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
+        
+    def update(self, instance, validated_data):        
+        is_active = validated_data.pop('is_active', None)
+        if is_active is not None:
+            instance.is_active = is_active
+        return super().update(instance, validated_data)
 
     def validate_title(self, value):
         if self.instance is None:

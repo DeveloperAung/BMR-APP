@@ -211,9 +211,13 @@ const apiServiceInstance = new ApiService(authService, null);
  * Base Repository class for data access
  */
 export class BaseRepository {
-    constructor(baseEndpoint, apiService = apiServiceInstance) {
+    constructor(baseEndpoint, apiService = null) {
         this.baseEndpoint = baseEndpoint;
-        this.apiService = apiService;
+        this.apiService = apiService || apiServiceInstance;
+        
+        if (!this.apiService || !this.apiService.get) {
+            console.error('API Service is not properly initialized in BaseRepository');
+        }
     }
 
     /**
@@ -276,6 +280,18 @@ export class BaseRepository {
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error(`${this.constructor.name}.toggleStatus failed:`, error);
+            throw error;
+        }
+    }
+
+    async togglePublish(id, isPublish) {
+        if (!id) throw new Error("Entity ID is required for togglePublish");
+
+        try {
+            const jsonData = await this.updateItem(id, { is_published: isPublish });
+            return jsonData?.data || jsonData;
+        } catch (error) {
+            console.error(`${this.constructor.name}.togglePublish failed:`, error);
             throw error;
         }
     }

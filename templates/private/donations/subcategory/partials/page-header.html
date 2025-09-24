@@ -1,19 +1,26 @@
-<div class="container-fluid">
-    <div class="page-title">
-        <div class="row">
-            <div class="col-sm-6 col-12">
-                <h2>Management</h2>
-            </div>
-            <div class="col-sm-6 col-12">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'private_dashboard' %}">
-                            <i class="iconly-Home icli svg-color"></i>
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item">Donation</li>
-                    <li class="breadcrumb-item active">Subcategory</li>
-                </ol>
+<div class="page-header">
+    <div class="container-fluid">
+        <div class="page-header-content py-3">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto">
+                    <h1 class="page-title mb-0">
+                        <i class="fas fa-tags me-2"></i>
+                        Donation Subcategories
+                    </h1>
+                </div>
+                <div class="col-auto">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'private_dashboard' %}">
+                                    <i class="fas fa-home"></i>
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">Donations</li>
+                            <li class="breadcrumb-item active" aria-current="page">Subcategories</li>
+                        </ol>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>

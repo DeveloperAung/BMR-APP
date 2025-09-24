@@ -1,6 +1,6 @@
-import { CategoryFormHandler } from './handlers/CategoryFormHandler.js';
-import { AuthService } from '../../shared/services/AuthService.js';
-import { NotificationService } from '../../shared/services/NotificationService.js';
+import {CategoryFormHandler} from './handlers/CategoryFormHandler.js';
+import {AuthService} from '../../shared/services/AuthService.js';
+import {NotificationService} from '../../shared/services/NotificationService.js';
 
 export const initDonationCategoryCreate = () => {
     try {
@@ -10,14 +10,10 @@ export const initDonationCategoryCreate = () => {
             return;
         }
 
-        // Initialize handler
-        const handler = new CategoryFormHandler(form, {
+        window.donationCategoryApp = new CategoryFormHandler(form, {
             authService: new AuthService(),
             notificationService: new NotificationService()
         });
-
-        // Expose for debugging
-        window.donationCategoryApp = handler;
 
     } catch (e) {
         console.error('Init failed:', e);
@@ -32,10 +28,10 @@ export const initDonationCategoryCreate = () => {
 };
 
 // Auto-init
-if (typeof document !== 'undefined' && !window.__DONATION_CATEGORY_NO_AUTO_INIT__) {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initDonationCategoryCreate);
-    } else {
-        initDonationCategoryCreate();
-    }
-}
+// if (typeof document !== 'undefined' && !window.__DONATION_CATEGORY_NO_AUTO_INIT__) {
+//     if (document.readyState === 'loading') {
+//         document.addEventListener('DOMContentLoaded', initDonationCategoryCreate);
+//     } else {
+//         initDonationCategoryCreate();
+//     }
+// }

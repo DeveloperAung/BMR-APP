@@ -1,150 +1,96 @@
-// static/js/posts/categories/managers/CategoryManager.js
+// static/js/events/categories/managers/CategoryManager.js
+import { BaseManager } from '../../../shared/managers/BaseManager.js';
 import { EventCategoryRepository } from '../repositories/EventCategoryRepository.js';
 import { CategoryTableRenderer } from '../renderers/CategoryTableRenderer.js';
-import { PaginationRenderer } from '../../../shared/renderers/PaginationRenderer.js';
-//import { FilterHandler } from '../handlers/CategoryFilterHandler.js';
-//import { CategoryBulkActionHandler } from '../handlers/CategoryBulkActionHandler.js';
+import { CategoryFilterHandler } from '../handlers/CategoryFilterHandler.js';
 
-export class CategoryManager {
+export class CategoryManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        console.log('CategoryManager: Constructor called');
-        this.authService = authService;
-        this.notificationService = notificationService;
+        const repository = new EventCategoryRepository({ notificationService });
+        const tableRenderer = new CategoryTableRenderer();
+        const filterHandler = new CategoryFilterHandler();
 
-        this.categoryRepository = new EventCategoryRepository(authService);
-        this.tableRenderer = new CategoryTableRenderer();
-        this.currentPage = 1;
-        this.perPage = 10;
-        this.paginationRenderer = new PaginationRenderer();
-
-//        this.filterHandler = new FilterHandler(this.handleFiltersChange.bind(this));
-//        this.bulkActionHandler = new CategoryBulkActionHandler();
-
-        this.state = {
-            currentPage: 1,
-            perPage: 30,
-            filters: { search: '', show_all: '', ordering: '-created_at' },
-            categories: [],
-            pagination: null,
-            loading: false
-        };
-    }
-
-    async init() {
-        this.setupEventListeners();
-//        this.bulkActionHandler.init();
-        await this.loadCategories();
-    }
-
-    setupEventListeners() {
-//        this.filterHandler.init();
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-action="view-category"]')) {
-                this.viewCategory(e.target.dataset.categoryId);
-            } else if (e.target.matches('[data-action="edit-category"]')) {
-                this.editCategory(e.target.dataset.categoryId);
-            } else if (e.target.matches('[data-action="delete-category"]')) {
-                this.deleteCategory(e.target.dataset.categoryId, e.target.dataset.title);
+        super({
+            authService,
+            notificationService,
+            repository,
+            tableRenderer,
+            filterHandler,
+            defaultPerPage: 30,
+            defaultFilters: {
+                show_all: '',
+                ordering: '-created_at'
             }
         });
+
+        this.filterHandler = new CategoryFilterHandler(this.handleFiltersChange.bind(this));
     }
 
-    async loadCategories(page = 1) {
-        console.log('CategoryManager: called categories');
+    // Implement required template methods
+    async getItems(params) {
+        return await this.repository.getCategories(params);
+    }
+
+    extractItemsFromResponse(response) {
+        return response.categories || response.items || response.results || [];
+    }
+
+    getItemType() {
+        return 'categories';
+    }
+
+    async createCategory(categoryData) {
         try {
-            this.currentPage = page;
-
-            const response = await this.categoryRepository.getCategories({
-                page: this.currentPage,
-                per_page: this.perPage
-            });
-
-            // FIX: use response.categories instead of items/results
-            const categories = response.categories || response.items || response.results || [];
-
-            this.tableRenderer.render(
-                categories,
-                this.currentPage,
-                this.perPage
-            );
-
-            // Update pagination UI if you have one
-            if (response.pagination) {
-                this.renderPagination(response.pagination);
-            }
+            this.notificationService?.showLoading?.('Creating category...');
+            const response = await this.repository.submitCategory(categoryData);
+            this.notificationService?.hideLoading?.();
+            return response;
         } catch (error) {
-            console.error('Failed to load categories:', error);
+            this.notificationService?.hideLoading?.();
+            throw error;
         }
     }
 
-    onPageChange(newPage) {
-        this.loadCategories(newPage);
-    }
-
-    onPerPageChange(newPerPage) {
-        this.perPage = newPerPage;
-        this.currentPage = 1; // Reset to first page
-        this.loadCategories(1);
-    }
-
-    renderPagination(pagination) {
-        this.state.pagination = pagination;
-        this.paginationRenderer.render(pagination, this.goToPage.bind(this));
-    }
-
-    updateResultsInfo(pagination) {
-        const infoEl = document.getElementById('resultsInfo');
-        if (infoEl && pagination) {
-            infoEl.textContent = `Page ${pagination.current_page} of ${pagination.total_pages} (${pagination.total_count} categories)`;
+    async updateCategory(categoryId, categoryData) {
+        try {
+            this.notificationService?.showLoading?.('Updating category...');
+            const response = await this.repository.updateCategory(categoryId, categoryData);
+            this.notificationService?.hideLoading?.();
+            return response;
+        } catch (error) {
+            this.notificationService?.hideLoading?.();
+            throw error;
         }
     }
 
-    renderError(message) {
-        this.tableRenderer.renderError(message);
-        this.showNotification(message, 'error');
-    }
-
-    showNotification(message, type = 'info') {
-        if (!this.notificationService) return;
-        switch (type) {
-            case 'success': this.notificationService.showSuccess(message); break;
-            case 'error': this.notificationService.showError(message); break;
-            case 'warning': this.notificationService.showWarning(message); break;
-            default: this.notificationService.showInfo(message);
-        }
-    }
-
-    showLoading(isLoading = true) {
-        this.state.loading = isLoading;
-        const spinner = document.getElementById('loadingSpinner');
-        if (spinner) spinner.style.display = isLoading ? 'block' : 'none';
-    }
-
-    buildQueryParams() {
-        const params = new URLSearchParams();
-        params.append('page', this.state.currentPage);
-        params.append('per_page', this.state.perPage);
-        Object.entries(this.state.filters).forEach(([k, v]) => v && params.append(k, v));
-        return params.toString();
-    }
-
-    handleFiltersChange(filters) {
-        this.state.filters = filters;
-        this.state.currentPage = 1;
-        this.loadCategories();
-    }
-
-    goToPage(page) {
-        this.state.currentPage = page;
-        this.loadCategories();
-    }
-
+    // Category-specific methods
     async viewCategory(categoryId) {
         console.log(`Viewing category ${categoryId}`);
+        window.location.href = `/events/i/categories/${categoryId}/`;
     }
 
     async editCategory(categoryId) {
         console.log(`Editing category ${categoryId}`);
+        window.location.href = `/events/i/categories/${categoryId}/edit/`;
     }
 
+    async toggleCategoryStatus(id, isActive) {
+        const result = await this.repository.toggleStatus(id, isActive);
+        const action = isActive ? "reactivated" : "deactivated";
+        this.notificationService.showSuccess(`Category ${action} successfully!`);
+        return result;
+    }
+
+    async bulkDeleteCategories(categoryIds) {
+        if (!confirm(`Delete ${categoryIds.length} selected categories?`)) return;
+
+        try {
+            await this.repository.bulkDeleteCategories(categoryIds);
+            this.notificationService.showSuccess(`${categoryIds.length} categories deleted successfully!`);
+            await this.loadCategories();
+        } catch (error) {
+            console.error('Error deleting categories:', error);
+            this.notificationService.showError('Failed to delete categories. Please try again.');
+        }
+    }
 }
