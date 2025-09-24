@@ -1,7 +1,6 @@
 import { CategoryManager } from './managers/CategoryManager.js';
 import { AuthService } from '../../shared/services/AuthService.js';
 import { NotificationService } from '../../shared/services/NotificationService.js';
-import { ApiErrorHandler } from '../../shared/services/ApiErrorHandler.js';
 
 class CategoryApp {
     constructor() {

@@ -32,7 +32,7 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-body">
-                        <form id="eventCategoryForm" class="needs-validation" novalidate>
+                        <form id="eventCategoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
                             {% csrf_token %}
                             
                             <div class="mb-3">
@@ -44,12 +44,16 @@
                                 </div>
                             </div>
                             
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
-                                       {% if mode == 'create' or category.is_active %}checked{% endif %}>
-                                <label class="form-check-label" for="is_active">
-                                    Active
-                                </label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {% if mode == 'create' or category.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="d-flex justify-content-between">
@@ -68,6 +72,13 @@
     </div>
     
     {% block extra_js %}
-        <script src="{% static 'js/events/categories/eventCategoryCreate.js' %}" type="module"></script>
+        <script type="module">
+        import { initEventCategoryCreate } from '{% static 'js/events/categories/eventCategoryCreate.js' %}';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing donation category form...');
+            initEventCategoryCreate();
+        });
+    </script>
     {% endblock %}
 {% endblock %}

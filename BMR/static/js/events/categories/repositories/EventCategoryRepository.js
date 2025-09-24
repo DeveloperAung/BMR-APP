@@ -17,7 +17,7 @@ export class EventCategoryRepository extends BaseRepository {
 
         const payload = {
             title: categoryData.title.trim(),
-            is_active: Boolean(categoryData.is_active)
+            is_active: true
         };
 
         try {

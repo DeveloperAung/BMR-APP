@@ -4,7 +4,7 @@ import { EventCategoryRepository } from '../repositories/EventCategoryRepository
 import { CategoryTableRenderer } from '../renderers/CategoryTableRenderer.js';
 import { CategoryFilterHandler } from '../handlers/CategoryFilterHandler.js';
 
-export class CategoryManager extends BaseManager {
+export class EventCategoryManager extends BaseManager {
     constructor({ authService, notificationService }) {
         const repository = new EventCategoryRepository({ notificationService });
         const tableRenderer = new CategoryTableRenderer();

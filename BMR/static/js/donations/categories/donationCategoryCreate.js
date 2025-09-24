@@ -28,10 +28,10 @@ export const initDonationCategoryCreate = () => {
 };
 
 // Auto-init
-// if (typeof document !== 'undefined' && !window.__DONATION_CATEGORY_NO_AUTO_INIT__) {
-//     if (document.readyState === 'loading') {
-//         document.addEventListener('DOMContentLoaded', initDonationCategoryCreate);
-//     } else {
-//         initDonationCategoryCreate();
-//     }
-// }
+if (typeof document !== 'undefined' && !window.__DONATION_CATEGORY_NO_AUTO_INIT__) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDonationCategoryCreate);
+    } else {
+        initDonationCategoryCreate();
+    }
+}

@@ -1,6 +1,6 @@
 // static/js/events/categories/handlers/CategoryFormHandler.js
-import { ApiErrorHandler } from '../../../../shared/services/ApiErrorHandler.js';
-import { CategoryManager } from '../managers/CategoryManager.js';
+import { ApiErrorHandler } from '../../../shared/services/ApiErrorHandler.js';
+import { EventCategoryManager } from '../managers/CategoryManager.js';
 
 export class CategoryFormHandler {
     /**
@@ -16,7 +16,7 @@ export class CategoryFormHandler {
         this.notificationService = notificationService;
 
         // Manager handles API + repository
-        this.manager = new CategoryManager({
+        this.manager = new EventCategoryManager({
             authService,
             notificationService
         });
@@ -35,6 +35,13 @@ export class CategoryFormHandler {
             title: formData.get('title'),
             is_active: formData.get('is_active') === 'on',
         };
+
+        if (this.form.dataset.categoryId) {
+            // Only include in edit mode if checkbox is present
+            if (formData.has('is_active')) {
+                data.is_active = formData.get('is_active') === 'on';
+            }
+        }
         return data;
     }
 

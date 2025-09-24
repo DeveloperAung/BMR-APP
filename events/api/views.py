@@ -2,9 +2,10 @@ from rest_framework import status, generics, filters
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
 
+from core.utils import mixins
 from core.utils.pagination import StandardResultsSetPagination
+from core.utils.responses import ok, fail
 from ..models import EventCategory, EventSubCategory
 from .serializers import (
     EventCategorySerializer,
@@ -27,7 +28,7 @@ class EventCategoryListCreateView(generics.ListCreateAPIView):
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title']
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         # Get the 'show_all' parameter from query params
@@ -51,17 +52,14 @@ class EventCategoryListCreateView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer)
-            return custom_api_response(
-                success=True,
-                message="Event category created successfully.",
+            return ok(
                 data=serializer.data,
-                status_code=status.HTTP_201_CREATED
+                message="Event category created successfully.",
+                status=status.HTTP_201_CREATED
             )
-        return custom_api_response(
-            success=False,
-            message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return fail(
+            error=serializer.errors,
+            message="Validation error"
         )
 
 
@@ -71,7 +69,10 @@ class EventCategoryListCreateView(generics.ListCreateAPIView):
         summary="Retrieve, Update, Destroy Event Category",
         description="Retrieve, update and destroy Event Category by id"
     )
-class EventCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class EventCategoryRetrieveUpdateDestroyView(
+        mixins.SoftDeleteMixin,
+        generics.RetrieveUpdateDestroyAPIView
+    ):
     queryset = EventCategory.objects.all()
     serializer_class = EventCategorySerializer
     lookup_field = 'pk'
@@ -79,10 +80,9 @@ class EventCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVi
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return custom_api_response(
-            success=True,
+        return ok(
+            data=serializer.data,
             message="",
-            data=serializer.data
         )
 
     def update(self, request, *args, **kwargs):
@@ -91,39 +91,14 @@ class EventCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVi
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
-            return custom_api_response(
-                success=True,
+            return ok(
+                data=serializer.data,
                 message="Event category updated successfully.",
-                data=serializer.data
             )
-        return custom_api_response(
-            success=False,
-            message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return fail(
+            error=serializer.errors,
+            message="Validation error"
         )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # Perform soft delete by setting is_active=False
-        instance.is_active = False
-        instance.save(update_fields=['is_active'])
-        return custom_api_response(
-            success=True,
-            message="Event category has been deactivated successfully.",
-            data={"id": instance.id, "is_active": False}
-        )
-
-    # def soft_delete(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     instance.is_active = False
-    #     instance.save(update_fields=['is_active', 'updated_at'])
-    #     return custom_api_response(
-    #         success=True,
-    #         message="Event category has been deactivated successfully.",
-    #         data={"id": instance.id, "is_active": False}
-    #     )
-
 
 @extend_schema(
         tags=["Events"],
@@ -151,17 +126,14 @@ class EventSubCategoryListCreateView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer)
-            return custom_api_response(
-                success=True,
-                message="Event sub-category created successfully.",
+            return ok(
                 data=serializer.data,
-                status_code=status.HTTP_201_CREATED
+                message="Event sub-category created successfully.",
+                status=status.HTTP_201_CREATED
             )
-        return custom_api_response(
-            success=False,
+        return fail(
+            error=serializer.errors,
             message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -171,7 +143,10 @@ class EventSubCategoryListCreateView(generics.ListCreateAPIView):
         summary="Create, Update and Delete Event Sub Category",
         description="Create, Update and Delete Event Sub Category"
     )
-class EventSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class EventSubCategoryRetrieveUpdateDestroyView(
+        mixins.SoftDeleteMixin,
+        generics.RetrieveUpdateDestroyAPIView
+    ):
     queryset = EventSubCategory.objects.select_related('event_category')
     serializer_class = EventSubCategorySerializer
     lookup_field = 'pk'
@@ -184,10 +159,9 @@ class EventSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return custom_api_response(
-            success=True,
+        return ok(
+            data=serializer.data,
             message="",
-            data=serializer.data
         )
 
     def update(self, request, *args, **kwargs):
@@ -196,33 +170,12 @@ class EventSubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
-            return custom_api_response(
-                success=True,
+            return ok(
+                data=serializer.data,
                 message="Event sub-category updated successfully.",
-                data=serializer.data
             )
-        return custom_api_response(
-            success=False,
-            message="Validation error",
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return fail(
+            error=serializer.errors,
+            message="Validation error"
         )
 
-    # def destroy(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     self.perform_destroy(instance)
-    #     return custom_api_response(
-    #         success=True,
-    #         message="Event sub-category deleted successfully.",
-    #         status_code=status.HTTP_204_NO_CONTENT
-    #     )
-
-    def soft_delete(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save(update_fields=['is_active', 'updated_at'])
-        return custom_api_response(
-            success=True,
-            message="Event sub-category has been deactivated successfully.",
-            data={"id": instance.id, "is_active": False}
-        )

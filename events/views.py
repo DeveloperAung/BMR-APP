@@ -10,52 +10,43 @@ from django.conf import settings
 
 # Create your views here.
 
-class EventCategoryList(View):
-    """View for listing event categories"""
-    def get(self, request):
-        return render(request, 'private/events/category/list.html')
-
-
-class EventSubCategoryList(View):
-    """View for listing event subcategories"""
-    def get(self, request):
-        return render(request, 'private/events/subcategory/list.html')
+def EventCategoryList(request):
+    return render(request, 'private/events/category/list.html')
 
 
 class CategoryCreateView(View):
-    """View for creating event categories - template only, JS handles everything"""
+    """View for creating donation categories - template only, JS handles everything"""
     template_name = 'private/events/category/create.html'
 
     def get(self, request):
         """Display the category creation form"""
         context = {
             'mode': 'create',
-            'page_title': 'Create Event Category'
+            'page_title': 'Create Donation Category'
         }
         return render(request, self.template_name, context)
 
 
 class CategoryEditView(View):
-    """View for editing event categories - template only, JS handles everything"""
-    template_name = 'private/events/category/create.html'  # Same template, different mode
+    template_name = 'private/events/category/create.html'
 
     def get(self, request, pk):
-        """Display the category edit form"""
-        # Get category for basic info (title for breadcrumb, etc.)
-        # No auth check here - JS will handle authentication
         try:
             category = get_object_or_404(EventCategory, pk=pk)
         except:
-            # If category not found, still show template - JS will handle the error
             category = None
 
         context = {
             'mode': 'edit',
             'category_id': pk,
-            'category': category,  # May be None if not found
+            'category': category,
             'page_title': f'Edit Category: {category.title if category else "Unknown"}'
         }
         return render(request, self.template_name, context)
+
+
+def EventSubCategoryList(request):
+    return render(request, 'private/events/subcategory/list.html')
 
 
 class SubCategoryCreateView(View):
