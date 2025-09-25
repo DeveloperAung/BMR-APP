@@ -21,7 +21,6 @@ export const API_ENDPOINTS = {
     // Posts
     POSTS: {
         CATEGORIES: `${BASE_API_URL}/posts/categories/`,
-        SUB_CATEGORIES: `${BASE_API_URL}/posts/subcategories/`,
         POSTS: `${BASE_API_URL}/posts/`,
         TAGS: `${BASE_API_URL}/posts/tags/`
     },
@@ -50,6 +49,10 @@ export const API_ENDPOINTS = {
 
     ASSOCIATION: {
         POSTS: `${BASE_API_URL}/association/posts`
+    },
+
+    MEMBERSHIP: {
+        MEMBERSHIPS: `${BASE_API_URL}/membership/posts`
     }
 };
 
@@ -89,4 +92,13 @@ export const API_CONFIG = {
     }
 };
 
-export const { AUTH, EVENTS, POSTS, DONATIONS, USERS, CORE, ASSOCIATION } = API_ENDPOINTS;
+export const {
+    AUTH,
+    EVENTS,
+    POSTS,
+    DONATIONS,
+    USERS,
+    CORE,
+    ASSOCIATION,
+    MEMBERSHIP
+} = API_ENDPOINTS;

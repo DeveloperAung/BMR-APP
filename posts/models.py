@@ -32,7 +32,7 @@ class Post(AuditModel):
     )
     post_category = models.ForeignKey(PostCategory, on_delete=models.SET_NULL, null=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
-    media = models.ForeignKey('core.MediaModel', on_delete=models.SET_NULL, null=True)
+    media = models.ForeignKey('core.MediaModel', on_delete=models.SET_NULL, null=True, blank=True)
     cover_image = models.ImageField(upload_to=post_image_path, blank=True)
     set_banner = models.BooleanField(default=False)
     banner_order = models.PositiveIntegerField(default=0)

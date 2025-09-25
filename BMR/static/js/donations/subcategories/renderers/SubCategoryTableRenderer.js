@@ -19,7 +19,6 @@ export class SubCategoryTableRenderer extends BaseTableRenderer {
     }
 
     render(subCategories, currentPage = 1, perPage = 30) {
-        // Update pagination info
         this.setPagination(currentPage, perPage);
 
         if (!subCategories || subCategories.length === 0) {

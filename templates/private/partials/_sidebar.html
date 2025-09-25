@@ -83,7 +83,7 @@
                 <h6 class="f-w-600">Posts</h6><i class="iconly-Arrow-Right-2 icli"> </i></a>
                 <ul class="sidebar-submenu">
                     <li><a href="{% url 'post_category_list' %}">Category List</a></li>
-                    <li><a href="product.html">Post Create</a></li>
+                    <li><a href="{% url 'post_list' %}">Post List</a></li>
                 </ul>
             </li>
              <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link"
@@ -117,7 +117,7 @@
                 </svg>
                 <h6 class="f-w-600">Membership</h6><i class="iconly-Arrow-Right-2 icli"> </i></a>
                 <ul class="sidebar-submenu">
-                    <li><a href="private-chat.html">List</a></li>
+                    <li><a href="{% url 'membership_list' %}">List</a></li>
                     <li><a href="group-chat.html">Actions</a></li>
                 </ul>
             </li>

@@ -10,7 +10,8 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.views import View
 from django.http import JsonResponse
 from core.utils.responses import ok, fail
-from memberships.models import Membership, EducationLevel, Institution, MembershipType, MembershipPayment
+from memberships.models import Membership, EducationLevel, Institution, MembershipType, MembershipPayment, PersonalInfo, \
+    ContactInfo
 
 # Import ONLY the new serializers
 from .serializers import (
@@ -82,10 +83,15 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     lookup_field = "uuid"
 
     def get_queryset(self):
-        return Membership.objects.select_related(
+        base_qs = Membership.objects.select_related(
             "membership_type", "profile_info", "contact_info",
             "education_info", "work_info", "workflow_status"
-        ).filter(user=self.request.user)
+        )
+        # Management sees all
+        if self.request.user.is_staff:  # or use IsManagementUser() logic
+            return base_qs
+        # Public users see only their own
+        return base_qs.filter(user=self.request.user)
 
     def get_or_create_membership(self):
         """Get existing membership or create new draft"""

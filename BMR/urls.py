@@ -11,6 +11,7 @@ urlpatterns = [
     path('posts/', include('posts.urls')),
     path('events/', include('events.urls')),
     path('donations/', include('donations.urls')),
+    path('memberships/', include('memberships.urls')),
 
     path('api/auth/', include('authentication.api.urls')),
     path('api/association/', include('association.api.routers')),

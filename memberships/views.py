@@ -3,6 +3,11 @@ from django.views.generic import TemplateView
 from django.conf import settings
 from .models import *
 
+
+def membership_list(request):
+    return render(request, 'private/memberships/list.html')
+
+
 def _as_choice_list(choices):
     """Normalize Django choices (tuples or queryset) into list of dicts."""
     out = []

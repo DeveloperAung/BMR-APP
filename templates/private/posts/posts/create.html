@@ -1,0 +1,70 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.id|default_if_none:"Create" }} Post{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <form id="postForm" class="needs-validation"
+        data-post-id="{{ post.id|default_if_none:'' }}"
+        enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" class="form-control" id="title" name="title"
+             value="{{ post.title|default_if_none:'' }}" required>
+      <div class="invalid-feedback">Please enter a title</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="short_description" class="form-label">Short Description</label>
+      <input type="text" class="form-control" id="short_description" name="short_description"
+             value="{{ post.short_description|default_if_none:'' }}">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      {% include 'partials/_quill_editor.html' with toolbar_id='toolbar7' %}
+      <div class="quill-paragraph" id="editor7">
+        {{ post.description|safe }}
+      </div>
+      <input type="hidden" name="description" id="description">
+    </div>
+
+    <div class="mb-3">
+      <label for="post_category" class="form-label">Category</label>
+      <select class="form-select" id="post_category" name="post_category" required>
+        <option value="">Select Category</option>
+        {% for category in categories %}
+          <option value="{{ category.id }}" {% if post.post_category_id == category.id %}selected{% endif %}>
+            {{ category.title }}
+          </option>
+        {% endfor %}
+      </select>
+      <div class="invalid-feedback">Please select a category</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="cover_image" class="form-label">Cover Image</label>
+      <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+      <div class="mt-2">
+        <img id="cover_image_preview" src="{% if post.cover_image %}{{ post.cover_image.url|default_if_none:'' }}{% endif %}"
+             alt="Cover Preview" style="max-width:300px;display:{% if post.cover_image %}block{% else %}none{% endif %};">
+      </div>
+    </div>
+
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="is_published" name="is_published"
+             {% if post.is_published %}checked{% endif %}>
+      <label class="form-check-label" for="is_published">Published</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'post_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+
+{% block extra_js %}
+<script src="{% static 'js/posts/posts/postCreate.js' %}" type="module"></script>
+{% endblock %}
+{% endblock %}

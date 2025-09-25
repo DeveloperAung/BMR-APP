@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import PostCategory
+from .models import PostCategory, Post
 from django.views import View
 
 
@@ -36,4 +36,44 @@ class CategoryEditView(View):
         return render(request, self.template_name, context)
 
 
+def PostList(request):
+    return render(request, 'private/posts/posts/list.html')
 
+
+class PostCreateView(View):
+    template_name = 'private/posts/posts/create.html'
+
+    def get(self, request):
+        categories = PostCategory.objects.filter(is_active=True)
+        posts = Post.objects.filter(is_active=True)
+        
+        context = {
+            'mode': 'create',
+            'page_title': 'Create Post',
+            'categories': categories,
+            'posts': posts
+        }
+        return render(request, self.template_name, context)
+
+
+class PostEditView(View):
+    template_name = 'private/posts/posts/create.html'
+
+    def get(self, request, pk):
+        categories = PostCategory.objects.filter(is_active=True)
+        posts = Post.objects.filter(is_active=True)
+        
+        try:
+            post = get_object_or_404(Post, pk=pk)
+        except:
+            post = None
+
+        context = {
+            'mode': 'edit',
+            'post_id': pk,
+            'post': post,
+            'categories': categories,
+            'posts': posts,
+            'page_title': f'Edit Post: {post.title if post else "Unknown"}'
+        }
+        return render(request, self.template_name, context)

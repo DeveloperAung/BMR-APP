@@ -1,10 +1,10 @@
 {% extends 'private/partials/base.html' %}
 {% load static %}
 
-{% block title %}Membership - Management{% endblock %}
+{% block title %}Post - management{% endblock %}
 
 {% block content %}
-    {% include 'private/memberships/partials/page-header.html' %}
+    {% include 'private/posts/category/partials/page-header.html' %}
 
     <div class="container-fluid">
         <div class="row">
@@ -14,17 +14,19 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h3 class="mb-0">
-                                    Membership List
+                                    <i class="fas fa-list-alt me-2"></i>Posts
                                 </h3>
                             </div>
                             <div class="col-md-6 text-end">
-                                <a class="btn btn-primary" href="{% url 'donation_category_create' %}">Create New</a>
+                                <a class="btn btn-primary" href="{% url 'post_create' %}">
+                                    <i class="fas fa-plus me-1"></i> Create New
+                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body table-responsive">
-                        {% include 'private/memberships/partials/filters.html' %}
-                        {% include 'private/memberships/partials/category-table.html' %}
+                        {% include 'private/posts/posts/partials/filters.html' %}
+                        {% include 'private/posts/posts/partials/post-table.html' %}
                         <div id="loadingSpinner" class="text-center p-3" style="display: none;">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
@@ -45,6 +47,6 @@
         </div>
     </div>
     {% block extra_js %}
-        <script src="{% static 'js/memberships/memberships.js' %}" type="module"></script>
+        <script src="{% static 'js/posts/posts/posts.js' %}" type="module"></script>
     {% endblock %}
 {% endblock %}

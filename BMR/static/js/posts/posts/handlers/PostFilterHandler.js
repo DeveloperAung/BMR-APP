@@ -1,4 +1,5 @@
-export class CategoryFilterHandler {
+// static/js/events/categories/handlers/CategoryFilterHandler.js
+export class PostFilterHandler {
     constructor(onFiltersChange) {
         this.onFiltersChange = onFiltersChange;
         this.elements = {};
@@ -30,7 +31,7 @@ export class CategoryFilterHandler {
         // Log missing elements for debugging
         Object.entries(this.elements).forEach(([key, element]) => {
             if (!element) {
-                console.warn(`CategoryFilterHandler: Missing element ${key}`);
+                console.warn(`PostFilterHandler: Missing element ${key}`);
             }
         });
     }

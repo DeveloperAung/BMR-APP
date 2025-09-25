@@ -1,4 +1,4 @@
-export class CategoryFilterHandler {
+export class MembershipFilterHandler {
     constructor(onFiltersChange) {
         this.onFiltersChange = onFiltersChange;
         this.elements = {};
