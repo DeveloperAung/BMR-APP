@@ -7,27 +7,36 @@ export class DonationSubCategoryRepository extends BaseRepository {
         this.notificationService = notificationService;
     }
 
-    // Custom method names for your domain
-    async getDonationSubCategories(params = {}) {
-//        console.log('SubCategoryRepository: Service called get subcategories');
-        const result = await this.getList(params);
-//        console.log('SubCategoryRepository: Result completed');
-
-        return {
-            subCategories: result.items,
-            pagination: result.pagination
-        };
+    async getCategories(params = {}) {
+        return this.getList(params);
     }
 
     async getSubCategory(subCategoryId) {
         return this.getItem(subCategoryId);
     }
 
-    async createSubCategory(subCategoryData) {
-        return this.createItem(subCategoryData);
+    async submitCategory(subCategoryData) {
+        console.log('DonationSubCategoryRepository: Service called submit category');
+        if (!subCategoryData.title || subCategoryData.title.trim() === '') {
+            throw new Error('Category title is required');
+        }
+
+        const payload = {
+            title: subCategoryData.title.trim(),
+            category: subCategoryData.category
+        };
+
+        try {
+            console.log('DonationSubCategoryRepository: Service called create item Try');
+            return await super.createItem(payload);
+        } catch (error) {
+            console.log('DonationSubCategoryRepository: Service called create item');
+            throw error;
+        }
     }
 
     async updateSubCategory(subCategoryId, subCategoryData) {
+        console.log('data', subCategoryData)
         return this.updateItem(subCategoryId, subCategoryData);
     }
 

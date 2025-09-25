@@ -40,7 +40,7 @@ export class SubCategoryFormHandler {
         const formData = new FormData(this.form);
         const data = {
             title: formData.get('title'),
-            donation_category: formData.get('category'),  // Changed from 'category' to 'donation_category'
+            donation_category: formData.get('category'),  // Changed back to 'category' to match backend expectations
             description: formData.get('description') || '',
             is_active: formData.get('is_active') === 'on',
         };
@@ -49,7 +49,7 @@ export class SubCategoryFormHandler {
     }
 
     /** Handle form submission */
-    async handleSubmit(event) {
+    async handleSubmit(event) {        
         event.preventDefault();
         this.clearFieldErrors();
 
@@ -61,9 +61,8 @@ export class SubCategoryFormHandler {
 
         try {
             const data = this.getFormData();
-            const subcategoryId = this.form.dataset.subcategoryId;
-
-            if (subcategoryId) {
+            const subcategoryId = this.form.dataset.subcategoryId;            
+            if (subcategoryId) {                
                 await this.manager.updateSubCategory(subcategoryId, data);
                 this.notificationService.showSuccess('Subcategory updated successfully!');
             } else {

@@ -24,9 +24,35 @@ class SubCategoryApp {
             });
 
             await this.subCategoryManager.init();
+            this.setupEventListeners();
         } catch (error) {
             this.notificationService.showError('Failed to initialize subcategory management', error);
         }
+    }
+
+
+    setupEventListeners() {
+        // Use event delegation for dynamic elements
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+
+            const action = target.getAttribute('data-action');
+            const subcategoryId = target.getAttribute('data-subcategory-id');
+            const title = target.getAttribute('data-title');
+
+            switch (action) {
+                case 'view-subcategory':
+                    this.subCategoryManager.viewCategory(e.target.dataset.categoryId);
+                    break;
+                case 'edit-subcategory':
+                    this.subCategoryManager.editSubCategory(subcategoryId);
+                    break;
+                case 'delete-subcategory':
+                    this.subCategoryManager.toggleStatus(subcategoryId, false, 'Are you sure you want to deactivate subcategory ' + title + '?');
+                    break;
+            }
+        });
     }
 
     showLoginRequired() {

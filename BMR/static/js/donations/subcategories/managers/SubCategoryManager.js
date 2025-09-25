@@ -16,6 +16,11 @@ export class SubCategoryManager extends BaseManager {
             repository,
             tableRenderer,
             filterHandler,
+
+            getItemsFn: (params) => repository.getCategories(params),
+            extractItemsFn: (response) => response.categories || response.items || response.results || [],
+            itemType: 'subcategories',
+
             defaultPerPage: 30,
             defaultFilters: {
                 event_category: '',
@@ -27,51 +32,6 @@ export class SubCategoryManager extends BaseManager {
         this.filterHandler = new SubCategoryFilterHandler(this.handleFiltersChange.bind(this));
     }
 
-    async init() {
-        await super.init();
-        // Setup event listeners for the table actions
-        this.setupEventListeners();
-        // Load categories for the filter dropdown
-        await this.loadCategoriesForFilter();
-    }
-
-    setupEventListeners() {
-        // Use event delegation for dynamic elements
-        document.addEventListener('click', (e) => {
-            const target = e.target.closest('[data-action]');
-            if (!target) return;
-            
-            const action = target.getAttribute('data-action');
-            const subcategoryId = target.getAttribute('data-subcategory-id');
-            const title = target.getAttribute('data-title');
-            
-            switch (action) {
-                case 'view-subcategory':
-                    this.viewSubCategory(subcategoryId);
-                    break;
-                case 'edit-subcategory':
-                    this.editSubCategory(subcategoryId);
-                    break;
-                case 'delete-subcategory':
-                    this.toggleSubCategoryStatus(subcategoryId, title);
-                    break;
-            }
-        });
-    }
-
-    // Implement required template methods
-    async getItems(params) {
-        return await this.repository.getDonationSubCategories(params);
-    }
-
-    extractItemsFromResponse(response) {
-        return response.subCategories || response.items || response.results || [];
-    }
-
-    getItemType() {
-        return 'subcategories';
-    }
-
     // SubCategory-specific methods
     async viewSubCategory(subCategoryId) {
         console.log(`Viewing subcategory ${subCategoryId}`);
@@ -80,23 +40,6 @@ export class SubCategoryManager extends BaseManager {
 
     async editSubCategory(subCategoryId) {
         window.location.href = `/donations/i/subcategories/${subCategoryId}/edit/`;
-    }
-
-    async toggleSubCategoryStatus(id, isActive, title) {
-        if (!confirm(`Are you sure you want to delete "${title}"?`)) {
-            return;
-        }
-
-        try {
-            const result = await this.repository.toggleStatus(id, false);
-            const action = isActive ? "reactivated" : "deleted";
-            this.notificationService.showSuccess(`Subcategory ${action} successfully!`);
-            await this.loadItems(this.state.currentPage);
-            return result;
-        } catch (error) {
-            this.notificationService.showError(`Failed to update subcategory status: ${error.message}`);
-            throw error;
-        }
     }
 
     // Load categories for filter dropdown
@@ -129,25 +72,26 @@ export class SubCategoryManager extends BaseManager {
         }
     }
 
-    // CRUD Operations
-    async createSubCategory(data) {
+    async createSubCategory(categoryData) {
         try {
-            const response = await this.repository.createSubCategory(data);
-            this.showNotification('Subcategory created successfully', 'success');
+            this.notificationService?.showLoading?.('Creating category...');
+            const response = await this.repository.createSubCategory(categoryData);
+            this.notificationService?.hideLoading?.();
             return response;
         } catch (error) {
-            console.error('Create subcategory error:', error);
+            this.notificationService?.hideLoading?.();
             throw error;
         }
     }
 
-    async updateSubCategory(subCategoryId, data) {
+    async updateSubCategory(Id, data) {
         try {
-            const response = await this.repository.updateSubCategory(subCategoryId, data);
-            this.showNotification('Subcategory updated successfully', 'success');
+            this.notificationService?.showLoading?.('Updating category...');
+            const response = await this.repository.updateSubCategory(Id, data);
+            this.notificationService?.hideLoading?.();
             return response;
         } catch (error) {
-            console.error('Update subcategory error:', error);
+            this.notificationService?.hideLoading?.();
             throw error;
         }
     }
@@ -157,11 +101,11 @@ export class SubCategoryManager extends BaseManager {
 
         try {
             await this.repository.bulkDeleteSubCategories(subCategoryIds);
-            this.showNotification(`${subCategoryIds.length} subcategories deleted successfully`, 'success');
+            this.notificationService.success(`${subCategoryIds.length} subcategories deleted successfully`);
             await this.loadItems(this.state.currentPage);
         } catch (error) {
             console.error('Bulk delete error:', error);
-            this.showNotification('Failed to delete selected subcategories', 'error');
+            this.notificationService.error('Failed to delete selected subcategories');
         }
     }
 

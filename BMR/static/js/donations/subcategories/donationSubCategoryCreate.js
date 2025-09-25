@@ -1,6 +1,7 @@
 import { SubCategoryFormHandler } from './handlers/SubCategoryFormHandler.js';
 import { AuthService } from '../../shared/services/AuthService.js';
 import { NotificationService } from '../../shared/services/NotificationService.js';
+// import {CategoryFormHandler} from "../categories/handlers/CategoryFormHandler";
 
 export const initDonationSubCategoryCreate = () => {
     try {
@@ -10,14 +11,10 @@ export const initDonationSubCategoryCreate = () => {
             return;
         }
 
-        // Initialize handler
-        const handler = new SubCategoryFormHandler(form, {
+        window.donationCategoryApp = new SubCategoryFormHandler(form, {
             authService: new AuthService(),
             notificationService: new NotificationService()
         });
-
-        // Expose for debugging
-        window.donationSubCategoryApp = handler;
 
     } catch (e) {
         console.error('Init failed:', e);
