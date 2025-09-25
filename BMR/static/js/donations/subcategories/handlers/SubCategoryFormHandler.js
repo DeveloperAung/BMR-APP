@@ -66,6 +66,7 @@ export class SubCategoryFormHandler {
                 await this.manager.updateSubCategory(subcategoryId, data);
                 this.notificationService.showSuccess('Subcategory updated successfully!');
             } else {
+                console.log('create call')
                 await this.manager.createSubCategory(data);
                 this.notificationService.showSuccess('Subcategory created successfully!');
             }

@@ -45,12 +45,12 @@ export class SubCategoryTableRenderer extends BaseTableRenderer {
                 </td>
                 <td><p class="f-light mb-0">${escapeHtml(subCategory.title)}</p></td>
                 <td><p class="f-light mb-0">${escapeHtml(categoryTitle)}</p></td>
+                <td><p class="f-light mb-0">${escapeHtml(subCategory.description)}</p></td>
                 <td>
                     <span class="badge ${subCategory.is_active !== false ? 'bg-success' : 'bg-warning'}">
                         ${subCategory.is_active !== false ? 'Active' : 'Inactive'}
                     </span>
                 </td>
-                <td><p class="f-light mb-0">${formatDate(subCategory.created_at)}</p></td>
                 <td>
                     <div class="product-action">
                         <button class="btn btn-sm btn-outline-primary" data-action="view-subcategory" data-subcategory-id="${subCategory.id}" title="View Subcategory">👁️</button>

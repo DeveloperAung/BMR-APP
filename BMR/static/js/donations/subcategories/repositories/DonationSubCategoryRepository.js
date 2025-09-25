@@ -15,20 +15,18 @@ export class DonationSubCategoryRepository extends BaseRepository {
         return this.getItem(subCategoryId);
     }
 
-    async submitCategory(subCategoryData) {
+    async submitSubCategory(subCategoryData) {
         console.log('DonationSubCategoryRepository: Service called submit category');
         if (!subCategoryData.title || subCategoryData.title.trim() === '') {
+            throw new Error('Title is required');
+        }
+        if (!subCategoryData.donation_category || subCategoryData.donation_category === '') {
             throw new Error('Category title is required');
         }
 
-        const payload = {
-            title: subCategoryData.title.trim(),
-            category: subCategoryData.category
-        };
-
         try {
             console.log('DonationSubCategoryRepository: Service called create item Try');
-            return await super.createItem(payload);
+            return await super.createItem(subCategoryData);
         } catch (error) {
             console.log('DonationSubCategoryRepository: Service called create item');
             throw error;
@@ -36,7 +34,6 @@ export class DonationSubCategoryRepository extends BaseRepository {
     }
 
     async updateSubCategory(subCategoryId, subCategoryData) {
-        console.log('data', subCategoryData)
         return this.updateItem(subCategoryId, subCategoryData);
     }
 
