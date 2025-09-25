@@ -1,4 +1,4 @@
-// static/js/posts/categories/handlers/CategoryFilterHandler.js
+// static/js/events/categories/handlers/CategoryFilterHandler.js
 export class CategoryFilterHandler {
     constructor(onFiltersChange) {
         this.onFiltersChange = onFiltersChange;

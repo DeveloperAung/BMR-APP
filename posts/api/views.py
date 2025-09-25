@@ -26,7 +26,7 @@ class PostCategoryListCreateView(generics.ListCreateAPIView):
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title']
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         show_all = self.request.query_params.get('show_all', '').lower() == 'true'
@@ -81,7 +81,7 @@ class PostCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     queryset = PostCategory.objects.all()
     serializer_class = PostCategorySerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

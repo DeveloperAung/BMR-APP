@@ -18,19 +18,18 @@ export class CategoryTableRenderer extends BaseTableRenderer {
         this.perPage = perPage || 10;
     }
 
-    render(categories, currentPage = 1, perPage = 10) {
+    render(postCategories, currentPage = 1, perPage = 10) {
         // Update pagination info
         this.setPagination(currentPage, perPage);
-        console.log("Render categories")
-        if (!categories || categories.length === 0) {
+
+        if (!postCategories || postCategories.length === 0) {
             this.renderEmpty('No Categories Found', '📂');
             return;
         }
 
         // Calculate starting serial number based on current page
         const startIndex = (this.currentPage - 1) * this.perPage;
-
-        this.tbody.innerHTML = categories
+        this.tbody.innerHTML = postCategories
             .map((category, index) => this.renderCategoryRow(category, startIndex + index + 1))
             .join('');
     }
@@ -41,13 +40,12 @@ export class CategoryTableRenderer extends BaseTableRenderer {
                 <td class="text-center serial-number">
                     <span class="badge bg-primary text-dark">${serialNumber}</span>
                 </td>
-                <td><p class="f-light mb-0">${escapeHtml(category.title)}</p></td>
-                <td>
+                <td><p class="f-light mb-0">${escapeHtml(category.title)}</p></td>                
+                <td data-field="is_active">
                     <span class="badge ${category.is_active ? 'bg-success' : 'bg-warning'}">
                         ${category.is_active ? 'Active' : 'Inactive'}
                     </span>
-                </td>
-                <td><p class="f-light mb-0">${formatDate(category.created_at)}</p></td>
+                </td>                
                 <td>
                     <div class="product-action">
                         <button class="btn btn-sm btn-outline-primary" data-action="view-category" data-category-id="${category.id}" title="View Category">👁️</button>

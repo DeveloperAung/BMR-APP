@@ -1,50 +1,56 @@
 import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
-import { POSTS } from '../../../shared/config/apiConfig.js';
+import { ApiErrorHandler } from '../../../shared/services/ApiErrorHandler.js';
+import { API_ENDPOINTS } from '../../../shared/config/apiConfig.js';
 
 export class PostCategoryRepository extends BaseRepository {
-    constructor() {
-        super(POSTS.CATEGORIES);
+    constructor({ notificationService } = {}) {
+        const endpoint = API_ENDPOINTS?.POSTS?.CATEGORIES || '/api/posts/categories/';
+        super(endpoint); // must be called first
+        this.notificationService = notificationService;
+
+        console.log('Initializing DonationCategoryRepository with endpoint:', endpoint);
     }
 
-    // Custom method names for your domain
-    async getCategories(params = {}) {
+    async submitCategory(categoryData) {
+        if (!categoryData.title || categoryData.title.trim() === '') {
+            throw new Error('Category title is required');
+        }
 
-        console.log('CategoryManager: Service called get categories');
-        const result = await this.getList(params);
-
-        console.log('CategoryManager: Result completed');
-        return {
-            categories: result.items,
-            pagination: result.pagination
+        const payload = {
+            title: categoryData.title.trim()
         };
+
+        try {
+            return await super.createItem(payload);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async updateCategory(categoryId, categoryData) {
+        if (!categoryId) throw new Error('Category ID is required for update');
+
+        const payload = {};
+        if (categoryData.title !== undefined) payload.title = categoryData.title.trim();
+        if ('is_active' in categoryData) {
+            payload.is_active = Boolean(categoryData.is_active);
+        }
+        try {
+            const result = await super.updateItem(categoryId, payload);
+            console.log('Category updated successfully', result);
+            return result;
+        } catch (error) {
+            console.error('Update category failed', error);
+            ApiErrorHandler.handle(error, this.notificationService);
+            throw error;
+        }
+    }
+
+    async getCategories(params = {}) {
+        return this.getList(params);
     }
 
     async getCategory(categoryId) {
         return this.getItem(categoryId);
-    }
-
-    async createCategory(categoryData) {
-        return this.createItem(categoryData);
-    }
-
-    async updateCategory(categoryId, categoryData) {
-        return this.updateItem(categoryId, categoryData);
-    }
-
-    // async deleteCategory(categoryId) {
-    //     return this.deleteItem(categoryId);
-    // }
-
-    // Bulk operations using the inherited method
-    async bulkDeleteCategories(categoryIds) {
-        return this.bulkOperation('delete', categoryIds);
-    }
-
-    async bulkActivateCategories(categoryIds) {
-        return this.bulkOperation('activate', categoryIds);
-    }
-
-    async bulkDeactivateCategories(categoryIds) {
-        return this.bulkOperation('deactivate', categoryIds);
     }
 }

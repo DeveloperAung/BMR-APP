@@ -1,4 +1,3 @@
-// static/js/events/categories/managers/CategoryManager.js
 import { BaseManager } from '../../../shared/managers/BaseManager.js';
 import { EventCategoryRepository } from '../repositories/EventCategoryRepository.js';
 import { CategoryTableRenderer } from '../renderers/CategoryTableRenderer.js';
