@@ -1,6 +1,6 @@
 // static/js/posts/managers/AssociationManager.js
-import { AssociationRepository } from '../repositories/AssociationRepository.js';
-import { PostTableRenderer } from '../renderers/PostTableRenderer.js';
+import { AssociationRepository } from '../repositories/MembershipRepository.js';
+import { MembershipTableRenderer } from '../renderers/MembershipTableRenderer.js';
 import { PaginationRenderer } from '../renderers/PaginationRenderer.js';
 import { FilterHandler } from '../handlers/FilterHandler.js';
 
@@ -11,7 +11,7 @@ export class AssociationManager {
         this.notificationService = notificationService;
 
         this.assoRepository = new AssociationRepository(authService);
-        this.tableRenderer = new PostTableRenderer();
+        this.tableRenderer = new AssociationTableRenderer();
         this.paginationRenderer = new PaginationRenderer();
         this.filterHandler = new FilterHandler(this.handleFiltersChange.bind(this));
 

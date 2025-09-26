@@ -11,10 +11,10 @@ export class PostTableRenderer extends BaseTableRenderer {
             this.renderEmpty('No Posts Found', '📭');
             return;
         }
-        this.tbody.innerHTML = posts.map(post => this.renderPostRow(post)).join('');
+        this.tbody.innerHTML = posts.map(post => this.renderMembershipRow(post)).join('');
     }
 
-    renderPostRow(post) {
+    renderMembershipRow(post) {
         return `
             <tr class="post-row" data-post-id="${post.id}">
                 <td>

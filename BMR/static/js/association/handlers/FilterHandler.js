@@ -1,4 +1,3 @@
-// static/js/association/handlers/FilterHandler.js
 export class FilterHandler {
     constructor(onFiltersChange) {
         this.onFiltersChange = onFiltersChange;

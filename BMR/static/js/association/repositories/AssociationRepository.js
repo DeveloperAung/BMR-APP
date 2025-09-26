@@ -1,20 +1,17 @@
 import { BaseRepository } from '../../shared/repositories/BaseRepository.js';
-import { ASSOCIATION } from '../../shared/config/apiConfig.js';
+import { ApiErrorHandler } from '../../shared/services/ApiErrorHandler.js';
+import { API_ENDPOINTS } from '../../shared/config/apiConfig.js';
 
 export class AssociationRepository extends BaseRepository {
-    constructor() {
-        super(ASSOCIATION.POSTS);
+    constructor({ notificationService } = {}) {
+        const endpoint = API_ENDPOINTS?.ASSOCIATION?.POSTS || '/api/associations/posts/';
+        super(endpoint); // must be called first
+        this.notificationService = notificationService;
+
+        console.log('Initializing DonationCategoryRepository with endpoint:', endpoint);
     }
 
     async getAssoPosts(params = {}) {
-
-        console.log('AssoManager: Service called get categories');
-        const result = await this.getList(params);
-
-        console.log('AssoManager: Result completed');
-        return {
-            assoPosts: result.items,
-            pagination: result.pagination
-        };
+        return this.getList(params);
     }
 }

@@ -6,29 +6,38 @@ class AssociationApp {
     constructor() {
         this.authService = new AuthService();
         this.notificationService = new NotificationService();
-        this.usersManager = null;
+        this.assoicationManager = null;
     }
 
     async init() {
-        try {
-            const isAuthenticated = await this.authService.isAuthenticated();
-            console.warn('authentication check', isAuthenticated);
-            if (!isAuthenticated) {
-                console.warn('❌ User not authenticated');
-                this.redirectToLogin('Authentication required');
-                return;
-            }
+         try {
+             if (!await this.authService.isAuthenticated()) {
+                 this.showLoginRequired();
+                 return;
+             }
 
-            // Initialize users manager
-            this.associationManager = new AssociationManager({
+            this.assoicationManager = new AssociationManager({
                 authService: this.authService,
                 notificationService: this.notificationService
             });
 
-            await this.associationManager.init();
+            await this.assoicationManager.init();
+            this.setupEventListeners();
         } catch (error) {
-            this.notificationService.showError('Failed to initialize dashboard', error);
+            this.notificationService.showError('Failed to initialize association post management', error);
         }
+    }
+
+    setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-action="view-post"]')) {
+                this.assoicationManager.viewAssoPost(e.target.dataset.postId);
+            } else if (e.target.matches('[data-action="edit-post"]')) {
+                this.assoicationManager.editAssoPost(e.target.dataset.postId);
+            } else if (e.target.matches('[data-action="delete-post"]')) {
+                this.assoicationManager.toggleStatus(e.target.dataset.postId, false, 'Are you sure you want to deactivate category ' + e.target.dataset.title + '?');
+            }
+        });
     }
 
     showLoginRequired() {
@@ -44,53 +53,7 @@ class AssociationApp {
     }
 }
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     const app = new AssociationApp();
-
-    // Test util
-    window.testUserLoad = async function () {
-        console.log('🧪 Testing association load...');
-        try {
-            const tbody = document.getElementById('postsTableBody');
-            const spinner = document.getElementById('loadingSpinner');
-            console.log('DOM Elements:', { tbody: !!tbody, spinner: !!spinner });
-
-            const token = localStorage.getItem('access_token');
-            console.log('Token present:', !!token);
-
-            const response = await fetch('/api/association/posts/', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            console.log('Response status:', response.status);
-
-            if (response.ok) {
-                const responseData = await response.json();
-                const assoPosts = responseData?.data?.results;
-
-                if (tbody && Array.isArray(assoPosts)) {
-                    tbody.innerHTML = assoPosts.map(assoPost => `
-                        <tr>
-                            <td colspan="7">${assoPost.title || 'Unknown Title'}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    console.warn('❌ No post found in response:', responseData);
-                }
-            } else {
-                console.error('API Error:', await response.text());
-            }
-
-        } catch (error) {
-            console.error('Test failed:', error);
-        }
-    };
-
-    // Run test and init app
-    window.testUserLoad();
     app.init();
 });

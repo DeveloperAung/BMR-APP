@@ -1,17 +1,32 @@
 import { BaseTableRenderer } from '../../shared/renderers/BaseTableRenderer.js';
 import { escapeHtml, formatDate, truncate } from '../../shared/utils/domUtils.js';
 
-export class PostTableRenderer extends BaseTableRenderer {
+export class AssociationTableRenderer extends BaseTableRenderer {
     constructor() {
         super('postsTableBody');
+        this.currentPage = 1;
+        this.perPage = 30;
     }
 
-    render(posts) {
+    setPagination(page, perPage) {
+        this.currentPage = page || 1;
+        this.perPage = perPage || 10;
+    }
+
+    render(posts, currentPage = 1, perPage = 10) {
+        // Update pagination info
+        this.setPagination(currentPage, perPage);
+
         if (!posts || posts.length === 0) {
-            this.renderEmpty('No Posts Found', '📭');
+            this.renderEmpty('No Posts Found', '📂');
             return;
         }
-        this.tbody.innerHTML = posts.map(post => this.renderPostRow(post)).join('');
+
+        // Calculate starting serial number based on current page
+        const startIndex = (this.currentPage - 1) * this.perPage;
+        this.tbody.innerHTML = posts
+            .map((post, index) => this.renderPostRow(post, startIndex + index + 1))
+            .join('');
     }
 
     renderPostRow(post) {

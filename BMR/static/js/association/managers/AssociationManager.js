@@ -1,141 +1,68 @@
-// static/js/posts/managers/AssociationManager.js
+import { BaseManager } from '../../shared/managers/BaseManager.js';
 import { AssociationRepository } from '../repositories/AssociationRepository.js';
-import { PostTableRenderer } from '../renderers/PostTableRenderer.js';
-import { PaginationRenderer } from '../renderers/PaginationRenderer.js';
+import { AssociationTableRenderer } from '../renderers/AssociationTableRenderer.js';
 import { FilterHandler } from '../handlers/FilterHandler.js';
 
-export class AssociationManager {
+export class AssociationManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        console.log('🔧 AssociationManager: Constructor called');
-        this.authService = authService;
-        this.notificationService = notificationService;
+        const repository = new AssociationRepository({ notificationService });
+        const tableRenderer = new AssociationTableRenderer();
+        const filterHandler = new FilterHandler();
 
-        this.assoRepository = new AssociationRepository(authService);
-        this.tableRenderer = new PostTableRenderer();
-        this.paginationRenderer = new PaginationRenderer();
-        this.filterHandler = new FilterHandler(this.handleFiltersChange.bind(this));
+        super({
+            authService,
+            notificationService,
+            repository,
+            tableRenderer,
+            filterHandler,
 
-        this.state = {
-            currentPage: 1,
-            perPage: 30,
-            filters: { search: '', is_active: '', ordering: '-published_at' },
-            posts: [],
-            pagination: null,
-            loading: false
-        };
-    }
+            getItemsFn: (params) => repository.getAssoPosts(params),
+            extractItemsFn: (response) => response.posts || response.items || response.results || [],
+            itemType: 'posts',
 
-    async init() {
-        this.setupEventListeners();
-        await this.loadPosts();
-    }
-
-    setupEventListeners() {
-        this.filterHandler.init();
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-action="view-post"]')) {
-                this.viewPost(e.target.dataset.postId);
-            } else if (e.target.matches('[data-action="edit-post"]')) {
-                this.editPost(e.target.dataset.postId);
-            } else if (e.target.matches('[data-action="delete-post"]')) {
-                this.deletePost(e.target.dataset.postId, e.target.dataset.title);
+            defaultPerPage: 30,
+            defaultFilters: {
+                show_all: '',
+                ordering: '-created_at'
             }
         });
+
+        this.filterHandler = new FilterHandler(this.handleFiltersChange.bind(this));
     }
 
-    async loadPosts() {
-        console.log('[AssociationManager] Loading posts...');
-        this.showLoading(true);
-
+    async createAssoPost(data) {
         try {
-            const queryParams = this.buildQueryParams();
-            const result = await this.assoRepository.getAssoPosts(
-                Object.fromEntries(new URLSearchParams(queryParams))
-            );
-
-            if (result.assoPosts.length > 0) {
-                this.tableRenderer.render(result.assoPosts);
-                this.renderPagination(result.pagination);
-                this.updateResultsInfo(result.pagination);
-                this.showNotification('Posts loaded successfully', 'success');
-            } else {
-                this.renderError('No posts found.');
-            }
+            this.notificationService?.showLoading?.('Creating category...');
+            const response = await this.repository.submitCategory(data);
+            this.notificationService?.hideLoading?.();
+            return response;
         } catch (error) {
-            this.renderError(`Error loading posts: ${error.message}`);
-        } finally {
-            this.showLoading(false);
+            this.notificationService?.hideLoading?.();
+            throw error;
         }
     }
 
-    renderPagination(pagination) {
-        this.state.pagination = pagination;
-        this.paginationRenderer.render(pagination, this.goToPage.bind(this));
-    }
-
-    updateResultsInfo(pagination) {
-        const infoEl = document.getElementById('resultsInfo');
-        if (infoEl && pagination) {
-            infoEl.textContent = `Page ${pagination.current_page} of ${pagination.total_pages} (${pagination.total_count} posts)`;
-        }
-    }
-
-    renderError(message) {
-        this.tableRenderer.renderError(message);
-        this.showNotification(message, 'error');
-    }
-
-    showNotification(message, type = 'info') {
-        if (!this.notificationService) return;
-        switch (type) {
-            case 'success': this.notificationService.showSuccess(message); break;
-            case 'error': this.notificationService.showError(message); break;
-            case 'warning': this.notificationService.showWarning(message); break;
-            default: this.notificationService.showInfo(message);
-        }
-    }
-
-    showLoading(isLoading = true) {
-        this.state.loading = isLoading;
-        const spinner = document.getElementById('loadingSpinner');
-        if (spinner) spinner.style.display = isLoading ? 'block' : 'none';
-    }
-
-    buildQueryParams() {
-        const params = new URLSearchParams();
-        params.append('page', this.state.currentPage);
-        params.append('per_page', this.state.perPage);
-        Object.entries(this.state.filters).forEach(([k, v]) => v && params.append(k, v));
-        return params.toString();
-    }
-
-    handleFiltersChange(filters) {
-        this.state.filters = filters;
-        this.state.currentPage = 1;
-        this.loadPosts();
-    }
-
-    goToPage(page) {
-        this.state.currentPage = page;
-        this.loadPosts();
-    }
-
-    async viewPost(postId) {
-        console.log(`Viewing post ${postId}`);
-    }
-
-    async editPost(postId) {
-        console.log(`Editing post ${postId}`);
-    }
-
-    async deletePost(postId, title) {
-        if (!confirm(`Delete post "${title}"?`)) return;
+    async updateAssoPost(id, data) {
         try {
-            await this.assoRepository.deletePost(postId);
-            this.showNotification(`Post "${title}" deleted successfully`, 'success');
-            await this.loadPosts();
+            this.notificationService?.showLoading?.('Updating post...');
+            const response = await this.repository.updateCategory(id, data);
+            this.notificationService?.hideLoading?.();
+            return response;
         } catch (error) {
-            this.showNotification('Failed to delete post', 'error');
+            this.notificationService?.hideLoading?.();
+            throw error;
         }
     }
+
+    // Category-specific methods
+    async viewAssoPost(id) {
+        console.log(`Viewing category ${id}`);
+        window.location.href = `/associations/i/posts/${id}/`;
+    }
+
+    async editAssoPost(id) {
+        console.log(`Editing category ${id}`);
+        window.location.href = `/associations/i/posts/${id}/edit/`;
+    }
+
 }
