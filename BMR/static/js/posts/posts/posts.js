@@ -35,7 +35,7 @@ class PostApp {
             } else if (e.target.matches('[data-action="edit-post"]')) {
                 this.postManager.editPost(e.target.dataset.postId);
             } else if (e.target.matches('[data-action="delete-post"]')) {
-                this.postManager.toggleStatus(e.target.dataset.postId, false, 'Are you sure you want to deactivate category ' + e.target.dataset.title + '?');
+                this.postManager.toggleStatus(e.target.dataset.postId, false, 'Are you sure you want to deactivate post "' + e.target.dataset.title + '" ?');
             }
         });
     }

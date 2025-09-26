@@ -27,6 +27,12 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(required=False)
+    short_description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    post_category = serializers.PrimaryKeyRelatedField(queryset=PostCategory.objects.all(), required=False,
+                                                       allow_null=True)
+    parent = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), required=False, allow_null=True)
 
     published_by_name = serializers.CharField(source='published_by.username', read_only=True)
     post_category_title = serializers.CharField(source='post_category.title', read_only=True)
@@ -52,7 +58,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'published_at',
             'published_by',
             'published_by_name',
-            'created_at'
+            'created_at',
+            'is_active'
         ]
         read_only_fields = ['id', 'created_at', 'published_by_name', 'post_category_title', 'parent_title']
 

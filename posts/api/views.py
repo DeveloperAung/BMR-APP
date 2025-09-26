@@ -154,16 +154,6 @@ class PostCategoryRetrieveUpdateDestroyView(
             serializer.errors
         )
 
-    def publishToggle(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # Perform soft delete by setting is_active=False
-        instance.is_published = False
-        instance.save(update_fields=['is_active'])
-        return ok(
-            {"id": instance.id, "is_active": False},
-            "Post has been deactivated successfully."
-        )
-
 
 @extend_schema(
     tags=["Posts"],
@@ -212,7 +202,6 @@ class PostRetrieveUpdateDestroyView(
 
     def publish_toggle(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Perform soft delete by setting is_active=False
 
         instance.is_published = False
         instance.save(update_fields=['is_published'])
