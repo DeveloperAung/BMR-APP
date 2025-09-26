@@ -19,7 +19,9 @@ export class PostRepository extends BaseRepository {
     }
 
     async updatePost(postId, postData) {
+
         try {
+            console.log("Post data ", postData)
             return await super.updateItem(postId, postData);
         } catch (error) {
             ApiErrorHandler.handle(error, this.notificationService);

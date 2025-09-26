@@ -22,20 +22,39 @@ class PostCategorySerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id', 'title', 'short_description', 'is_published', 'created_at']
+        fields = ['id', 'title', 'short_description', 'is_published', 'published_at', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
 
-    published_by = serializers.CharField(source='published_by.username')
-    post_category = serializers.CharField(source='post_category.title')
-    parent = serializers.CharField(source='parent.title')
-    media = serializers.CharField(source='media.title')
+    published_by_name = serializers.CharField(source='published_by.username', read_only=True)
+    post_category_title = serializers.CharField(source='post_category.title', read_only=True)
+    parent_title = serializers.CharField(source='parent.title', read_only=True)
+    cover_image = serializers.ImageField(required=False, allow_null=True)
+    # media = serializers.CharField(source='media.title')
     class Meta:
         model = Post
-        fields = ['id', 'title', 'short_description', 'description', 'is_published', 'post_category', 'parent', 'media', 'cover_image', 'set_banner', 'banner_order', 'published_at', 'published_by', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = [
+            'id',
+            'title',
+            'short_description',
+            'description',
+            'is_published',
+            'post_category',
+            'post_category_title',
+            'parent',
+            'parent_title',
+            'media',
+            'cover_image',
+            'set_banner',
+            'banner_order',
+            'published_at',
+            'published_by',
+            'published_by_name',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'published_by_name', 'post_category_title', 'parent_title']
 
     def validate_title(self, value):
         instance = getattr(self, 'instance', None)

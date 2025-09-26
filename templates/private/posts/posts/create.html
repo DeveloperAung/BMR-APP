@@ -4,67 +4,130 @@
 {% block title %}{{ post.id|default_if_none:"Create" }} Post{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <form id="postForm" class="needs-validation"
-        data-post-id="{{ post.id|default_if_none:'' }}"
-        enctype="multipart/form-data" novalidate>
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="title" class="form-label">Title</label>
-      <input type="text" class="form-control" id="title" name="title"
-             value="{{ post.title|default_if_none:'' }}" required>
-      <div class="invalid-feedback">Please enter a title</div>
+    {% include 'private/posts/posts/partials/page-header.html' %}
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                            {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Post
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="result"></div>
+                        <form id="postForm" class="needs-validation" data-post-id="{{ post.id|default_if_none:'' }}"
+                              enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label for="post_category" class="form-label">Category</label>
+                                <select class="form-select" id="post_category" name="post_category" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}"
+                                                {% if post.post_category_id == category.id %}selected{% endif %}>
+                                            {{ category.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">Please select a category</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="title" name="title"
+                                       value="{{ post.title|default_if_none:'' }}" required>
+                                <div class="invalid-feedback">Please enter a title</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="short_description" class="form-label">Short Description</label>
+                                <input type="text" class="form-control" id="short_description" name="short_description"
+                                       value="{{ post.short_description|default_if_none:'' }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <div class="toolbar-box">
+                                    {% include 'partials/_quill_editor.html' with toolbar_id='toolbar7' %}
+                                    <div class="quill-paragraph" id="editor7">
+                                        {{ post.description|safe }}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="description" id="description">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cover_image" class="form-label">Cover Image</label>
+                                <input type="file" class="form-control" id="cover_image" name="cover_image"
+                                       accept="image/*">
+                                <div class="mt-2">
+                                    {{ post.cover_image }}
+                                    <img id="cover_image_preview" src="
+                                            {% if post.cover_image %}{{ post.cover_image.url|default_if_none:'' }}{% endif %}"
+                                         alt="Cover Preview"
+                                         style="max-width:300px;display:{% if post.cover_image %}block{% else %}none{% endif %};">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_published"
+                                               name="is_published"
+                                               {% if post.is_published %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_published">Published</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {% if post.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">Is Active?</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="id_set_banner"
+                                               name="set_banner" {% if post.set_banner %}checked{% endif %}>
+                                        <label class="form-check-label" for="id_set_banner">Set as Banner</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 mb-3" id="bannerOrderContainer"
+                                     style="display: {% if post.set_banner %}block{% else %}none{% endif %};">
+                                    <label for="id_banner_order" class="form-label">Banner Order</label>
+                                    <input type="number" class="form-control" id="id_banner_order"
+                                           name="banner_order" min="0" value="{{ post.banner_order|default:'0' }}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                                <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i> Back to List
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="button-text">
+                                            <i class="fas fa-save me-1"></i>
+                                            {% if mode == 'edit' %}Update{% else %}Create{% endif %} Post
+                                        </span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status"
+                                              aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-      <label for="short_description" class="form-label">Short Description</label>
-      <input type="text" class="form-control" id="short_description" name="short_description"
-             value="{{ post.short_description|default_if_none:'' }}">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Description</label>
-      {% include 'partials/_quill_editor.html' with toolbar_id='toolbar7' %}
-      <div class="quill-paragraph" id="editor7">
-        {{ post.description|safe }}
-      </div>
-      <input type="hidden" name="description" id="description">
-    </div>
-
-    <div class="mb-3">
-      <label for="post_category" class="form-label">Category</label>
-      <select class="form-select" id="post_category" name="post_category" required>
-        <option value="">Select Category</option>
-        {% for category in categories %}
-          <option value="{{ category.id }}" {% if post.post_category_id == category.id %}selected{% endif %}>
-            {{ category.title }}
-          </option>
-        {% endfor %}
-      </select>
-      <div class="invalid-feedback">Please select a category</div>
-    </div>
-
-    <div class="mb-3">
-      <label for="cover_image" class="form-label">Cover Image</label>
-      <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
-      <div class="mt-2">
-        <img id="cover_image_preview" src="{% if post.cover_image %}{{ post.cover_image.url|default_if_none:'' }}{% endif %}"
-             alt="Cover Preview" style="max-width:300px;display:{% if post.cover_image %}block{% else %}none{% endif %};">
-      </div>
-    </div>
-
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" id="is_published" name="is_published"
-             {% if post.is_published %}checked{% endif %}>
-      <label class="form-check-label" for="is_published">Published</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{% url 'post_list' %}" class="btn btn-secondary">Cancel</a>
-  </form>
-</div>
-
-{% block extra_js %}
-<script src="{% static 'js/posts/posts/postCreate.js' %}" type="module"></script>
-{% endblock %}
+    {% block extra_js %}
+        <script src="{% static 'js/posts/posts/postCreate.js' %}" type="module"></script>
+    {% endblock %}
 {% endblock %}

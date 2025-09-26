@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, generics, filters, viewsets
-from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
@@ -8,7 +9,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from core.utils.pagination import StandardResultsSetPagination
 from ..models import PostCategory, Post
-from .serializers import PostCategorySerializer, PostSerializer
+from .serializers import PostCategorySerializer, PostSerializer, PostDetailSerializer
 from core.utils.responses import ok, fail
 from core.utils import mixins
 
@@ -138,62 +139,7 @@ class PostCategoryRetrieveUpdateDestroyView(
         )
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        if serializer.is_valid():
-            self.perform_update(serializer)
-            return ok(
-                serializer.data,
-                "Post category updated successfully."
-            )
-        return fail(
-            "Validation error",
-            status.HTTP_400_BAD_REQUEST,
-            serializer.errors
-        )
-
-    def publishToggle(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # Perform soft delete by setting is_active=False
-        instance.is_published = False
-        instance.save(update_fields=['is_active'])
-        return ok(
-            {"id": instance.id, "is_active": False},
-            "Post category has been deactivated successfully."
-        )
-
-
-@extend_schema(
-    tags=["Posts"],
-    request={
-        'type': 'object',
-        'properties': {
-            'refresh': {'type': 'string'}
-        }
-    },
-    responses={200: dict},
-    summary="Posts Management",
-    description="Posts Management"
-)
-class PostRetrieveUpdateDestroyView(
-    mixins.SoftDeleteMixin,
-    generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    lookup_field = 'pk'
-    permission_classes = [IsAuthenticated]
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return ok(
-            serializer.data,
-            "Post retrieved successfully."
-        )
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop('partial', True)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
@@ -216,6 +162,63 @@ class PostRetrieveUpdateDestroyView(
         return ok(
             {"id": instance.id, "is_active": False},
             "Post has been deactivated successfully."
+        )
+
+
+@extend_schema(
+    tags=["Posts"],
+    request={
+        'type': 'object',
+        'properties': {
+            'refresh': {'type': 'string'}
+        }
+    },
+    responses={200: dict},
+    summary="Posts Management",
+    description="Posts Management"
+)
+class PostRetrieveUpdateDestroyView(
+    mixins.SoftDeleteMixin,
+    generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+    lookup_field = 'pk'
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return ok(
+            serializer.data,
+            "Post retrieved successfully."
+        )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return ok(
+                serializer.data,
+                "Post updated successfully."
+            )
+        return fail(
+            "Validation error",
+            status.HTTP_400_BAD_REQUEST,
+            serializer.errors
+        )
+
+    def publish_toggle(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Perform soft delete by setting is_active=False
+
+        instance.is_published = False
+        instance.save(update_fields=['is_published'])
+        return ok(
+            {"id": instance.id, "is_published": False},
+            "Post has been un successfully."
         )
 
 
@@ -260,7 +263,7 @@ class PostListCreateView(generics.ListCreateAPIView):
         )
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = PostDetailSerializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer)
             return ok(

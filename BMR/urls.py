@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-
+from django.conf import settings
+from django.conf.urls.static import static
 from authentication.api.views import google_callback
 
 urlpatterns = [
@@ -25,4 +26,4 @@ urlpatterns = [
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('google-callback/', google_callback, name='google_callback'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

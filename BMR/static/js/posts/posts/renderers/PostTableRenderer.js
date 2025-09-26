@@ -50,8 +50,8 @@ export class PostTableRenderer extends BaseTableRenderer {
                 </td> 
                 <td><p class="f-light mb-0">${escapeHtml(post.published_by)}</p></td>  
                 <td data-field="is_active">
-                    <span class="badge ${post.is_active ? 'bg-success' : 'bg-warning'}">
-                        ${post.is_active ? 'Active' : 'Inactive'}
+                    <span class="badge ${ post.is_active ? 'bg-success' : 'bg-warning'}">
+                        ${ post.is_active ? 'Active' : 'Inactive'}
                     </span>
                 </td>                
                 <td>

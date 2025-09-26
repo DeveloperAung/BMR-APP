@@ -23,10 +23,14 @@ class ApiService {
 
             // Prepare headers
             const headers = {
-                'Content-Type': 'application/json',
+                // 'Content-Type': 'application/json',
                 'X-CSRFToken': this.authService.getCsrfToken(),
                 ...options.headers
             };
+
+            if (!(options.body instanceof FormData)) {
+              headers['Content-Type'] = 'application/json';
+            }
 
             // Add auth header if token available
             if (token) {
@@ -129,6 +133,21 @@ class ApiService {
      * POST request
      */
     async post(url, data = {}) {
+        if (data instanceof FormData) {
+            const token = await this.authService.getValidToken().catch(() => null);
+
+            const headers = {'X-CSRFToken': this.authService.getCsrfToken()};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const fullUrl = url.startsWith('http') ? url : `${this.baseUrl}${url}`;
+            const response = await fetch(fullUrl, {
+                method: 'POST',
+                headers,
+                body: data
+            });
+            return this.handleResponse(response);
+        }
+
         return this.request(url, {
             method: 'POST',
             body: JSON.stringify(data)
@@ -139,6 +158,21 @@ class ApiService {
      * PATCH request
      */
     async patch(url, data = {}) {
+        if (data instanceof FormData) {
+            const token = await this.authService.getValidToken().catch(() => null);
+
+            const headers = {'X-CSRFToken': this.authService.getCsrfToken()};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const fullUrl = url.startsWith('http') ? url : `${this.baseUrl}${url}`;
+            const response = await fetch(fullUrl, {
+                method: 'PATCH',
+                headers,
+                body: data
+            });
+            return this.handleResponse(response);
+        }
+
         return this.request(url, {
             method: 'PATCH',
             body: JSON.stringify(data)
@@ -149,6 +183,7 @@ class ApiService {
      * PUT request
      */
     async put(url, data = {}) {
+
         return this.request(url, {
             method: 'PUT',
             body: JSON.stringify(data)
