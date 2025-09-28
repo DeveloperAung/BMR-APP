@@ -10,15 +10,17 @@
 
 <nav class="navbar navbar-light p-0" id="navbar-example2">
     <a class="navbar-brand" href="javascript:void(0)">
-        <img class="img-fluid" src="{% static 'assets/images/landing/logo/logo.png' %}" alt="">
+        <img class="img-fluid" src="{% static 'BMR_logo.png' %}" alt="" style="max-width: 70px;">
     </a>
     <ul class="landing-menu nav nav-pills">
         <li class="nav-item menu-back">back<i class="fa-solid fa-angle-right"></i></li>
         <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#layout">Layout</a></li>
-        <li class="nav-item"><a class="nav-link" href="#applications">Applications</a></li>
-        <li class="nav-item"><a class="nav-link" href="#core-feature">Core Feature</a></li>
-        <li class="nav-item"><a class="nav-link" href="">Registration</a></li>
+        <li class="nav-item"><a class="nav-link" href="#layout">About Team</a></li>
+        <li class="nav-item"><a class="nav-link" href="#applications">Dhamma Courses</a></li>
+        <li class="nav-item"><a class="nav-link" href="#core-feature">Articles</a></li>
+        <li class="nav-item"><a class="nav-link" href="#core-feature">Books</a></li>
+        <li class="nav-item"><a class="nav-link" href="#core-feature">Activities</a></li>
+        <li class="nav-item"><a class="nav-link" href="">Contact Us</a></li>
     </ul>
     <div class="buy-block">
         {% if user.is_authenticated %}

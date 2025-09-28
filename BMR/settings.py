@@ -102,8 +102,27 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": config('DB_ENGINE', "django.db.backends.sqlite3"),
+#         "NAME": config("DB_NAME", BASE_DIR / "db.sqlite3"),
+#         "USER": config("DB_USER", ""),
+#         "PASSWORD": config("DB_PASSWORD", ""),
+#         "HOST": config("DB_HOST", ""),
+#         "PORT": config("DB_PORT", ""),
+#     }
+# }
 
-
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'BMR',
+#             'USER': 'postgres',
+#             'PASSWORD': 'Sn0wfl@ke12',
+#             'HOST': 'localhost',  # Set to 'localhost' if using a local database
+#             'PORT': 5434,
+#         }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

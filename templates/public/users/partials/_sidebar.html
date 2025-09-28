@@ -1,0 +1,90 @@
+{% load static %}
+<div class="col-xl-3 col-md-4 box-col-4">
+    <div class="file-sidebar">
+        <div class="card">
+            <div class="card-body">
+                <!-- User Profile Section -->
+                <div class="user-profile-section">
+                    <div class="user-avatar text-center">
+                        {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Profile" class="img-90 rounded-circle">
+                        {% else %}
+                        <img src="{% static 'assets/images/avtar/4.jpg' %}" alt="Profile" class="img-90 rounded-circle text-center">
+                        {% endif %}
+                    </div>
+                    <div class="user-info text-center">
+                        <h6>{{ user.profile.first_name|default:user.username }}</h6>
+                        <p class="text-muted mt-2">{{ user.email }} support@bmr.sg</p>
+                        {% if user.membership %}
+                        <span class="badge rounded-pill badge-primary">{{ user.membership.type.name }}</span>
+                        {% else %}
+                        <span class="badge rounded-pill badge-primary">No Membership</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Navigation Menu -->
+                <div class="">
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list"
+                           href="{% url 'public_dashboard' %}" aria-controls="list-home"
+                           aria-selected="false" tabindex="-1">Dashboard
+                        </a>
+                        <a class="list-group-item list-group-item-action  list-hover-primary" id="list-home-profile"
+                           href="#list-home" aria-controls="list-home"
+                           aria-selected="false" tabindex="-1">Profile
+                        </a>
+                        <a
+                            class="list-group-item list-group-item-action list-hover-primary"
+                            id="list-profile-list" href="#list-profile"
+                            aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership
+                        </a>
+                        <a
+                            class="list-group-item list-group-item-action list-hover-primary"
+                            id="list-messages-list" href="#list-messages"
+                            aria-controls="list-messages" aria-selected="false" tabindex="-1">Donation
+                        </a>
+                        <a
+                            class="list-group-item list-group-item-action list-hover-primary active"
+                            id="list-settings-list" href="#list-settings"
+                            aria-controls="list-settings" aria-selected="true">Event
+                        </a>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions text-center">
+                    <h6 class="section-title mb-2 text-primary">Quick Actions</h6>
+                    <div class="action-buttons">
+                        {% if not user.membership %}
+                        <a href="{% url 'membership_registration' %}"
+                           class="btn btn-primary btn-sm w-100 mb-2 text-end">
+                            <i data-feather="plus-circle" class="me-1"></i>Apply Membership
+                        </a>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                            <i data-feather="download" class="me-1"></i>Download Certificate
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm w-100">
+                            <i data-feather="help-circle" class="me-1"></i>Get Support
+                        </a>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Logout -->
+                <div class="logout-section">
+                    <a href="{% url 'logout' %}" class="logout-link">
+                        <i data-feather="log-out" class="me-2"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

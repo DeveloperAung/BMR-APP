@@ -20,7 +20,7 @@ def _as_choice_list(choices):
     return out
 
 class RegistrationView(TemplateView):
-    template_name = "public/memberships/registration.html"
+    template_name = "public/users/membership/member-registration.html"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

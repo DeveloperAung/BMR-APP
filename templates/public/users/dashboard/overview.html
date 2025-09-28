@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
   <div class="container-fluid">
-    <div class="page-title mt-3">
+    <div class="page-title">
       <div class="row">
         <div class="col-sm-6 col-12">
           <h2>Dashboard</h2>
@@ -40,59 +40,34 @@
                                         <div class="stats-icon bg-primary">
                                             <i data-feather="user"></i>
                                         </div>
-                                        <div class="ribbon-wrapper border border-1">
-                                            <div class="ribbon ribbon-primary ribbon-clip">Profile</div>
-                                            {{ user.profile.completion_percentage|default:"0" }}% Complete
+                                        <div class="stats-content">
+                                            <h4>Profile</h4>
+                                            <p>{{ user.profile.completion_percentage|default:"0" }}% Complete</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-3 col-md-6 col-sm-6">
                                     <div class="stats-card">
-                                        <div class="stats-icon bg-primary">
-                                            <i data-feather="user"></i>
+                                        <div class="stats-icon bg-success">
+                                            <i data-feather="credit-card"></i>
                                         </div>
-                                        <div class="ribbon-wrapper border border-1">
-                                            <div class="ribbon ribbon-primary ribbon-clip">Membership</div>
-                                            {% if user.membership %}
-                                                {{ user.membership.status }}
-                                            {% else %}
-                                            <a href="/memberships/registration/" class="btn btn-outline-primary-2x">
-                                                <i data-feather="plus-circle" class="me-1"></i>Apply Membership
-                                            </a>
-                                            {% endif %}
+                                        <div class="stats-content">
+                                            <h4>Membership</h4>
+                                            <p>{% if user.membership %}{{ user.membership.status }}{% else %}Not Applied{% endif %}</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-3 col-md-6 col-sm-6">
                                     <div class="stats-card">
-                                        <div class="stats-icon bg-primary">
-                                            <i data-feather="user"></i>
+                                        <div class="stats-icon bg-warning">
+                                            <i data-feather="heart"></i>
                                         </div>
-                                        <div class="ribbon-wrapper border border-1">
-                                            <div class="ribbon ribbon-primary ribbon-clip">Donations</div>
-                                            <div class="d-flex justify-content-between">
-                                                <div class="col-6">
-                                                    5 times
-                                                </div>
-                                                <div class="col-6">
-                                                    $<i class="f-w-500">1500</i> Total
-                                                </div>
-                                            </div>
+                                        <div class="stats-content">
+                                            <h4>Donations</h4>
+                                            <p>$0 Total</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                    <div class="stats-card">
-                                        <div class="stats-icon bg-primary">
-                                            <i data-feather="user"></i>
-                                        </div>
-                                        <div class="ribbon-wrapper border border-1">
-                                            <div class="ribbon ribbon-warning ribbon-clip">Events</div>
-                                            Upcoming - 3
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="col-lg-3 col-md-6 col-sm-6">
                                     <div class="stats-card">
                                         <div class="stats-icon bg-info">
@@ -271,7 +246,7 @@
                                         <i data-feather="credit-card" class="mb-3" style="width: 64px; height: 64px; color: #6c757d;"></i>
                                         <h4 class="text-muted">No Active Membership</h4>
                                         <p class="text-muted mb-4">Join our community by applying for membership</p>
-                                        <a href="{% url 'membership_registration' %}" class="btn btn-primary">
+                                        <a href="" class="btn btn-primary">
                                             <i data-feather="plus-circle" class="me-1"></i>Apply for Membership
                                         </a>
                                     </div>

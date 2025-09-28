@@ -20,26 +20,23 @@
       </header>
       <!-- header end-->
        <body>
-        <section class="section-py-space landing-page-design mb-3">
-        <div class="page-body mt-4">
-          <div class="container-fluid">
-          {% block content %}
-          {% endblock %}
-          </div>
-        </div>
-      </section>
+        <section class="row section-py-space mb-3 d-flex justify-content-center" style="background-color: snow">
+            <div class="page-body col-xl-10">
+              {% block content %}
+              {% endblock %}
+            </div>
+        </section>
+            {% include 'partials/_js_import.html' %}
        </body>
-      
-      {% include 'public/partials/footer.html' %}
+        {% include 'public/partials/footer.html' %}
     </div>
-
-    {% include 'partials/_js_import.html' %}
     {% include 'partials/_js_auth.html' %}
 
-{% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script src="{% static 'assets/js/tooltip-init.js' %}"></script>
+    <script src="{% static 'assets/js/animation/wow/wow.min.js' %}"></script>
+    <script src="{% static 'assets/js/landing/landing.js' %}"></script>
+    {% endblock %}
     <!-- Plugins JS start-->
-    <script src="{% static '/assets/js/tooltip-init.js' %}"></script>
-    <script src="{% static '/assets/js/animation/wow/wow.min.js' %}"></script>
-    <script src="{% static '/assets/js/landing/landing.js' %}"></script>
   </body>
 </html>

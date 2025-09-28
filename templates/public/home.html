@@ -1,0 +1,156 @@
+{% extends 'public/base.html' %}
+{% load static %}
+
+{% block content %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'assets/css/vendors/swiper-bundle.min.css' %}"/>
+{% endblock %}
+  <div class="container-fluid">
+    <div class="page-title mt-3">
+
+    </div>
+  </div>
+
+  <div class="card">
+      <div class="row p-4 mt-3">
+        <div class="col-12 col-md-7 col-lg-8">
+          <div id="sportVideoCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+
+              <div class="carousel-item active">
+                <div class="single-feature-post video-post bg-img" style="background-image:url('https://bmr.sg/storage/images/17398381600_1742619274.png');height:400px; background-size:cover;">
+                  <div class="post-content p-4 text-white">
+                    <a href="#" class="post-cata text-white">အပတ်စဉ်လှုပ်ရှားမှုများ</a>
+                    <a href="" class="post-title h5 d-block mt-2 text-white">2025 Annual General Meeting Invitation</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="carousel-item">
+                <div class="single-feature-post video-post bg-img" style="background-image:url('https://bmr.sg/storage/images/17398381600_1742619274.png');height:400px; background-size:cover;">
+                  <div class="post-content p-4 text-white">
+                    <a href="#" class="post-cata text-white">အပတ်စဉ်လှုပ်ရှားမှုများ</a>
+                    <a href="" class="post-title h5 d-block mt-2 text-white">Another Event Title</a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#sportVideoCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#sportVideoCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#sportVideoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#sportVideoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-5 col-lg-4 ps-3">
+          <ul class="nav flex-column" role="tablist">
+            <li class="nav-item mb-2">
+              <a class="nav-link p-0" href="https://bmr.sg/events/bebfe242-65ec-4a97-b9e7-0677bf73018f">
+                <div class="single-blog-post style-2 d-flex align-items-center">
+                  <div class="post-thumbnail me-2">
+                    <img src="https://bmr.sg/storage/images/viber_image_2024-12-28_18-39-18-464_1735382464.png" alt="" style="height:70px;">
+                  </div>
+                  <div class="post-content">
+                    <h6 class="post-title mb-0">ပါရာယနဒေသနာ 2024 Revision</h6>
+                  </div>
+                </div>
+              </a>
+            </li>
+            <!-- Repeat li.nav-item for other posts -->
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+          <div class="col-xl-6 col-12">
+              <div class="card auto-slider">
+                  <div class="card-header card-no-border pb-0">
+                      <h3>Auto Play Variant</h3>
+                      <p class="desc mb-0 mt-1">
+                          <span>Use the</span><code>.owl-carouse</code><span>through slides.</span></p>
+                  </div>
+                  <div class="card-body">
+                      <div class="swiper mySwiper swiper-initialized swiper-horizontal">
+                          <div class="swiper-wrapper" id="swiper-wrapper-13b87b71083964c04" aria-live="off"
+                               style="transition-duration: 0ms; transform: translate3d(-1464px, 0px, 0px); transition-delay: 0ms;">
+                              <div class="swiper-slide" role="group" aria-label="4 / 11" data-swiper-slide-index="3"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/4.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="5 / 11" data-swiper-slide-index="4"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/5.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="6 / 11" data-swiper-slide-index="5"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/6.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="7 / 11" data-swiper-slide-index="6"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/7.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="8 / 11" data-swiper-slide-index="7"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/8.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="9 / 11" data-swiper-slide-index="8"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/9.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="10 / 11" data-swiper-slide-index="9"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/10.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide" role="group" aria-label="11 / 11" data-swiper-slide-index="10"
+                                   style="width: 173px; margin-right: 10px;"><img src="{% static 'assets/images/slider/11.jpg' %}"
+                                                                                  alt="Drawing-room"></div>
+                              <div class="swiper-slide swiper-slide-prev" role="group" aria-label="1 / 11"
+                                   data-swiper-slide-index="0" style="width: 173px; margin-right: 10px;"><img
+                                      src="{% static 'assets/images/slider/1.jpg' %}" alt="Drawing-room"></div>
+                              <div class="swiper-slide swiper-slide-active" role="group" aria-label="2 / 11"
+                                   data-swiper-slide-index="1" style="width: 173px; margin-right: 10px;"><img
+                                      src="{% static 'assets/images/slider/2.jpg' %}" alt="Drawing-room"></div>
+                              <div class="swiper-slide swiper-slide-next" role="group" aria-label="3 / 11"
+                                   data-swiper-slide-index="2" style="width: 173px; margin-right: 10px;"><img
+                                      src="{% static 'assets/images/slider/3.jpg' %}" alt="Drawing-room"></div>
+                          </div>
+                          <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span></div>
+                      <div class="swiper-pagination swiper-pagination-clickable swiper-pagination-bullets swiper-pagination-horizontal swiper-pagination-bullets-dynamic"
+                           style="width: 90px;"><span
+                              class="swiper-pagination-bullet swiper-pagination-bullet-active-prev" tabindex="0"
+                              role="button" aria-label="Go to slide 1" style="left: 18px;"></span><span
+                              class="swiper-pagination-bullet swiper-pagination-bullet-active swiper-pagination-bullet-active-main"
+                              tabindex="0" role="button" aria-label="Go to slide 2" style="left: 18px;"
+                              aria-current="true"></span><span
+                              class="swiper-pagination-bullet swiper-pagination-bullet-active-next" tabindex="0"
+                              role="button" aria-label="Go to slide 3" style="left: 18px;"></span><span
+                              class="swiper-pagination-bullet swiper-pagination-bullet-active-next-next" tabindex="0"
+                              role="button" aria-label="Go to slide 4" style="left: 18px;"></span><span
+                              class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 5"
+                              style="left: 18px;"></span><span class="swiper-pagination-bullet" tabindex="0"
+                                                               role="button" aria-label="Go to slide 6"
+                                                               style="left: 18px;"></span><span
+                              class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 7"
+                              style="left: 18px;"></span><span class="swiper-pagination-bullet" tabindex="0"
+                                                               role="button" aria-label="Go to slide 8"
+                                                               style="left: 18px;"></span><span
+                              class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 9"
+                              style="left: 18px;"></span><span class="swiper-pagination-bullet" tabindex="0"
+                                                               role="button" aria-label="Go to slide 10"
+                                                               style="left: 18px;"></span><span
+                              class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 11"
+                              style="left: 18px;"></span></div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+{% block js %}
+<script src="{% static 'assets/js/vendors/swiper/swiper-bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/swiper/swiper-custom.js' %}"> </script>
+{% endblock %}
+{% endblock %}

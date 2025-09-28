@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 def home(request):
-    return render(request, 'base.html')
+    return render(request, 'public/home.html')
 
 def login_page(request):
     context = {
@@ -28,10 +28,10 @@ def dashboard(request):
         return redirect('public_dashboard')
 
 def public_dashboard(request):
-    return render(request, 'public/users/profile.html')
+    return render(request, 'public/users/dashboard.html')
 
 def private_dashboard(request):
-    return render(request, 'private/users/dashboard_bk.html')
+    return render(request, 'private/users/dashboard.html')
 
 def test_page(request):
     return render(request, 'test_google.html')
