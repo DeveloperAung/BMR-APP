@@ -80,6 +80,7 @@ class ContactInfo(AuditModel):
         ('employment_pass', 'Employment Pass Holder'),
         ('s_pass', 'S-Pass Holder'),
         ('work_permit', 'Work Permit Holder'),
+        ('student_pass', 'Student Pass Holder'),
         ('dependent_pass', 'Dependent Pass Holder'),
         ('long_term_visit_pass', 'Long Term Visit Pass Holder'),
         ('others', 'Others'),

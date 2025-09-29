@@ -1,4 +1,4 @@
-import { AssociationManager } from './managers/AssociationManager.js';
+import { MembershipManager } from './managers/MembershipManager.js';
 import { NotificationService } from '../shared/services/NotificationService.js';
 import { AuthService } from '../shared/services/AuthService.js';
 
@@ -20,7 +20,7 @@ class AssociationApp {
             }
 
             // Initialize users manager
-            this.associationManager = new AssociationManager({
+            this.associationManager = new MembershipManager({
                 authService: this.authService,
                 notificationService: this.notificationService
             });

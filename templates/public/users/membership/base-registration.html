@@ -1,0 +1,262 @@
+{% extends 'public/base.html' %}
+{% load static %}
+{% block content %}
+<!-- Membership Registration Wizard -->
+  <div class="container-fluid">
+    <div class="page-title mt-3">
+      <div class="row">
+        <div class="col-sm-6 col-12">
+          <h2>Dashboard</h2>
+        </div>
+        <div class="col-sm-6 col-12">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="iconly-Home icli svg-color"></i></a></li>
+            <li class="breadcrumb-item">Profile</li>
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Container-fluid starts-->
+  <div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'public/users/partials/_sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="col-xl-9 col-md-8 box-col-8">
+            <div class="file-content">
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="overview-content">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h3>Membership Registration</h3>
+                        </div>
+                        <div class="card-body basic-wizard">
+                            <div class="stepper-horizontal" id="stepper1">
+                                <div class="stepper-one stepper step editing active">
+                                    <div class="step-circle"><span>1</span></div>
+                                    <div class="step-title">Profile & Contact</div>
+                                    <div class="step-bar-left"></div>
+                                    <div class="step-bar-right"></div>
+                                </div>
+                                <div class="stepper-two step">
+                                    <div class="step-circle"><span>2</span></div>
+                                    <div class="step-title">Education & Work</div>
+                                    <div class="step-bar-left"></div>
+                                    <div class="step-bar-right"></div>
+                                </div>
+                                <div class="stepper-three step">
+                                    <div class="step-circle"><span>3</span></div>
+                                    <div class="step-title">Payment</div>
+                                    <div class="step-bar-left"></div>
+                                    <div class="step-bar-right"></div>
+                                </div>
+                                <div class="stepper-four step">
+                                    <div class="step-circle"><span>4</span></div>
+                                    <div class="step-title">Finish</div>
+                                    <div class="step-bar-left"></div>
+                                    <div class="step-bar-right"></div>
+                                </div>
+                            </div>
+                            {% block steps %}
+                            {% endblock %}
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+{% block extra_js %}
+{% include 'partials/_js/mobile-input.html' %}
+{% include 'public/users/membership/_js/profile-preview-validation.html' %}
+{% endblock extra_js %}
+
+<script>
+// Add getCookie function at the start
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.getElementById('step1-next').addEventListener('click', async () => {
+  const isValid = validateStep(1);
+  if (!isValid) {
+    alert('danger: Please fix the errors above before continuing.');
+    return;
+  }
+
+  const step1Form = document.getElementById('membership-wizard-form');
+  const formData = new FormData();
+
+  // Add all the relevant fields manually to match API structure
+  const profileInfo = {
+    full_name: document.getElementById('name').value,
+    gender: document.getElementById('gender').value,
+    date_of_birth: document.getElementById('date_of_birth').value,
+    city_of_birth: document.getElementById('city_of_birth').value,
+    country_of_birth: document.getElementById('country_of_birth').value,
+    citizenship: document.getElementById('citizenship').value
+  };
+
+  const contactInfo = {
+    nric_fin: document.getElementById('nric_fin').value,
+    primary_contact: document.getElementById('mobile-input').value,
+    secondary_contact: document.getElementById('mobile-secondary-input').value,
+    residential_status: document.getElementById('resendial_status').value,
+    postal_code: document.getElementById('postal_code').value,
+    address: document.getElementById('address').value
+  };
+
+  formData.append('profile_info', JSON.stringify(profileInfo));
+  formData.append('contact_info', JSON.stringify(contactInfo));
+  formData.append('membership_type', document.getElementById('membership_type').value);
+
+  const profilePictureInput = document.getElementById('profile_picture');
+  if (profilePictureInput && profilePictureInput.files.length > 0) {
+    formData.append('profile_picture', profilePictureInput.files[0]);
+  }
+
+  try {
+    const response = await fetch('/api/memberships/submit-page1/', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Validation error or other issue
+      const errorMsg = data?.message || data?.error || 'Submission failed.';
+      showMessage('danger', errorMsg);
+      return;
+    }
+
+    if (data.success) {
+      showMessage('success', 'Step 1 submitted successfully!');
+      showStep(2);  // 👈 Move to Step 2
+    } else {
+      showMessage('danger', data.message || 'Unknown error occurred');
+    }
+
+  } catch (err) {
+    console.error('Submit Error:', err);
+    showMessage('danger', 'Network or server error occurred.');
+  }
+});
+
+function showMessage(type, message) {
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+
+  const form = document.getElementById('membership-wizard-form');
+  form.insertBefore(alertDiv, form.firstChild);
+
+  setTimeout(() => {
+    alertDiv.remove();
+  }, 5000);
+}
+
+function showStep(step) {
+  document.querySelectorAll('.wizard-step').forEach((el, idx) => {
+    el.classList.toggle('d-none', idx !== step - 1);
+  });
+  document.getElementById('wizard-progress-bar').style.width = (step * 20) + '%';
+
+  // If showing step 5, check if we have QR code data stored
+  if (step === 3) {
+    const qrData = sessionStorage.getItem('qrCodeData');
+    if (qrData) {
+      try {
+        const parsedData = JSON.parse(qrData);
+        if (parsedData.qr_img) {
+          displayQRCode(parsedData.qr_img, parsedData.url);
+        }
+      } catch (e) {
+        console.error('Error parsing stored QR data:', e);
+      }
+    }
+  }
+}
+
+function validateStep(stepNumber) {
+  const stepElement = document.getElementById(`step-${stepNumber}`);
+  const requiredFields = stepElement.querySelectorAll('[required]');
+  let isValid = true;
+
+  // Clear previous validation styling
+  requiredFields.forEach(field => {
+    if (!field.value.trim()) {
+      field.classList.add('is-invalid');
+      // Add invalid feedback message
+      const feedback = field.nextElementSibling;
+      if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+        const message = document.createElement('div');
+        message.className = 'invalid-feedback';
+        message.textContent = 'This field is required';
+        field.parentNode.insertBefore(message, field.nextSibling);
+      }
+      isValid = false;
+    } else {
+      field.classList.remove('is-invalid');
+      const feedback = field.nextElementSibling;
+      if (feedback && feedback.classList.contains('invalid-feedback')) {
+        feedback.remove();
+      }
+    }
+  });
+
+  return isValid;
+}
+
+function displayQRCode(qrImgBase64, paymentUrl) {
+  const qrContainer = document.getElementById('qr-code-container');
+  const paymentLinks = document.getElementById('payment-links');
+  const paymentError = document.getElementById('payment-error');
+
+  // Hide error if it was showing
+  paymentError.style.display = 'none';
+
+  // Update QR code container
+  qrContainer.innerHTML = `
+    <img src="data:image/png;base64,${qrImgBase64}"
+         alt="QR Code"
+         class="img-fluid"
+         style="max-width: 300px; border: 1px solid #ddd; border-radius: 8px;">
+    <p class="mt-2 text-muted">Scan this QR code with your mobile banking app</p>
+  `;
+
+  // Update payment URL
+  if (paymentUrl) {
+    const paymentUrlLink = document.getElementById('payment-url');
+    paymentUrlLink.href = paymentUrl;
+    paymentLinks.style.display = 'block';
+  }
+}
+
+</script>
+
+  
+{% endblock %}

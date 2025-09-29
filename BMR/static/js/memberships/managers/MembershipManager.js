@@ -4,7 +4,7 @@ import { MembershipTableRenderer } from '../renderers/MembershipTableRenderer.js
 import { PaginationRenderer } from '../renderers/PaginationRenderer.js';
 import { FilterHandler } from '../handlers/FilterHandler.js';
 
-export class AssociationManager {
+export class MembershipManager {
     constructor({ authService, notificationService }) {
         console.log('🔧 AssociationManager: Constructor called');
         this.authService = authService;
