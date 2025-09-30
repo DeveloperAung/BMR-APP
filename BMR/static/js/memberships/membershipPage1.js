@@ -2,7 +2,7 @@ import { MembershipFormHandler } from './handlers/MembershipFormHandler.js';
 import { AuthService } from '../shared/services/AuthService.js';
 import { NotificationService } from '../shared/services/NotificationService.js';
 
-export const initMembershipPage1Create = () => {
+export const initMembershipPage1 = () => {
     try {
         const form = document.getElementById('membership-page1');
         if (!form) {
@@ -30,9 +30,9 @@ export const initMembershipPage1Create = () => {
 // Auto-init
 if (typeof document !== 'undefined' && !window.__MEMBERSHIP_NO_AUTO_INIT__) {
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMembershipPage1Create);
+        document.addEventListener('DOMContentLoaded', initMembershipPage1);
     } else {
-        initMembershipPage1Create();
+        initMembershipPage1();
     }
 }
 

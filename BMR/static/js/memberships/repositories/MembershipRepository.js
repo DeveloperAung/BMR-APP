@@ -50,16 +50,52 @@ export class MembershipRepository extends BaseRepository {
         }
     }
 
-
-    async submitPage2(data) {
+    async submitPage2(pageData) {
         try {
-            const jsonData = await this.apiService.post(`${this.baseEndpoint}submit-page2/`, data);
+            const page2_url =
+                API_ENDPOINTS?.MEMBERSHIP?.SUBMIT_PAGE2 ||
+                '/api/memberships/submit-page2/';
+
+            let jsonData;
+
+            // No file in step 2 → we can safely send JSON
+            jsonData = await this.repository.post(page2_url, {
+                education_info: pageData.education_info,
+                work_info: pageData.work_info
+            });
+
+            this.notificationService.showSuccess(
+                'Education and Work information saved successfully!'
+            );
+
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error('Submit page 2 failed:', error);
             ApiErrorHandler.handle(error, this.notificationService);
             throw error;
         }
+    }
+
+    /**
+     * Helper to prepare FormData from HTML form (if needed)
+     */
+    static getFormData(form) {
+        const formData = new FormData(form);
+
+        return {
+            education_info: {
+                education: parseInt(formData.get('education')),
+                institution: parseInt(formData.get('institution')),
+                other_societies: formData.get('other_societies') || ''
+            },
+            work_info: {
+                occupation: formData.get('occupation'),
+                company_name: formData.get('company_name'),
+                company_address: formData.get('company_address'),
+                company_postal_code: formData.get('company_postal_code'),
+                company_contact: formData.get('company_contact') || ''
+            }
+        };
     }
 
     async getMyMembership() {

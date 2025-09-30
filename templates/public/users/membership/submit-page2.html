@@ -1,4 +1,5 @@
 {% extends 'public/users/membership/base-registration.html' %}
+{% load static %}
 {% block steps %}
     <form id="membership-page2" enctype="multipart/form-data">
         {% csrf_token %}
@@ -65,8 +66,11 @@
 
             <div class="d-flex justify-content-between mt-4">
                 <a href="{% url 'member_reg_step_1' %}" type="button" class="btn btn-secondary" id="step2-prev">Previous</a>
-                <a href="{% url 'member_reg_step_3' %}" type="button" class="btn btn-primary" id="step2-next">Continue</a>
+                <button type="submit" class="btn btn-primary" id="step2-next">Continue</button>
             </div>
         </div>
     </form>
+{% block extra_js %}
+<script type="module" src="{% static 'js/memberships/membershipPage2.js' %}"></script>
+{% endblock %}
 {% endblock %}
