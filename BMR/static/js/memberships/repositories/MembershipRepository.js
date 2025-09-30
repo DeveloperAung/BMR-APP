@@ -12,43 +12,33 @@ export class MembershipRepository extends BaseRepository {
         console.log('Initializing MembershipRepository with endpoint:', endpoint);
     }
 
-    async submitPage1(pageData, isFormData = false) {
+    async submitPage1(pageData) {
         try {
-            const page1_url = API_ENDPOINTS?.MEMBERSHIP?.SUBMIT_PAGE1 || '/api/membership/submit-page1/';
+            const page1_url =
+                API_ENDPOINTS?.MEMBERSHIP?.SUBMIT_PAGE1 ||
+                '/api/membership/submit-page1/';
+
             let jsonData;
 
-            if (isFormData) {
+            const hasFile = pageData.file && pageData.file.size > 0;
+
+            if (hasFile) {
                 const formData = new FormData();
 
-                // Append profile_info as JSON blob
-                formData.append(
-                    'profile_info',
-                    new Blob([JSON.stringify(pageData.data.profile_info)], { type: 'application/json' })
-                );
+                Object.entries(pageData.data.profile_info).forEach(([key, value]) => {
+                    formData.append(`profile_info.${key}`, value || '');
+                });
 
-                // Append contact_info as JSON blob
-                formData.append(
-                    'contact_info',
-                    new Blob([JSON.stringify(pageData.data.contact_info)], { type: 'application/json' })
-                );
+                Object.entries(pageData.data.contact_info).forEach(([key, value]) => {
+                    formData.append(`contact_info.${key}`, value || '');
+                });
 
-                // Append membership type
                 formData.append('membership_type', pageData.data.membership_type);
 
-                // Append profile picture if exists
-                if (pageData.file && pageData.file.size > 0) {
-                    formData.append('profile_picture', pageData.file);
-                }
-
-                // Debug: check actual formData entries
-                console.log("---- FormData being sent ----");
-                for (const [key, value] of formData.entries()) {
-                    console.log(key, value);
-                }
+                formData.append('profile_picture', pageData.file);
 
                 jsonData = await this.apiService.post(page1_url, formData);
             } else {
-                // Send JSON normally
                 jsonData = await this.apiService.post(page1_url, pageData.data);
             }
 
@@ -59,6 +49,7 @@ export class MembershipRepository extends BaseRepository {
             throw error;
         }
     }
+
 
     async submitPage2(data) {
         try {

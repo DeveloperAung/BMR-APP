@@ -31,7 +31,7 @@ def public_dashboard(request):
     return render(request, 'public/users/dashboard.html')
 
 def private_dashboard(request):
-    return render(request, 'private/users/dashboard.html')
+    return render(request, 'private/users/list.html')
 
 def test_page(request):
     return render(request, 'test_google.html')

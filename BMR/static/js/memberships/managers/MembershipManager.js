@@ -10,7 +10,7 @@ export class MembershipManager {
 
     async submitPage1(pageData) {
         this.notificationService?.showLoading?.('Creating membership step 1...');
-        const response = await this.repository.submitPage1(pageData);
+        const response = await this.repository.submitPage1(pageData, true);
         this.notificationService?.hideLoading?.();
         return response;
     }

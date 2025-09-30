@@ -1,4 +1,3 @@
-# memberships/api/views.py - CORRECTED VERSION
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, mixins
@@ -6,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.views import View
 from django.http import JsonResponse
@@ -80,6 +81,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     Page 2: Education + Work Info + Submit with HitPay QR generation
     """
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     lookup_field = "uuid"
 
     def get_queryset(self):
@@ -157,16 +159,12 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     def submit_page1(self, request):
         """Page 1: Submit Profile Info, Contact Info, Membership Type, and Profile Picture"""
         membership = self.get_or_create_membership()
-        print('before call serializer')
-        print(request.data)
         serializer = MembershipPage1Serializer(
             data=request.data,
             context={'membership': membership}
         )
         serializer.is_valid(raise_exception=True)
-        print('before save serializer')
         membership = serializer.save()
-        print('after save serializer')
 
         response_serializer = MembershipReadSerializer(membership, context={'request': request})
         return ok(response_serializer.data, "Page 1 completed successfully. Please proceed to Page 2.")
