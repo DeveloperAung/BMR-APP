@@ -52,7 +52,8 @@ export const API_ENDPOINTS = {
     },
 
     MEMBERSHIP: {
-        MEMBERSHIPS: `${BASE_API_URL}/membership/posts`
+        MEMBERSHIPS: `${BASE_API_URL}/membership/`,
+        SUBMIT_PAGE1: `${BASE_API_URL}/membership/submit-page1/`
     }
 };
 

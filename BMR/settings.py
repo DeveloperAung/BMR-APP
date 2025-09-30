@@ -286,7 +286,7 @@ HITPAY_SALT = "rEZ7JdDLhHxeXS6qFpd1GOYTQtD2xMFdlWouwafHT41K2HomNAeO3volT7D4F6Ey"
 HITPAY_API_KEY = 'test_72b7fcb854ecbe3672e8198c602b0a07515f96798fecf211e262d1e54b087153'
 HITPAY_API_URL = 'https://api.sandbox.hit-pay.com/v1/payment-requests'
 
-FERNET_KEY = config('EMAIL_HOST', default='')
+FERNET_KEY = config('FERNET_KEY', default='')
 
 EMAIL_HOST=config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT=config('EMAIL_PORT', default=587)

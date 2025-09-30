@@ -35,19 +35,19 @@
                         </div>
                         <div class="card-body basic-wizard">
                             <div class="stepper-horizontal" id="stepper1">
-                                <div class="stepper-one stepper step editing active">
+                                <div class="stepper-one stepper step {% if 'step-1' in request.path %}editing active{% endif %}">
                                     <div class="step-circle"><span>1</span></div>
                                     <div class="step-title">Profile & Contact</div>
                                     <div class="step-bar-left"></div>
                                     <div class="step-bar-right"></div>
                                 </div>
-                                <div class="stepper-two step">
+                                <div class="stepper-two step {% if 'step-2' in request.path %}editing active{% endif %}">
                                     <div class="step-circle"><span>2</span></div>
                                     <div class="step-title">Education & Work</div>
                                     <div class="step-bar-left"></div>
                                     <div class="step-bar-right"></div>
                                 </div>
-                                <div class="stepper-three step">
+                                <div class="stepper-three step {% if 'step-3' in request.path %}editing active{% endif %}">
                                     <div class="step-circle"><span>3</span></div>
                                     <div class="step-title">Payment</div>
                                     <div class="step-bar-left"></div>

@@ -157,13 +157,16 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     def submit_page1(self, request):
         """Page 1: Submit Profile Info, Contact Info, Membership Type, and Profile Picture"""
         membership = self.get_or_create_membership()
-
+        print('before call serializer')
+        print(request.data)
         serializer = MembershipPage1Serializer(
             data=request.data,
             context={'membership': membership}
         )
         serializer.is_valid(raise_exception=True)
+        print('before save serializer')
         membership = serializer.save()
+        print('after save serializer')
 
         response_serializer = MembershipReadSerializer(membership, context={'request': request})
         return ok(response_serializer.data, "Page 1 completed successfully. Please proceed to Page 2.")
