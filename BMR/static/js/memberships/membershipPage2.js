@@ -35,16 +35,3 @@ if (typeof document !== 'undefined' && !window.__MEMBERSHIP_NO_AUTO_INIT__) {
         initMembershipPage2();
     }
 }
-
-export class MembershipPage2 {
-    constructor(repository, notificationService) {
-        if (!repository) throw new Error('Repository is required');
-        if (!notificationService) throw new Error('NotificationService is required');
-
-        this.repository = repository;
-        this.notificationService = notificationService;
-        this.baseEndpoint = '/api/memberships/';
-    }
-
-
-}

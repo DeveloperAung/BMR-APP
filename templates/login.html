@@ -3,7 +3,7 @@
 {% block title %}Login - Django DRF Auth{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center mt-5">
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
@@ -80,5 +80,121 @@
 {% endblock %}
 
 {% block scripts %}
+    <script>
+    async function checkAuthAndRedirect() {
+        const token = localStorage.getItem('access_token');
+
+        if (!token) {
+            debugLog('ℹ️ No token found, showing login page');
+            return; // User is not logged in, show login page
+        }
+
+        debugLog('🔍 Token found, verifying with server...');
+
+        try {
+            // Verify token with server and get user info
+            const response = await fetch('/api/auth/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const isStaff = data.data.is_staff || false;
+                    const dashboardUrl = isStaff ? '/i/dashboard/' : '/e/dashboard/';
+
+                    debugLog(`✅ User already logged in (staff: ${isStaff})`);
+                    showAlert('info', 'You are already logged in. Redirecting to dashboard...');
+
+                    setTimeout(() => {
+                        window.location.href = dashboardUrl;
+                    }, 1000);
+
+                    return true; // User is logged in
+                }
+            } else if (response.status === 401) {
+                // Token is invalid or expired
+                debugLog('⚠️ Token invalid or expired, clearing storage');
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user_data');
+
+                if (typeof axios !== 'undefined') {
+                    delete axios.defaults.headers.common['Authorization'];
+                }
+            }
+        } catch (error) {
+            debugLog(`❌ Error checking auth: ${error.message}`);
+            console.error('Auth check error:', error);
+        }
+
+        return false; // User is not logged in or token is invalid
+    }
+
+    // Helper function to determine dashboard URL based on user role
+    function getDashboardUrl(userData) {
+        const isStaff = userData.is_staff || false;
+        return isStaff ? '/i/dashboard/' : '/e/dashboard/';
+    }
+
+    function debugLog(message) {
+        const debugElement = document.getElementById('debugConsole');
+        if (debugElement) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugElement.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugElement.scrollTop = debugElement.scrollHeight;
+        }
+        window.console.log(message);
+    }
+
+    function showAlert(type, message) {
+        const alertContainer = document.getElementById('alertContainer');
+        if (!alertContainer) return;
+
+        alertContainer.querySelectorAll(`.alert-${type}`).forEach(alert => alert.remove());
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+        alert.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.appendChild(alert);
+
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 8000);
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async function() {
+        debugLog('🚀 Login page loaded');
+
+        // Check if user is already logged in
+        const isLoggedIn = await checkAuthAndRedirect();
+
+        if (isLoggedIn) {
+            // User is already logged in, redirect will happen
+            // Hide the login form to prevent interaction
+            const loginForm = document.getElementById('loginForm');
+            const googleBtn = document.getElementById('googleSignInBtn');
+            if (loginForm) loginForm.style.opacity = '0.5';
+            if (googleBtn) googleBtn.disabled = true;
+            return;
+        }
+
+        // User is not logged in, initialize login functionality
+        debugLog('📝 Initializing login form');
+    });
+</script>
+
 {% include 'partials/_js_google_auth.html' %}
 {% endblock %}

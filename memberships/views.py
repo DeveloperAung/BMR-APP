@@ -26,26 +26,17 @@ def member_reg_step_1(request):
         "citizenship": _as_choice_list(PersonalInfo.CITIZEN_CHOICES),
         "residential_statuses": _as_choice_list(ContactInfo.RESIDENTIAL_STATUS_CHOICES),
         "membership_types": MembershipType.objects.filter(is_active=True),
-        "initial_data": {
-            "profile_info": {
-                "name": "",
-                "gender": "",
-                "date_of_birth": "",
-                "city_of_birth": "",
-                "country_of_birth": "",
-                "citizenship": "",
-            },
-            "contact_info": {
-                "nric_fin": "",
-                "primary_contact": "",
-                "secondary_contact": "",
-                "residential_statuses": "",
-                "postal_code": "",
-                "address": "",
-            },
-            "membership_type": "",
-            "profile_picture": "",
-        }
+    }
+    return render(request, 'public/users/membership/submit-page1.html', ctx)
+
+
+def edit_member_reg_step_1(request, reference_no):
+    ctx = {
+        "gender_choices": _as_choice_list(PersonalInfo.GENDER_CHOICES),
+        "countries": _as_choice_list(PersonalInfo.COUNTRY_CHOICES),
+        "citizenship": _as_choice_list(PersonalInfo.CITIZEN_CHOICES),
+        "residential_statuses": _as_choice_list(ContactInfo.RESIDENTIAL_STATUS_CHOICES),
+        "membership_types": MembershipType.objects.filter(is_active=True, reference_no=reference_no),
     }
     return render(request, 'public/users/membership/submit-page1.html', ctx)
 

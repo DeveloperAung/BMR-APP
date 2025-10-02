@@ -45,31 +45,43 @@
     );
 
     // Enhanced logout function
-    async function logout() {
+      async function logout() {
         try {
             // Try to invalidate refresh token on server
             const refreshToken = localStorage.getItem('refresh_token');
             if (refreshToken) {
-                await axios.post('/api/auth/logout/', {
-                    refresh: refreshToken
+                const response = await fetch('/api/auth/logout/', {  // Use fetch for native/no-deps
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken(),  // Add if needed
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ refresh: refreshToken })
                 });
+                // Optional: await response.json(); for logging
             }
         } catch (error) {
             console.log('Server logout error (continuing anyway):', error);
         }
 
-        // Clear local storage
+        // Clear all auth data
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        delete axios.defaults.headers.common['Authorization'];
+        localStorage.removeItem('user_data');  // If you store it
+
+        // Clear axios if present
+        if (typeof axios !== 'undefined') {
+            delete axios.defaults.headers.common['Authorization'];
+        }
 
         // Show feedback
         showGlobalAlert('success', 'Logged out successfully');
 
-        // Update navigation
-        updateNavigation();
+        // Update navigation (key for no-reload UX)
+        updateNavigation();  // Implement: Hide auth nav, show unauth; reverse login logic
 
-        // Redirect if not on home/login/register
+        // Conditional redirect
         const currentPath = window.location.pathname;
         if (!['/', '/login/', '/register/'].includes(currentPath)) {
             setTimeout(() => {
@@ -149,6 +161,37 @@
         return true;
     }
 
+    async function loadNavbarUserInfo() {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const response = await fetch('/api/auth/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const userName = data.data.first_name && data.data.last_name
+                        ? `${data.data.first_name} ${data.data.last_name}`
+                        : data.data.username || 'User';
+
+                    const userNameElement = document.getElementById('navbarUserName');
+                    if (userNameElement) {
+                        userNameElement.textContent = userName;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('Could not load user info for navbar:', error);
+        }
+    }
+
     // Auto-logout setup
     function setupAutoLogout() {
         // Check token every minute
@@ -192,6 +235,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         updateNavigation();
         setupAutoLogout();
+        loadNavbarUserInfo();
 
         // Check token on page load
         checkTokenExpiration();
