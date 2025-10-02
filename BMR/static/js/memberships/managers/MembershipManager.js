@@ -17,11 +17,13 @@ export class MembershipManager {
 
     async submitPage2(data) {
         try {
+            console.log("Inside manager try")
             this.notificationService?.showLoading?.('Submitting application...');
             const response = await this.repository.submitPage2(data);
             this.notificationService?.hideLoading?.();
             return response;
         } catch (error) {
+            console.log("Inside manager catch")
             this.notificationService?.hideLoading?.();
             throw error;
         }

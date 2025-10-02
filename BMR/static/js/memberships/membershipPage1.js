@@ -56,7 +56,6 @@ async function loadExistingMembershipData(authService, notificationService) {
             console.log('No existing membership found - new user');
         } else {
             console.error('Error loading membership data:', error);
-            // Don't show error to user - they can still fill the form manually
         }
     }
 }
@@ -228,20 +227,20 @@ function autoSelectMembershipType() {
 
     if (isOrdinary) {
         if (isStudentPass) {
-            targetMembershipName = 'ordinary member (student)';
+            targetMembershipName = 'Ordinary';
         } else if (isSenior) {
-            targetMembershipName = 'ordinary member (senior)';
+            targetMembershipName = 'Ordinary';
         } else {
-            targetMembershipName = 'ordinary member';
+            targetMembershipName = 'Ordinary';
         }
     } else {
         // Associate member
         if (isStudentPass) {
-            targetMembershipName = 'associate member (student)';
+            targetMembershipName = 'Associate';
         } else if (isSenior) {
-            targetMembershipName = 'associate member (senior)';
+            targetMembershipName = 'Associate';
         } else {
-            targetMembershipName = 'associate member';
+            targetMembershipName = 'Associate';
         }
     }
 

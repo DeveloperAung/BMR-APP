@@ -142,7 +142,6 @@
                                class="form-control"
                                id="nric_fin"
                                name="nric_fin"
-                               pattern="[STFG]\d{7}[A-Z]"
                                required>
                     </div>
                     <div class="form-text">Format: S1234567A</div>
@@ -179,7 +178,7 @@
               <strong>Membership Fee:</strong> $<span id="member-fee-amount"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3" hidden="hidden">
                 <label for="membership_type" class="form-label">Membership Type <span
                         class="text-danger">*</span></label>
                 <select class="form-select" id="membership_type" name="membership_type" required>

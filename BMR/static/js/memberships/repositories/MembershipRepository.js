@@ -56,19 +56,14 @@ export class MembershipRepository extends BaseRepository {
                 API_ENDPOINTS?.MEMBERSHIP?.SUBMIT_PAGE2 ||
                 '/api/memberships/submit-page2/';
 
-            let jsonData;
-
-            // No file in step 2 → we can safely send JSON
-            jsonData = await this.repository.post(page2_url, {
-                education_info: pageData.education_info,
-                work_info: pageData.work_info
-            });
+            console.log("PageData", pageData)
+            const json = await this.apiService.post(page2_url, pageData);
 
             this.notificationService.showSuccess(
                 'Education and Work information saved successfully!'
             );
 
-            return jsonData?.data || jsonData;
+            return json?.data || json;
         } catch (error) {
             console.error('Submit page 2 failed:', error);
             ApiErrorHandler.handle(error, this.notificationService);

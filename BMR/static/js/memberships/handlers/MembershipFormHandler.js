@@ -55,7 +55,7 @@ export class MembershipFormHandler {
                         // Update toggle button icon
                         const toggleBtn = field.parentElement.querySelector('.toggle-visibility');
                         if (toggleBtn) {
-                            toggleBtn.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                            toggleBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
                         }
                     }
                 });
@@ -121,11 +121,11 @@ export class MembershipFormHandler {
             const currentValue = formData.get('nric_fin');
             const isMasked = field?.getAttribute('data-is-masked') === 'true';
 
-            // If field is still masked and we have full value, use it
+            // If field is still masked and have full value, use it
             if (isMasked && fullValue && currentValue && currentValue.includes('*')) {
                 return fullValue;
             }
-            // Otherwise use current value (user may have edited)
+
             return currentValue;
         };
 

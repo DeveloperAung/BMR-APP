@@ -203,6 +203,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
             context={'membership': membership}
         )
         serializer.is_valid(raise_exception=True)
+        # membership.workflow_status = ""
         membership = serializer.save()
 
         # Get the generated payment with QR
@@ -215,7 +216,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
             "payment_amount": str(payment.amount) if payment else None,
             "payment_currency": payment.currency if payment else None
         }
-
+        print("payment", response_data)
         return ok(
             response_data,
             "Application submitted successfully! Please scan the QR code to complete payment."

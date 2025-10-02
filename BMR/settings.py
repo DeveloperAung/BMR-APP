@@ -282,9 +282,9 @@ CORS_ALLOW_CREDENTIALS = True
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 
-HITPAY_SALT = "rEZ7JdDLhHxeXS6qFpd1GOYTQtD2xMFdlWouwafHT41K2HomNAeO3volT7D4F6Ey"
-HITPAY_API_KEY = 'test_72b7fcb854ecbe3672e8198c602b0a07515f96798fecf211e262d1e54b087153'
-HITPAY_API_URL = 'https://api.sandbox.hit-pay.com/v1/payment-requests'
+HITPAY_SALT = config('HITPAY_SALT', default='')
+HITPAY_API_KEY = config('HITPAY_API_KEY', default='')
+HITPAY_API_URL = config('HITPAY_API_URL', default='')
 
 FERNET_KEY = config('FERNET_KEY', default='')
 

@@ -39,34 +39,30 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="occupation" class="form-label">Occupation <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="occupation" name="occupation"
-                           value="{{ initial_data.work_info.occupation }}" required>
+                    <input type="text" class="form-control" id="occupation" name="occupation" required>
                 </div>
                 <div class="col-md-6">
                     <label for="company_name" class="form-label">Company Name</label>
-                    <input type="text" class="form-control" id="company_name" name="company_name"
-                           value="{{ initial_data.work_info.company_name }}">
+                    <input type="text" class="form-control" id="company_name" name="company_name">
                 </div>
                 <div class="col-md-6">
                     <label for="company_contact" class="form-label">Company Contact</label>
-                    <input type="text" class="form-control" id="company_contact" name="company_contact"
-                           value="{{ initial_data.work_info.company_contact }}">
+                    <input type="text" class="form-control" id="company_contact" name="company_contact">
                 </div>
                 <div class="col-md-6">
                     <label for="company_postal_code" class="form-label">Company Postal Code</label>
-                    <input type="text" class="form-control" id="company_postal_code" name="company_postal_code"
-                           value="{{ initial_data.work_info.company_postal_code }}">
+                    <input type="text" class="form-control" id="company_postal_code" name="company_postal_code">
                 </div>
                 <div class="col-md-12">
                     <label for="company_address" class="form-label">Company Address</label>
                     <textarea class="form-control" id="company_address" name="company_address"
-                              rows="2">{{ initial_data.work_info.company_address }}</textarea>
+                              rows="2"></textarea>
                 </div>
             </div>
 
             <div class="d-flex justify-content-between mt-4">
                 <a href="{% url 'member_reg_step_1' %}" type="button" class="btn btn-secondary" id="step2-prev">Previous</a>
-                <button type="submit" class="btn btn-primary" id="step2-next">Continue</button>
+                <button type="submit" class="btn btn-primary" id="step2-next">Continue to payment</button>
             </div>
         </div>
     </form>
