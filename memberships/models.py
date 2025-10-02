@@ -122,7 +122,7 @@ class ContactInfo(AuditModel):
         """Get masked NRIC/FIN (e.g., S1234***A)"""
         decrypted = self.nric_fin
         if decrypted and len(decrypted) >= 4:
-            return decrypted[:4] + '*' * (len(decrypted) - 5) + decrypted[-1]
+            return decrypted[:1] + '*' * (len(decrypted) - 5) + decrypted[5:]
         return decrypted
 
     @property
@@ -145,7 +145,7 @@ class ContactInfo(AuditModel):
         """Get masked primary contact (e.g., +659123*****)"""
         decrypted = self.primary_contact
         if decrypted and len(decrypted) >= 6:
-            return decrypted[:6] + '*' * (len(decrypted) - 6)
+            return decrypted[:1] + '*' * (len(decrypted) - 4) + decrypted[5 :]
         return decrypted
 
     @property

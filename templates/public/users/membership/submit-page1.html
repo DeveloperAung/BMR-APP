@@ -2,6 +2,30 @@
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+    .masked-field-wrapper {
+        position: relative;
+    }
+    .masked-field-wrapper input {
+        padding-right: 45px;
+    }
+    .toggle-visibility {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+    }
+    .toggle-visibility:hover {
+        background: #f0f0f0;
+        border-radius: 4px;
+    }
+</style>
 {% endblock %}
 
 {% block steps %}
@@ -16,23 +40,18 @@
                             class="text-danger">*</span></label>
                     <div class="mb-2">
                         <img id="profile_picture_preview"
-                             src="{% if initial_data.profile_picture %}{{ initial_data.profile_picture }}{% endif %}"
+                             src=""
                              alt="Profile Preview"
                              class="img-thumbnail"
-                             style="max-width: 150px; {% if not initial_data.profile_picture %}display: none;{% endif %}">
+                             style="max-width: 150px;">
                     </div>
                     <input type="file"
                            class="form-control"
                            id="profile_picture"
                            name="profile_picture"
-                           accept="image/*"
-                           {% if not initial_data.profile_picture %}required{% endif %}>
+                           accept="image/*">
                     <div class="form-text">
-                        {% if initial_data.profile_picture %}
-                            Current profile picture shown above. Upload new one to change.
-                        {% else %}
-                            Please upload a profile picture (max 2MB).
-                        {% endif %}
+                        Please upload a profile picture (max 2MB).
                     </div>
                     <div class="invalid-feedback"></div>
                 </div>
@@ -48,8 +67,7 @@
                         <select class="form-select" id="gender" name="gender" required>
                             <option value="">Select</option>
                             {% for g in gender_choices %}
-                                <option value="{{ g.id }}"
-                                        {% if g.id == initial_data.profile_info.gender %}selected{% endif %}>{{ g.name }}</option>
+                                <option value="{{ g.id }}">{{ g.name }}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback"></div>
@@ -57,14 +75,12 @@
                     <div class="mb-3">
                         <label for="date_of_birth" class="form-label">Date of Birth <span
                                 class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
-                               value="{{ initial_data.profile_info.date_of_birth }}" required>
+                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
                         <label for="city_of_birth" class="form-label">City of Birth</label>
-                        <input type="text" class="form-control" id="city_of_birth" name="city_of_birth"
-                               value="{{ initial_data.profile_info.city_of_birth }}">
+                        <input type="text" class="form-control" id="city_of_birth" name="city_of_birth">
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
@@ -73,8 +89,7 @@
                         <select class="form-select" id="country_of_birth" name="country_of_birth" required>
                             <option value="">Select Country</option>
                             {% for c in countries %}
-                                <option value="{{ c.id }}"
-                                        {% if c.id == initial_data.profile_info.country_of_birth %}selected{% endif %}>{{ c.name }}</option>
+                                <option value="{{ c.id }}">{{ c.name }}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback"></div>
@@ -85,8 +100,7 @@
                         <select class="form-select" id="citizenship" name="citizenship" required>
                             <option value="">Select Citizenship</option>
                             {% for ci in citizenship %}
-                                <option value="{{ ci.id }}"
-                                        {% if ci.id == initial_data.profile_info.citizenship %}selected{% endif %}>{{ ci.name }}</option>
+                                <option value="{{ ci.id }}">{{ ci.name }}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback"></div>
@@ -98,32 +112,39 @@
             <div class="row g-3">
 
                 <div class="col-md-6">
-                    <label for="mobile-input" class="form-label">Primary Contact <span
+                    <label for="mobile" class="form-label">Primary Contact <span
                             class="text-danger">*</span></label>
-                    <input type="tel"
-                           class="form-control"
-                           id="mobile-input"
-                           name="mobile"
-                           value="{{ initial_data.contact_info.primary_contact }}"
-                           required>
+                    <div class="masked-field-wrapper">
+                        <input type="tel"
+                               class="form-control"
+                               id="mobile"
+                               name="mobile"
+                               required>
+                    </div>
                     <div class="invalid-feedback"></div>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="mobile-secondary-input" class="form-label">Secondary Contact</label>
-                    <input type="tel"
-                           class="form-control"
-                           id="mobile-secondary-input"
-                           name="secondary_contact"
-                           value="{{ initial_data.contact_info.secondary_contact }}">
+                    <label for="secondary_contact" class="form-label">Secondary Contact</label>
+                    <div class="masked-field-wrapper">
+                        <input type="tel"
+                               class="form-control"
+                               id="secondary_contact"
+                               name="secondary_contact">
+                    </div>
                     <div class="invalid-feedback"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label for="nric_fin" class="form-label">NRIC/FIN <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="nric_fin" name="nric_fin"
-                           pattern="[STFG]\d{7}[A-Z]"
-                           value="{{ initial_data.contact_info.nric_fin }}" required>
+                    <div class="masked-field-wrapper">
+                        <input type="text"
+                               class="form-control"
+                               id="nric_fin"
+                               name="nric_fin"
+                               pattern="[STFG]\d{7}[A-Z]"
+                               required>
+                    </div>
                     <div class="form-text">Format: S1234567A</div>
                     <div class="invalid-feedback"></div>
                 </div>
@@ -134,8 +155,7 @@
                     <select class="form-select" id="residential_status" name="residential_status" required>
                         <option value="">Select Status</option>
                         {% for rs in residential_statuses %}
-                            <option value="{{ rs.id }}"
-                                    {% if rs.id == initial_data.contact_info.residential_status %}selected{% endif %}>{{ rs.name }}</option>
+                            <option value="{{ rs.id }}">{{ rs.name }}</option>
                         {% endfor %}
                     </select>
                     <div class="invalid-feedback"></div>
@@ -143,8 +163,7 @@
 
                 <div class="col-md-6">
                     <label for="postal_code" class="form-label">Postal Code <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="postal_code" name="postal_code"
-                           value="{{ initial_data.contact_info.postal_code }}" required>
+                    <input type="text" class="form-control" id="postal_code" name="postal_code" required>
                     <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-6">
@@ -155,7 +174,7 @@
                 </div>
             </div>
 
-            <div id="membership-type-info" class="mt-3 alert alert-info">
+            <div id="membership-type-info" class="mt-3 alert alert-info" style="display: none;">
               <strong>Member Type:</strong> <span id="member-type-label"></span><br>
               <strong>Membership Fee:</strong> $<span id="member-fee-amount"></span>
             </div>
@@ -166,10 +185,7 @@
                 <select class="form-select" id="membership_type" name="membership_type" required>
                     <option value="">Select Membership Type</option>
                     {% for type in membership_types %}
-                        <option value="{{ type.id }}"
-                                {% if initial_data.membership_type is not None and type.id|stringformat:"s" == initial_data.membership_type|stringformat:"s" %}
-                                selected
-                                {% endif %}>
+                        <option value="{{ type.id }}">
                             {{ type.name }} - ${{ type.amount }}
                         </option>
                     {% endfor %}
@@ -186,8 +202,8 @@
         </div>
 
     </form>
+{% endblock %}
 
 {% block extra_js %}
 <script type="module" src="{% static 'js/memberships/membershipPage1.js' %}"></script>
-{% endblock %}
 {% endblock %}

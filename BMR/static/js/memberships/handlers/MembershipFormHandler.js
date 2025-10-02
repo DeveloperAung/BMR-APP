@@ -33,12 +33,40 @@ export class MembershipFormHandler {
         
         // Add phone input formatting if intl-tel-input is available
         this.initializePhoneInputs();
+
+        // Add input listeners to clear masked state when user types
+        this.addInputListeners();
+    }
+
+    addInputListeners() {
+        const maskedFields = ['nric_fin', 'mobile', 'secondary_contact'];
+
+        maskedFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', (e) => {
+                    // If user is typing, clear the masked state
+                    if (field.hasAttribute('data-is-masked') && field.getAttribute('data-is-masked') === 'true') {
+                        // User is modifying masked value, assume they want to enter new value
+                        field.removeAttribute('data-full-value');
+                        field.removeAttribute('data-masked-value');
+                        field.setAttribute('data-is-masked', 'false');
+
+                        // Update toggle button icon
+                        const toggleBtn = field.parentElement.querySelector('.toggle-visibility');
+                        if (toggleBtn) {
+                            toggleBtn.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                        }
+                    }
+                });
+            }
+        });
     }
 
     initializeImagePreview() {
         const fileInput = this.form.querySelector('#profile_picture');
         const preview = this.form.querySelector('#profile_picture_preview');
-        
+
         if (fileInput && preview) {
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -48,7 +76,7 @@ export class MembershipFormHandler {
                         fileInput.value = '';
                         return;
                     }
-                    
+
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         preview.src = event.target.result;
@@ -66,7 +94,7 @@ export class MembershipFormHandler {
             const phoneInputs = this.form.querySelectorAll('input[type="tel"]');
             phoneInputs.forEach(input => {
                 window.intlTelInput(input, {
-                    preferredCountries: ['sg', 'my', 'id'],
+                    preferredCountries: ['sg', 'mm'],
                     separateDialCode: true,
                     utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
                 });
@@ -76,7 +104,7 @@ export class MembershipFormHandler {
 
     getFormData() {
         const formData = new FormData(this.form);
-        
+
         if (this.pageNumber === 1) {
             return this.getPage1Data(formData);
         } else if (this.pageNumber === 2) {
@@ -85,6 +113,45 @@ export class MembershipFormHandler {
     }
 
     getPage1Data(formData) {
+
+        // Get actual values for encrypted fields (unmasked)
+        const getNRICValue = () => {
+            const field = document.getElementById('nric_fin');
+            const fullValue = field?.getAttribute('data-full-value');
+            const currentValue = formData.get('nric_fin');
+            const isMasked = field?.getAttribute('data-is-masked') === 'true';
+
+            // If field is still masked and we have full value, use it
+            if (isMasked && fullValue && currentValue && currentValue.includes('*')) {
+                return fullValue;
+            }
+            // Otherwise use current value (user may have edited)
+            return currentValue;
+        };
+
+        const getMobileValue = () => {
+            const field = document.getElementById('mobile');
+            const fullValue = field?.getAttribute('data-full-value');
+            const currentValue = formData.get('mobile');
+            const isMasked = field?.getAttribute('data-is-masked') === 'true';
+
+            if (isMasked && fullValue && currentValue && currentValue.includes('*')) {
+                return fullValue;
+            }
+            return currentValue;
+        };
+
+        const getSecondaryContactValue = () => {
+            const field = document.getElementById('secondary_contact');
+            const fullValue = field?.getAttribute('data-full-value');
+            const currentValue = formData.get('secondary_contact');
+            const isMasked = field?.getAttribute('data-is-masked') === 'true';
+
+            if (isMasked && fullValue && currentValue && currentValue.includes('*')) {
+                return fullValue;
+            }
+            return currentValue || '';
+        };
 
         const data = {
             profile_info: {
@@ -96,9 +163,9 @@ export class MembershipFormHandler {
                 citizenship: formData.get('citizenship')
             },
             contact_info: {
-                nric_fin: formData.get('nric_fin'),
-                primary_contact: formData.get('mobile'),
-                secondary_contact: formData.get('secondary_contact') || '',
+                nric_fin: getNRICValue(),
+                primary_contact: getMobileValue(),
+                secondary_contact: getSecondaryContactValue(),
                 residential_status: formData.get('residential_status'),
                 postal_code: formData.get('postal_code'),
                 address: formData.get('address')

@@ -168,7 +168,10 @@ class PersonalInfoCreateSerializer(serializers.ModelSerializer):
 
 
 class ContactInfoCreateSerializer(serializers.ModelSerializer):
-    # Use regular fields for input, encryption happens in the model
+    """
+    Accepts plain text input, encrypts on save.
+    Returns masked + full values on read.
+    """
     nric_fin = serializers.CharField(
         validators=[RegexValidator(
             regex=r'^[STFG]\d{7}[A-Z]$',
@@ -212,6 +215,7 @@ class ContactInfoCreateSerializer(serializers.ModelSerializer):
         instance.address = validated_data.get('address', instance.address)
         instance.save()
         return instance
+
 
 
 class WorkInfoCreateSerializer(serializers.ModelSerializer):
