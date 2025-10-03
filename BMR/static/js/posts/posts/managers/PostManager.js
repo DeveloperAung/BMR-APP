@@ -43,7 +43,6 @@ export class PostManager extends BaseManager {
     }
 
     async updatePost(postId, postData) {
-        console.log("calling post update", postData)
         this.notificationService?.showLoading?.('Updating post...');
         const response = await this.repository.updatePost(postId, postData);
         this.notificationService?.hideLoading?.();

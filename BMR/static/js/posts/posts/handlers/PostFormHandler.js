@@ -67,31 +67,19 @@ export class PostFormHandler {
 
         const formData = new FormData(this.form);
 
-        // detect file
+        // ✅ If no file chosen, remove the field entirely
         const coverImage = formData.get('cover_image');
-        const hasFile = coverImage && coverImage.name;
-
-        if (hasFile) {
-            for (const [key, value] of formData.entries()) {
-                console.log(key, value);
-            }
-            return formData; // multipart
+        if (!coverImage || !coverImage.name) {
+            formData.delete('cover_image');
         }
 
-        const data = {
-            title: formData.get('title'),
-            short_description: formData.get('short_description'),
-            description: formData.get('description'), // now filled with HTML
-            post_category: formData.get('post_category'),
-            is_published: formData.get('is_published') === 'on',
-            is_active: formData.get('is_active') === 'on',
-            set_banner: formData.get('set_banner') === 'on',
-            banner_order: formData.get('banner_order'),
-        };
-        if (formData.has('parent')) data.parent = formData.get('parent');
+        const mediaFile = formData.get('media');
+        if (!mediaFile || !mediaFile.name) {
+            formData.delete('media');
+        }
 
-        console.log('Post data', data);
-        return data;
+        // ✅ Always return FormData, never JSON
+        return formData;
     }
 
 

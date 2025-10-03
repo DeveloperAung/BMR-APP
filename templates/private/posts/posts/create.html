@@ -36,10 +36,30 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="parent" class="form-label">Parent Post</label>
+                                <select class="form-select" id="parent" name="parent">
+                                    <option value="">Select Parent Post</option>
+                                    {% for p in posts %}
+                                        <option value="{{ p.id }}"
+                                                {% if post.post_category_id == p.id %}selected{% endif %}>
+                                            {{ p.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
                                 <label for="title" class="form-label">Title</label>
                                 <input type="text" class="form-control" id="title" name="title"
                                        value="{{ post.title|default_if_none:'' }}" required>
                                 <div class="invalid-feedback">Please enter a title</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="title_others" class="form-label">Title (Eng)</label>
+                                <input type="text" class="form-control" id="title_others" name="title_others"
+                                       value="{{ post.title_others|default_if_none:'' }}" required>
+                                <div class="invalid-feedback">Please enter a title in Eng</div>
                             </div>
 
                             <div class="mb-3">
@@ -69,6 +89,18 @@
                                             {% if post.cover_image %}{{ post.cover_image.url|default_if_none:'' }}{% endif %}"
                                          alt="Cover Preview"
                                          style="max-width:300px;display:{% if post.cover_image %}block{% else %}none{% endif %};">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="media" class="form-label">Media File</label>
+                                <input type="file" class="form-control" id="media" name="media" accept="*">
+                                <div class="mt-2">
+                                    {{ post.media }}
+                                    <img id="cover_image_preview" src="
+                                            {% if post.media %}{{ post.media.url|default_if_none:'' }}{% endif %}"
+                                         alt="Cover Preview"
+                                         style="max-width:300px;display:{% if post.media %}block{% else %}none{% endif %};">
                                 </div>
                             </div>
 

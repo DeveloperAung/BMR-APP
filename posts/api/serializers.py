@@ -38,7 +38,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
     post_category_title = serializers.CharField(source='post_category.title', read_only=True)
     parent_title = serializers.CharField(source='parent.title', read_only=True)
     cover_image = serializers.ImageField(required=False, allow_null=True)
-    # media = serializers.CharField(source='media.title')
+    media = serializers.FileField(required=False, allow_null=True)
+
     class Meta:
         model = Post
         fields = [
@@ -73,4 +74,13 @@ class PostDetailSerializer(serializers.ModelSerializer):
             if Post.objects.filter(title=value).exists():
                 raise serializers.ValidationError("A post with this title already exists.")
         return value
+
+    def update(self, instance, validated_data):
+        # Prevent accidental clearing of files
+        if 'cover_image' not in self.initial_data:
+            validated_data.pop('cover_image', None)
+        if 'media' not in self.initial_data:
+            validated_data.pop('media', None)
+
+        return super().update(instance, validated_data)
 
