@@ -6,9 +6,14 @@ from django.conf import settings
 def post_image_path(instance, filename):
     return "post/image/cover/{}/{}".format(instance.id, filename)
 
+def post_file_path(instance, filename):
+    return "post/file/{}/{}".format(instance.id, filename)
+
 
 class PostCategory(AuditModel):
     title = models.CharField(max_length=250, unique=True)
+    title_others = models.CharField(max_length=250, unique=True, blank=True)
+    is_menu = models.BooleanField(default=True)
 
     class Meta:
         verbose_name_plural = 'Post Categories'
@@ -19,6 +24,7 @@ class PostCategory(AuditModel):
 
 class Post(AuditModel):
     title = models.CharField(max_length=500)
+    title_others = models.CharField(max_length=250, unique=True, blank=True)
     short_description = models.CharField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     is_published = models.BooleanField(default=False)
@@ -32,8 +38,8 @@ class Post(AuditModel):
     )
     post_category = models.ForeignKey(PostCategory, on_delete=models.SET_NULL, null=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
-    media = models.ForeignKey('core.MediaModel', on_delete=models.SET_NULL, null=True, blank=True)
-    cover_image = models.ImageField(upload_to=post_image_path, blank=True)
+    media = models.FileField(upload_to=post_file_path, null=True, blank=True)
+    cover_image = models.ImageField(upload_to=post_image_path, null=True, blank=True)
     set_banner = models.BooleanField(default=False)
     banner_order = models.PositiveIntegerField(default=0)
 

@@ -16,8 +16,13 @@ export class PostCategoryRepository extends BaseRepository {
             throw new Error('Category title is required');
         }
 
+        if (!categoryData.title_others || categoryData.title_others.trim() === '') {
+            throw new Error('Category title others is required');
+        }
+
         const payload = {
-            title: categoryData.title.trim()
+            title: categoryData.title.trim(),
+            title_others: categoryData.title_others.trim()
         };
 
         try {
@@ -32,8 +37,12 @@ export class PostCategoryRepository extends BaseRepository {
 
         const payload = {};
         if (categoryData.title !== undefined) payload.title = categoryData.title.trim();
+        if (categoryData.title_others !== undefined) payload.title_others = categoryData.title_others.trim();
         if ('is_active' in categoryData) {
             payload.is_active = Boolean(categoryData.is_active);
+        }
+        if ('is_menu' in categoryData) {
+            payload.is_active = Boolean(categoryData.is_menu);
         }
         try {
             const result = await super.updateItem(categoryId, payload);

@@ -23,8 +23,10 @@ class Association(AuditModel):
 
 class AssociationPosts(AuditModel):
     title = models.CharField(max_length=250, help_text="Title of the post (About Us, Our Objects, etc.)")
+    title_others = models.CharField(max_length=250, blank=True, null=True)
     content = models.TextField(help_text="Content of the post")
     is_published = models.BooleanField(default=False)
+    is_menu = models.BooleanField(default=True)
     published_at = models.DateTimeField(blank=True, null=True)
     published_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

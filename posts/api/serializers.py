@@ -5,7 +5,7 @@ from ..models import PostCategory, Post
 class PostCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PostCategory
-        fields = ['id', 'title', 'is_active', 'created_at']
+        fields = ['id', 'title', 'title_others', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
 
     def validate_title(self, value):
@@ -44,6 +44,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'title',
+            'title_others',
             'short_description',
             'description',
             'is_published',

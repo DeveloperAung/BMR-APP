@@ -32,13 +32,18 @@ export class CategoryFormHandler {
         const formData = new FormData(this.form);
         const data = {
             title: formData.get('title'),
+            title_others: formData.get('title_others'),
             is_active: formData.get('is_active') === 'on',
+            is_menu: formData.get('is_menu') === 'on',
         };
 
         if (this.form.dataset.categoryId) {
             // Only include in edit mode if checkbox is present
             if (formData.has('is_active')) {
                 data.is_active = formData.get('is_active') === 'on';
+            }
+            if (formData.has('is_menu')) {
+                data.is_active = formData.get('is_menu') === 'on';
             }
         }
         return data;
