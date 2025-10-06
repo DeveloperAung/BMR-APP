@@ -1,0 +1,216 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Event{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-6">
+                    <h3>{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Event</h3>
+                </div>
+                <div class="col-6">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'dashboard' %}">
+                                <i data-feather="home"></i>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'event_list' %}">Events</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            {% if mode == 'edit' %}Edit{% else %}New{% endif %}
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-lg-10">
+                <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                            {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Event
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="eventForm" data-event-id="{{ event.id|default:'' }}" class="needs-validation" novalidate>
+                            {% csrf_token %}
+
+                            <!-- Basic Information -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="title" name="title"
+                                               value="{{ event.title|default:'' }}" required>
+                                        <div class="invalid-feedback">Please provide an event title.</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="title_others" class="form-label fw-bold">Title (English)</label>
+                                        <input type="text" class="form-control" id="title_others" name="title_others"
+                                               value="{{ event.title_others|default:'' }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="short_description" class="form-label fw-bold">Short Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="short_description" name="short_description"
+                                          rows="3" required>{{ event.short_description|default:'' }}</textarea>
+                                <div class="invalid-feedback">Please provide a short description.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-bold">Full Description</label>
+                                <div class="toolbar-box">
+                                    {% include 'partials/_quill_editor.html' with toolbar_id='toolbar7' %}
+                                    <div class="quill-paragraph" id="editor7">
+                                        {{ event.description|safe }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event Details -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="category" name="category" required>
+                                            <option value="">Select Category</option>
+                                            <!-- Categories will be loaded dynamically or from context -->
+                                            {% if categories %}
+                                                {% for cat in categories %}
+                                                    <option value="{{ cat.id }}" {% if event.category_id == cat.id %}selected{% endif %}>
+                                                        {{ cat.title }}
+                                                    </option>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                        <div class="invalid-feedback">Please select a category.</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="location" class="form-label fw-bold">Location</label>
+                                        <input type="text" class="form-control" id="location" name="location"
+                                               value="{{ event.location|default:'' }}"
+                                               placeholder="e.g., Main Hall, Online">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="max_seat" class="form-label fw-bold">Maximum Seats</label>
+                                        <input type="number" class="form-control" id="max_seat" name="max_seat"
+                                               value="{{ event.max_seat|default:'' }}" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="banner_order" class="form-label fw-bold">Banner Order</label>
+                                        <input type="number" class="form-control" id="banner_order" name="banner_order"
+                                               value="{{ event.banner_order|default:0 }}" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cover Image -->
+                            <div class="mb-3">
+                                <label for="cover_image" class="form-label fw-bold">Cover Image</label>
+                                <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+                                {% if event.cover_image %}
+                                    <div class="mt-2">
+                                        <img id="cover_image_preview" src="{{ event.cover_image.url }}"
+                                             alt="Current cover" class="img-thumbnail" style="max-height: 200px;">
+                                    </div>
+                                {% else %}
+                                    <img id="cover_image_preview" src="" alt="Preview"
+                                         class="img-thumbnail mt-2" style="max-height: 200px; display: none;">
+                                {% endif %}
+                            </div>
+
+                            <!-- Checkboxes -->
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {% if mode == 'create' or event.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">Active</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_published" name="is_published"
+                                               {% if event.is_published %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_published">Published</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_registered" name="is_registered"
+                                               {% if event.is_registered %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_registered">Registration Required</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_short_course" name="is_short_course"
+                                               {% if event.is_short_course %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_short_course">Short Course</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="set_banner" name="set_banner"
+                                               {% if event.set_banner %}checked{% endif %}>
+                                        <label class="form-check-label" for="set_banner">Set as Banner</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{% url 'event_list' %}" class="btn btn-outline-danger">
+                                    <i class="fa fa-arrow-left me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save me-2"></i>{% if mode == 'edit' %}Update{% else %}Create{% endif %} Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}
+
+        <script type="module">
+            import { initEventCreate } from '{% static 'js/events/events/eventCreate.js' %}';
+
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('DOM loaded, initializing event form...');
+                initEventCreate();
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

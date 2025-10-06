@@ -1,12 +1,14 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 
 app_name = 'events_api'
 
 router = DefaultRouter()
+router.register(r'events', views.EventViewSet, basename='event')
 
 urlpatterns = [
+    path('', include(router.urls)),
     # Event Category URLs
     path('categories/', views.EventCategoryListCreateView.as_view(), name='category-list-create'),
     path('categories/<int:pk>/', views.EventCategoryRetrieveUpdateDestroyView.as_view(), 

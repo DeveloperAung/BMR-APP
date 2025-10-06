@@ -3,3 +3,4 @@ from .models import *
 
 admin.site.register(EventCategory)
 admin.site.register(EventSubCategory)
+admin.site.register(Event)

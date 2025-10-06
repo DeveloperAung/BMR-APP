@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views import View
-from .models import EventCategory, EventSubCategory
+from .models import EventCategory, EventSubCategory, Event
 from .forms import EventCategoryForm, EventSubCategoryForm
 from django.conf import settings
 
@@ -90,66 +90,46 @@ class SubCategoryEditView(View):
         return render(request, self.template_name, context)
 
 
-def event_category_create(request):
-    if request.method == 'POST':
-        form = EventCategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Event category created successfully.')
-            return redirect('event_category_list')
-    else:
-        form = EventCategoryForm()
-    
-    return render(request, 'private/events/category/form.html', {'form': form, 'title': 'Create Event Category'})
+def EventList(request):
+    return render(request, 'private/events/events/list.html')
 
-def event_category_update(request, pk):
-    category = get_object_or_404(EventCategory, pk=pk)
-    if request.method == 'POST':
-        form = EventCategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Event category updated successfully.')
-            return redirect('event_category_list')
-    else:
-        form = EventCategoryForm(instance=category)
-    
-    return render(request, 'private/events/category/form.html', {'form': form, 'title': 'Update Event Category'})
 
-@require_POST
-def event_category_delete(request, pk):
-    category = get_object_or_404(EventCategory, pk=pk)
-    category.delete()
-    messages.success(request, 'Event category deleted successfully.')
-    return redirect('event_category_list')
+class EventCreateView(View):
+    """View for creating event subcategories - template only, JS handles everything"""
+    template_name = 'private/events/events/create.html'
 
-def event_sub_category_create(request):
-    if request.method == 'POST':
-        form = EventSubCategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Event sub category created successfully.')
-            return redirect('event_sub_category_list')
-    else:
-        form = EventSubCategoryForm()
-    
-    return render(request, 'private/events/sub_category/form.html', {'form': form, 'title': 'Create Event Sub Category'})
+    def get(self, request):
+        """Display the subcategory creation form"""
+        # Get active categories for the dropdown
+        categories = EventCategory.objects.filter(is_active=True).order_by('title')
 
-def event_sub_category_update(request, pk):
-    sub_category = get_object_or_404(EventSubCategory, pk=pk)
-    if request.method == 'POST':
-        form = EventSubCategoryForm(request.POST, instance=sub_category)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Event sub category updated successfully.')
-            return redirect('event_sub_category_list')
-    else:
-        form = EventSubCategoryForm(instance=sub_category)
-    
-    return render(request, 'private/events/sub_category/form.html', {'form': form, 'title': 'Update Event Sub Category'})
+        context = {
+            'mode': 'create',
+            'page_title': 'Create Event',
+            'categories': categories,
+            'subcategories': EventSubCategory.objects.filter(is_active=True).order_by('title'),
+        }
+        return render(request, self.template_name, context)
 
-@require_POST
-def event_sub_category_delete(request, pk):
-    sub_category = get_object_or_404(EventSubCategory, pk=pk)
-    sub_category.delete()
-    messages.success(request, 'Event sub category deleted successfully.')
-    return redirect('event_sub_category_list')
+
+class EventEditView(View):
+    template_name = 'private/events/events/create.html'
+
+    def get(self, request, pk):
+        categories = EventCategory.objects.filter(is_active=True).order_by('title')
+        subcategories = EventSubCategory.objects.filter(is_active=True).order_by('title')
+
+        try:
+            event = get_object_or_404(Event, pk=pk)
+        except:
+            event = None
+
+        context = {
+            'mode': 'edit',
+            'subcategory_id': pk,
+            'event': event,
+            'categories': categories,
+            'subcategories': subcategories,
+            'page_title': f'Edit Event: {event.title if event else "Unknown"}'
+        }
+        return render(request, self.template_name, context)

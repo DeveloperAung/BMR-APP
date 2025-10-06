@@ -1,4 +1,4 @@
-from rest_framework import status, generics, filters
+from rest_framework import status, generics, filters, viewsets
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
@@ -6,11 +6,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from core.utils import mixins
 from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
-from ..models import EventCategory, EventSubCategory
+from ..models import EventCategory, EventSubCategory, Event
 from .serializers import (
     EventCategorySerializer,
     EventSubCategorySerializer,
-    EventSubCategoryListSerializer
+    EventSubCategoryListSerializer, EventListSerializer, EventSerializer
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiExample, OpenApiResponse
@@ -179,3 +179,62 @@ class EventSubCategoryRetrieveUpdateDestroyView(
             message="Validation error"
         )
 
+
+@extend_schema(
+        tags=["Events"],
+        responses={201: EventListSerializer},
+        summary="Event CRUD",
+        description="Event CRUD"
+    )
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all().order_by('-created_at')
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description', 'location']
+    ordering_fields = ['published_at', 'created_at']
+
+    def get_serializer_class(self):
+        return EventListSerializer if self.action == 'list' else EventSerializer
+
+    def perform_create(self, serializer):
+        user = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(published_by=user)
+
+    # ⬇️ Overriding CRUD methods for custom response
+
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return ok(
+    #         data= serializer.data,
+    #         message= "Event list fetched successfully."
+    #     )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return ok(
+            data=serializer.data,
+            message="Event details fetched successfully."
+        )
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return ok(
+            data=serializer.data,
+            message="Event created successfully.",
+            status=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return ok(
+            data=serializer.data,
+            message="Event updated successfully."
+        )

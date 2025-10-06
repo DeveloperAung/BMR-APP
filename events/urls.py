@@ -11,4 +11,7 @@ urlpatterns = [
     path('i/subcategories/', views.EventSubCategoryList, name='event_sub_category_list'),
     path('i/subcategories/create/', views.SubCategoryCreateView.as_view(), name='event_sub_category_create'),
     path('i/subcategories/<int:pk>/edit/', views.SubCategoryEditView.as_view(), name='event_sub_category_edit'),
+
+    path('i/list/', views.EventList, name='event_list'),
+    path('i/create/', views.EventCreateView.as_view(), name='event_create'),
 ]

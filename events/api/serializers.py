@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import EventCategory, EventSubCategory
+from ..models import EventCategory, EventSubCategory, Event
 
 
 class EventCategorySerializer(serializers.ModelSerializer):
@@ -40,4 +40,32 @@ class EventSubCategoryListSerializer(EventSubCategorySerializer):
         else:
             if EventSubCategory.objects.filter(title__iexact=value).exclude(id=self.instance.id).exists():
                 raise serializers.ValidationError("Another event subcategory with this title already exists.")
+        return value
+
+
+class EventSerializer(serializers.ModelSerializer):
+    category_title = serializers.CharField(source='event_category.title', read_only=True)
+
+    class Meta:
+        model = Event
+        fields = [
+            'id', 'title', 'title_others', 'short_description', 'description', 'location',
+            'category', 'category_title', 'cover_image', 'is_registered', 'is_short_course', 'max_seat',
+            'is_published', 'published_at', 'created_at', 'is_active',
+            'set_banner', 'banner_order'
+        ]
+        read_only_fields = ['id', 'category_title', 'created_at']
+
+
+class EventListSerializer(EventSerializer):
+    class Meta(EventSerializer.Meta):
+        fields = ['id', 'title', 'title_others', 'category_title', 'created_at', 'is_active']
+
+    def validate_title(self, value):
+        if self.instance is None:
+            if Event.objects.filter(title__iexact=value).exists():
+                raise serializers.ValidationError("A event with this title already exists.")
+        else:
+            if Event.objects.filter(title__iexact=value).exclude(id=self.instance.id).exists():
+                raise serializers.ValidationError("Another event with this title already exists.")
         return value
