@@ -28,9 +28,15 @@
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-sm-12">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-lg-8">
                 <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                            {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Event Category
+                        </h5>
+                    </div>
                     <div class="card-body">
                         <form id="eventCategoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
                             {% csrf_token %}
@@ -43,6 +49,26 @@
                                     Please provide a title for the category.
                                 </div>
                             </div>
+
+                            <div class="mb-4">
+                                <label for="title_others" class="form-label fw-bold">
+                                    Title in Eng {{ category.title_others }}<span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    id="title_others"
+                                    name="title_others"
+                                    placeholder="Enter (other) category title"
+                                    required
+                                    {% if mode == 'edit' %}
+                                        value="{{ category.title_others }}"
+                                    {% endif %}
+                                >
+                                <div class="invalid-feedback">
+                                    Please provide English category title.
+                                </div>
+                            </div>
                             
                             <div class="row">
                                 <div class="col-md-4">
@@ -51,6 +77,18 @@
                                                {% if mode == 'create' or category.is_active %}checked{% endif %}>
                                         <label class="form-check-label" for="is_active">
                                             Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_menu" name="is_menu"
+                                               {% if mode == 'create' or category.is_menu %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_menu">
+                                            Menu?
                                         </label>
                                     </div>
                                 </div>
@@ -76,7 +114,7 @@
         import { initEventCategoryCreate } from '{% static 'js/events/categories/eventCategoryCreate.js' %}';
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing donation category form...');
+            console.log('DOM loaded, initializing event category form...');
             initEventCategoryCreate();
         });
     </script>

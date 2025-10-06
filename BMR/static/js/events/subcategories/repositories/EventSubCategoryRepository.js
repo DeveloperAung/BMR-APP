@@ -1,68 +1,77 @@
 import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
-import { EVENTS } from '../../../shared/config/apiConfig.js';
+import {API_ENDPOINTS, EVENTS} from '../../../shared/config/apiConfig.js';
+import { ApiErrorHandler } from '../../../shared/services/ApiErrorHandler.js';
 
 export class EventSubCategoryRepository extends BaseRepository {
-    constructor() {
-        super(EVENTS.SUB_CATEGORIES);
+    constructor({ notificationService } = {}) {
+        const endpoint = API_ENDPOINTS?.EVENTS?.SUB_CATEGORIES || '/api/events/subcategories/';
+        super(endpoint); // must be called first
+        this.notificationService = notificationService;
     }
 
-    // Custom method names for your domain
-    async getSubCategories(params = {}) {
-        console.log('SubCategoryRepository: Service called get subcategories');
-        const result = await this.getList(params);
-        console.log('SubCategoryRepository: Result completed');
+    async submitEventSubCategory(subCategoryData) {
+        if (!subCategoryData.title || subCategoryData.title.trim() === '') {
+            throw new Error('Title is required');
+        }
+        if (!subCategoryData.title_others || subCategoryData.title_others.trim() === '') {
+            throw new Error('Title  (Eng) is required');
+        }
+        if (!subCategoryData.event_category || subCategoryData.event_category === '') {
+            throw new Error('Category title is required');
+        }
 
-        return {
-            subCategories: result.items,
-            pagination: result.pagination
+        const payload = {
+            title: subCategoryData.title.trim(),
+            title_others: subCategoryData.title_others.trim(),
+            event_category: subCategoryData.event_category,
+            is_menu: true,
+            is_active: true
         };
-    }
 
-    async getSubCategory(subCategoryId) {
-        return this.getItem(subCategoryId);
-    }
-
-    async createSubCategory(subCategoryData) {
-        return this.createItem(subCategoryData);
-    }
-
-    async updateSubCategory(subCategoryId, subCategoryData) {
-        return this.updateItem(subCategoryId, subCategoryData);
-    }
-
-    async deleteSubCategory(subCategoryId) {
-        return this.deleteItem(subCategoryId);
-    }
-
-    // Bulk operations using the inherited method
-    async bulkDeleteSubCategories(subCategoryIds) {
-        return this.bulkOperation('delete', subCategoryIds);
-    }
-
-    async bulkActivateSubCategories(subCategoryIds) {
-        return this.bulkOperation('activate', subCategoryIds);
-    }
-
-    async bulkDeactivateSubCategories(subCategoryIds) {
-        return this.bulkOperation('deactivate', subCategoryIds);
-    }
-
-    // Additional method to get categories for dropdown
-    async getEventCategories() {
         try {
-            const response = await fetch('/api/events/categories/', {
-                headers: await this.authService.getAuthHeaders()
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.results || data.items || [];
+            return await super.createItem(payload);
         } catch (error) {
-            console.error('Failed to fetch event categories:', error);
+            console.log('DonationSubCategoryRepository: Service called create item');
             throw error;
         }
+    }
+
+    async updateCategory(categoryId, data) {
+        if (!categoryId) throw new Error('Category ID is required for update');
+        if (!data.title_others || data.title_others.trim() === '') {
+            throw new Error('Category title (others) is required');
+        }
+
+        const payload = {};
+        if (data.title !== undefined) payload.title = data.title.trim();
+        if (data.title_others !== undefined) payload.title_others = data.title_others.trim();
+        if ('is_active' in data) {
+            payload.is_active = Boolean(data.is_active);
+        }
+        if ('is_menu' in data) {
+            payload.is_menu = Boolean(data.is_menu);
+        }
+
+        try {
+            const result = await super.updateItem(categoryId, payload);
+            console.log('Event category updated successfully', result);
+            return result;
+        } catch (error) {
+            console.error('Update event category failed', error);
+            ApiErrorHandler.handle(error, this.notificationService);
+            throw error;
+        }
+    }
+
+    async getCategories(params = {}) {
+        return this.getList(params);
+    }
+
+    async getCategory(categoryId) {
+        return this.getItem(categoryId);
+    }
+
+    async toggleStatus(id, isActive) {
+        return this.updateCategory(id, { is_active: isActive });
     }
 }

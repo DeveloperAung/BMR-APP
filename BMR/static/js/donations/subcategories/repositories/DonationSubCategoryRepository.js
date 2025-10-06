@@ -16,16 +16,19 @@ export class DonationSubCategoryRepository extends BaseRepository {
     }
 
     async submitSubCategory(subCategoryData) {
-        console.log('DonationSubCategoryRepository: Service called submit category');
+        alert('DonationSubCategoryRepository: Service called submit category');
         if (!subCategoryData.title || subCategoryData.title.trim() === '') {
             throw new Error('Title is required');
+        }
+        if (!subCategoryData.title_others || subCategoryData.title_others.trim() === '') {
+            throw new Error('Title  (Eng) is required');
         }
         if (!subCategoryData.donation_category || subCategoryData.donation_category === '') {
             throw new Error('Category title is required');
         }
 
         try {
-            console.log('DonationSubCategoryRepository: Service called create item Try');
+            alert('DonationSubCategoryRepository: Service called submit category');
             return await super.createItem(subCategoryData);
         } catch (error) {
             console.log('DonationSubCategoryRepository: Service called create item');

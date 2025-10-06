@@ -67,7 +67,6 @@ export class PostFormHandler {
 
         const formData = new FormData(this.form);
 
-        // ✅ If no file chosen, remove the field entirely
         const coverImage = formData.get('cover_image');
         if (!coverImage || !coverImage.name) {
             formData.delete('cover_image');
@@ -78,7 +77,7 @@ export class PostFormHandler {
             formData.delete('media');
         }
 
-        // ✅ Always return FormData, never JSON
+        // Always return FormData, never JSON
         return formData;
     }
 

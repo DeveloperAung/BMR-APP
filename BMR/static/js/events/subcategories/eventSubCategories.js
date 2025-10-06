@@ -1,51 +1,42 @@
-import { SubCategoryManager } from './managers/SubCategoryManager.js';
+import { EventSubCategoryManager } from './managers/SubCategoryManager.js';
 import { AuthService } from '../../shared/services/AuthService.js';
 import { NotificationService } from '../../shared/services/NotificationService.js';
 
-class SubCategoryApp {
+class EventSubCategoryApp {
     constructor() {
         this.authService = new AuthService();
         this.notificationService = new NotificationService();
-        this.subCategoryManager = null;
+        this.eventSubCategoryManager = null;
     }
 
     async init() {
         try {
-            // TEMP BYPASS: Disable auth check during development
-            // REMOVE THIS BEFORE PRODUCTION
-            console.warn('⚠️ Auth check bypassed for development');
-            // if (!await this.authService.isAuthenticated()) {
-            //     this.showLoginRequired();
-            //     return;
-            // }
-
-            // Initialize subcategory manager
-            this.subCategoryManager = new SubCategoryManager({
+            this.eventSubCategoryManager = new EventSubCategoryManager({
                 authService: this.authService,
                 notificationService: this.notificationService
             });
 
-            await this.subCategoryManager.init();
+            await this.eventSubCategoryManager.init();
+            this.setupEventListeners();
         } catch (error) {
             this.notificationService.showError('Failed to initialize subcategory management', error);
         }
     }
 
-    showLoginRequired() {
-        document.getElementById('eventSubCategoriesTableBody').innerHTML = `
-            <tr><td colspan="6" class="text-center p-4">
-                <div class="alert alert-warning">
-                    <h4>Authentication Required</h4>
-                    <p>Please log in to access subcategory management.</p>
-                    <a href="/login/" class="btn btn-primary">Go to Login</a>
-                </div>
-            </td></tr>
-        `;
+    setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-action="view-subcategory"]')) {
+                this.eventSubCategoryManager.viewCategory(e.target.dataset.subcategoryId);
+            } else if (e.target.matches('[data-action="edit-subcategory"]')) {
+                this.eventSubCategoryManager.editCategory(e.target.dataset.subcategoryId);
+            } else if (e.target.matches('[data-action="delete-subcategory"]')) {
+                this.eventSubCategoryManager.toggleStatus(e.target.dataset.subcategoryId, false, 'Are you sure you want to deactivate category ' + e.target.dataset.title + '?');
+            }
+        });
     }
 }
-
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new SubCategoryApp();
+    const app = new EventSubCategoryApp();
     app.init();
 });

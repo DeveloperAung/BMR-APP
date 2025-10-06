@@ -27,29 +27,57 @@
                 </div>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-sm-12">
+
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-lg-8">
                 <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                            {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Event SubCategory
+                        </h5>
+                    </div>
                     <div class="card-body">
-                        <form id="eventSubCategoryForm" class="needs-validation" novalidate>
+                        <!-- IMPORTANT: This form must exist before the script runs -->
+                        <form id="eventSubCategoryForm" data-subCategory-id="{{ subcategory.id|default:'' }}" class="needs-validation" novalidate>
                             {% csrf_token %}
-                            
+
                             <div class="mb-3">
                                 <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="title" name="title" 
+                                <input type="text" class="form-control" id="title" name="title"
                                        value="{{ subcategory.title|default:'' }}" required>
                                 <div class="invalid-feedback">
                                     Please provide a title for the subcategory.
                                 </div>
                             </div>
-                            
+
+                            <div class="mb-4">
+                                <label for="title_others" class="form-label fw-bold">
+                                    Title in Eng <span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    id="title_others"
+                                    name="title_others"
+                                    placeholder="Enter (other) Sub Category title"
+                                    required
+                                    {% if mode == 'edit' %}
+                                        value="{{ subcategory.title_others }}"
+                                    {% endif %}
+                                >
+                                <div class="invalid-feedback">
+                                    Please provide English Sub Category title.
+                                </div>
+                            </div>
+
+
                             <div class="mb-3">
                                 <label for="event_category" class="form-label">Category <span class="text-danger">*</span></label>
                                 <select class="form-select" id="event_category" name="event_category" required>
                                     <option value="">Select a category</option>
                                     {% for category in categories %}
-                                        <option value="{{ category.id }}" 
+                                        <option value="{{ category.id }}"
                                                 {% if subcategory and subcategory.event_category_id == category.id %}selected{% endif %}>
                                             {{ category.title }}
                                         </option>
@@ -59,15 +87,31 @@
                                     Please select a category.
                                 </div>
                             </div>
-                            
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
-                                       {% if mode == 'create' or subcategory.is_active %}checked{% endif %}>
-                                <label class="form-check-label" for="is_active">
-                                    Active
-                                </label>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {% if mode == 'create' or subcategory.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
-                            
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_menu" name="is_menu"
+                                               {% if mode == 'create' or subcategory.is_menu %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_menu">
+                                            Menu?
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="d-flex justify-content-between">
                                 <button type="button" id="cancelBtn" class="btn btn-light">
                                     <i class="fa fa-arrow-left me-2"></i>Cancel
@@ -82,8 +126,12 @@
             </div>
         </div>
     </div>
-    
-    {% block extra_js %}
-        <script src="{% static 'js/events/subcategories/eventSubCategoryCreate.js' %}" type="module"></script>
-    {% endblock %}
+
+    <script type="module">
+    import { initEventSubCategoryCreate } from '{% static 'js/events/subcategories/eventSubCategoryCreate.js' %}';
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, initializing event category form...');
+        initEventSubCategoryCreate();
+    });
+</script>
 {% endblock %}

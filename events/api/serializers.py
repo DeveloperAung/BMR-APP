@@ -5,7 +5,7 @@ from ..models import EventCategory, EventSubCategory
 class EventCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = EventCategory
-        fields = ['id', 'title', 'is_active', 'created_at']
+        fields = ['id', 'title', 'title_others', 'is_active', 'is_menu', 'created_at']
         read_only_fields = ['id', 'created_at']
 
     def validate_title(self, value):
@@ -24,14 +24,14 @@ class EventSubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = EventSubCategory
         fields = [
-            'id', 'title', 'event_category', 'event_category_title', 'created_at'
+            'id', 'title', 'title_others', 'event_category', 'event_category_title', 'created_at', 'is_menu', 'is_active'
         ]
         read_only_fields = ['id', 'event_category_title', 'created_at']
 
 
 class EventSubCategoryListSerializer(EventSubCategorySerializer):
     class Meta(EventSubCategorySerializer.Meta):
-        fields = ['id', 'title', 'event_category_title', 'created_at']
+        fields = ['id', 'title', 'title_others', 'event_category_title', 'created_at', 'is_active', 'is_menu']
 
     def validate_title(self, value):
         if self.instance is None:

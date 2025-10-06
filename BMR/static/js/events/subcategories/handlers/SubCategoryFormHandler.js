@@ -1,5 +1,5 @@
-import { ApiErrorHandler } from '../../../../shared/services/ApiErrorHandler.js';
-import { SubCategoryManager } from '../managers/SubCategoryManager.js';
+import { ApiErrorHandler } from '../../../shared/services/ApiErrorHandler.js';
+import { EventSubCategoryManager } from '../managers/SubCategoryManager.js';
 
 export class SubCategoryFormHandler {
     /**
@@ -15,7 +15,7 @@ export class SubCategoryFormHandler {
         this.notificationService = notificationService;
 
         // Manager handles API + repository
-        this.manager = new SubCategoryManager({
+        this.manager = new EventSubCategoryManager({
             authService,
             notificationService
         });
@@ -36,9 +36,21 @@ export class SubCategoryFormHandler {
         const formData = new FormData(this.form);
         const data = {
             title: formData.get('title'),
+            title_others: formData.get('title_others'),
             event_category: formData.get('event_category'),
             is_active: formData.get('is_active') === 'on',
+            is_menu: formData.get('is_menu') === 'on',
         };
+
+        if (this.form.dataset.subCategoryId) {
+            // Only include in edit mode if checkbox is present
+            if (formData.has('is_active')) {
+                data.is_active = formData.get('is_active') === 'on';
+            }
+            if (formData.has('is_menu')) {
+                data.is_active = formData.get('is_menu') === 'on';
+            }
+        }
         return data;
     }
 
@@ -49,7 +61,6 @@ export class SubCategoryFormHandler {
     async handleSubmit(event) {
         event.preventDefault();
         this.clearFieldErrors();
-
         if (!this.form.checkValidity()) {
             this.form.classList.add('was-validated');
             this.notificationService.showWarning('Please correct the errors in the form.');
@@ -58,29 +69,23 @@ export class SubCategoryFormHandler {
 
         try {
             const data = this.getFormData();
-            const subcategoryId = this.form.dataset.subcategoryId;
+            const subCategoryId = this.form.dataset.subcategoryId;
             let result;
 
-            if (subcategoryId) {
-                // Update existing subcategory
-                result = await this.manager.updateSubCategory(subcategoryId, data);
+            if (subCategoryId) {
+                result = await this.manager.updateSubCategory(subCategoryId, data);
                 this.notificationService.showSuccess('Subcategory updated successfully!');
             } else {
-                // Create new subcategory
                 result = await this.manager.createSubCategory(data);
                 this.notificationService.showSuccess('Subcategory created successfully!');
-                // Redirect to edit page with the new ID
-                window.location.href = `/events/i/subcategories/${result.id}/edit/`;
             }
 
-            // If not redirected, refresh the page to show the updated data
-            if (!subcategoryId) {
+            setTimeout(() => {
                 window.location.href = '/events/i/subcategories/';
-            }
+            }, 1500);
         } catch (error) {
             console.error('Error saving subcategory:', error);
-            const errorMessage = ApiErrorHandler.getErrorMessage(error);
-            this.notificationService.showError(`Failed to save subcategory: ${errorMessage}`);
+            this.notificationService.showError(`Failed to save subcategory: ${error}`);
             
             // Handle field-specific errors
             if (error.response && error.response.errors) {
