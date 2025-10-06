@@ -18,9 +18,13 @@ export class DonationCategoryRepository extends BaseRepository {
 
         const payload = {
             title: categoryData.title.trim(),
+            title_others: categoryData.title_others.trim(),
             is_date_required: Boolean(categoryData.is_date_required),
             is_multi_select_required: Boolean(categoryData.is_multi_select_required)
         };
+        if ('is_active' in categoryData) {
+            payload.is_active = Boolean(categoryData.is_active);
+        }
 
         try {
             return await super.createItem(payload);
@@ -34,11 +38,13 @@ export class DonationCategoryRepository extends BaseRepository {
 
         const payload = {};
         if (categoryData.title !== undefined) payload.title = categoryData.title.trim();
+        if (categoryData.title_others !== undefined) payload.title_others = categoryData.title_others.trim();
         if (categoryData.is_date_required !== undefined) payload.is_date_required = Boolean(categoryData.is_date_required);
         if (categoryData.is_multi_select_required !== undefined) payload.is_multi_select_required = Boolean(categoryData.is_multi_select_required);
         if ('is_active' in categoryData) {
             payload.is_active = Boolean(categoryData.is_active);
         }
+
         try {
             const result = await super.updateItem(categoryId, payload);
             console.log('Category updated successfully', result);

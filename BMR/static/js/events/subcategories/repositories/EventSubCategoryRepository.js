@@ -36,20 +36,20 @@ export class EventSubCategoryRepository extends BaseRepository {
         }
     }
 
-    async updateCategory(categoryId, data) {
+    async updateCategory(categoryId, categoryData) {
         if (!categoryId) throw new Error('Category ID is required for update');
-        if (!data.title_others || data.title_others.trim() === '') {
+        if (!categoryData.title_others || categoryData.title_others.trim() === '') {
             throw new Error('Category title (others) is required');
         }
 
         const payload = {};
-        if (data.title !== undefined) payload.title = data.title.trim();
-        if (data.title_others !== undefined) payload.title_others = data.title_others.trim();
-        if ('is_active' in data) {
-            payload.is_active = Boolean(data.is_active);
+        if (categoryData.title !== undefined) payload.title = categoryData.title.trim();
+        if (categoryData.title_others !== undefined) payload.title_others = categoryData.title_others.trim();
+        if ('is_active' in categoryData) {
+            payload.is_active = Boolean(categoryData.is_active);
         }
-        if ('is_menu' in data) {
-            payload.is_menu = Boolean(data.is_menu);
+        if ('is_menu' in categoryData) {
+            payload.is_menu = Boolean(categoryData.is_menu);
         }
 
         try {
@@ -71,7 +71,4 @@ export class EventSubCategoryRepository extends BaseRepository {
         return this.getItem(categoryId);
     }
 
-    async toggleStatus(id, isActive) {
-        return this.updateCategory(id, { is_active: isActive });
-    }
 }

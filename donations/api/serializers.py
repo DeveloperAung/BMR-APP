@@ -5,7 +5,7 @@ from ..models import DonationCategory, DonationSubCategory
 class DonationCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = DonationCategory
-        fields = ['id', 'title', 'is_date_required', 'is_multi_select_required', 'is_active', 'created_at']
+        fields = ['id', 'title', 'title_others', 'is_date_required', 'is_multi_select_required', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
 
     def validate_title(self, value):
@@ -24,7 +24,7 @@ class DonationSubCategoryListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DonationSubCategory
-        fields = ['id', 'title', 'donation_category', 'donation_category_title', 'is_active', 'created_at']
+        fields = ['id', 'title', 'title_others', 'donation_category', 'donation_category_title', 'is_active', 'created_at']
         read_only_fields = ['id', 'donation_category_title', 'created_at']
 
 
@@ -32,7 +32,7 @@ class DonationSubCategoryListSerializer(serializers.ModelSerializer):
 class DonationSubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = DonationSubCategory
-        fields = ['id', 'title', 'donation_category', 'is_active', 'created_at']
+        fields = ['id', 'title', 'title_others', 'donation_category', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
         
     def update(self, instance, validated_data):        

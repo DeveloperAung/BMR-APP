@@ -95,44 +95,6 @@ export class SubCategoryFormHandler {
     }
 
     /**
-     * Load subcategory data into the form
-     * @param {string} subcategoryId - ID of the subcategory to load
-     */
-    async loadSubCategory(subcategoryId) {
-        try {
-            const subcategory = await this.manager.getSubCategory(subcategoryId);
-            
-            // Set form values
-            this.form.querySelector('#title').value = subcategory.title || '';
-            
-            const categorySelect = this.form.querySelector('#event_category');
-            if (categorySelect) {
-                categorySelect.value = subcategory.event_category?.id || '';
-            }
-            
-            const isActiveCheckbox = this.form.querySelector('#is_active');
-            if (isActiveCheckbox) {
-                isActiveCheckbox.checked = subcategory.is_active !== false;
-            }
-            
-            // Store the subcategory ID for updates
-            this.form.dataset.subcategoryId = subcategoryId;
-            
-            // Update the page title if needed
-            const pageTitle = document.querySelector('.page-title h3');
-            if (pageTitle) {
-                pageTitle.textContent = `Edit Subcategory: ${subcategory.title}`;
-            }
-            
-        } catch (error) {
-            console.error('Error loading subcategory:', error);
-            this.notificationService.showError('Failed to load subcategory data.');
-            // Redirect back to list on error
-            window.location.href = '/events/i/subcategories/';
-        }
-    }
-
-    /**
      * Display field-level validation errors
      * @param {object} errors - Object mapping field names to error messages
      */

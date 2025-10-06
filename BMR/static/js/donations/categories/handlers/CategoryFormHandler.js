@@ -33,14 +33,22 @@ export class CategoryFormHandler {
         const formData = new FormData(this.form);
         const data = {
             title: formData.get('title'),
+            title_others: formData.get('title_others'),
             is_date_required: formData.get('is_date_required') === 'on',
             is_multi_select_required: formData.get('is_multi_select_required') === 'on',
+            is_active: formData.get('is_active') === 'on',
         };
 
         if (this.form.dataset.categoryId) {
             // Only include in edit mode if checkbox is present
             if (formData.has('is_active')) {
                 data.is_active = formData.get('is_active') === 'on';
+            }
+            if (formData.has('is_date_required')) {
+                data.is_date_required = formData.get('is_date_required') === 'on';
+            }
+            if (formData.has('is_multi_select_required')) {
+                data.is_multi_select_required = formData.get('is_multi_select_required') === 'on';
             }
         }
         return data;

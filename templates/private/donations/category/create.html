@@ -45,7 +45,27 @@
                                 A descriptive name for the donation category.
                             </div>
                         </div>
-                        
+
+                        <div class="mb-4">
+                            <label for="title_others" class="form-label fw-bold">
+                                Title in Eng <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                id="title_others"
+                                name="title_others"
+                                placeholder="Enter (other) Category title"
+                                required
+                                {% if mode == 'edit' %}
+                                    value="{{ category.title_others }}"
+                                {% endif %}
+                            >
+                            <div class="invalid-feedback">
+                                Please provide English Sub Category title.
+                            </div>
+                        </div>
+
                         <!-- Options -->
                         <div class="row mb-4">
                             <div class="col-md-6">
@@ -83,7 +103,19 @@
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {% if mode == 'create' or category.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                         <!-- Form Actions -->
                         <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
                             <a href="{% url 'donation_category_list' %}" class="btn btn-outline-secondary">

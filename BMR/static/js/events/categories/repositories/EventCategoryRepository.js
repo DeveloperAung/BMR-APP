@@ -66,11 +66,7 @@ export class EventCategoryRepository extends BaseRepository {
     async getCategory(categoryId) {
         return this.getItem(categoryId);
     }
-    
-    async toggleStatus(id, isActive) {
-        return this.updateCategory(id, { is_active: isActive });
-    }
-    
+
     async bulkDeleteCategories(categoryIds) {
         return this.bulkOperation('delete', categoryIds);
     }
