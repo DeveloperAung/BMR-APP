@@ -75,7 +75,6 @@ export class SubCategoryManager extends BaseManager {
     async createSubCategory(categoryData) {
         try {
             this.notificationService?.showLoading?.('Creating category...');
-            console.log("Manager call")
             const response = await this.repository.submitSubCategory(categoryData);
             this.notificationService?.hideLoading?.();
             return response;

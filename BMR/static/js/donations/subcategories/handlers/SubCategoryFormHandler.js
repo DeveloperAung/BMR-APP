@@ -20,13 +20,12 @@ export class SubCategoryFormHandler {
             notificationService
         });
 
-        this.bindEvents();
+        // this.bindEvents();
         this.initializeForm();
     }
 
     /** Initialize form elements and event listeners */
     initializeForm() {
-        // Add any subcategory-specific initialization here
         this.bindEvents();
     }
 
@@ -40,6 +39,7 @@ export class SubCategoryFormHandler {
         const formData = new FormData(this.form);
         const data = {
             title: formData.get('title'),
+            title_others: formData.get('title_others'),
             donation_category: formData.get('category'),  // Changed back to 'category' to match backend expectations
             description: formData.get('description') || '',
             is_active: formData.get('is_active') === 'on',
