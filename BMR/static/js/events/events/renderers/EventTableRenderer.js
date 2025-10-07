@@ -21,9 +21,7 @@ export class EventTableRenderer extends BaseTableRenderer {
     render(events, currentPage = 1, perPage = 10) {
         // Update pagination info
         this.setPagination(currentPage, perPage);
-
         if (!events || events.length === 0) {
-            console.log("Event data", events)
             this.renderEmpty('No events Found', '📂');
             return;
         }
@@ -35,19 +33,19 @@ export class EventTableRenderer extends BaseTableRenderer {
     }
 
     renderEventRow(event, serialNumber) {
-        console.log("events data", event)
+
         return `
             <tr class="category-row" data-post-id="${event.id}">
                 <td class="text-center serial-number">
                     <span class="badge bg-primary text-dark">${serialNumber}</span>
                 </td>
                 <td><p class="f-light mb-0">${escapeHtml(event.title)}</p></td>                
-                <td><p class="f-light mb-0">${escapeHtml(event.event_category)}</p></td>                                           
+                <td><p class="f-light mb-0">${escapeHtml(event.category_title)}</p></td>                                           
                 <td class="text-center">
                     <span class="fa-solid ${event.is_published ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td> 
-                <td><p class="f-light mb-0">${escapeHtml(event.published_date)}</p></td>  
+                <td><p class="f-light mb-0">${escapeHtml(event.published_at)}</p></td>  
                 <td data-field="is_active">
                     <span class="badge ${ event.is_active ? 'bg-success' : 'bg-warning'}">
                         ${ event.is_active ? 'Active' : 'Inactive'}

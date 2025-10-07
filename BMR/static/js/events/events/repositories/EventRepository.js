@@ -21,7 +21,6 @@ export class EventRepository extends BaseRepository {
     async updateEvent(id, data) {
 
         try {
-            console.log("Event data ", data)
             return await super.updateItem(id, data);
         } catch (error) {
             ApiErrorHandler.handle(error, this.notificationService);

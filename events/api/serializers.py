@@ -28,11 +28,6 @@ class EventSubCategorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'event_category_title', 'created_at']
 
-
-class EventSubCategoryListSerializer(EventSubCategorySerializer):
-    class Meta(EventSubCategorySerializer.Meta):
-        fields = ['id', 'title', 'title_others', 'event_category_title', 'created_at', 'is_active', 'is_menu']
-
     def validate_title(self, value):
         if self.instance is None:
             if EventSubCategory.objects.filter(title__iexact=value).exists():
@@ -43,8 +38,13 @@ class EventSubCategoryListSerializer(EventSubCategorySerializer):
         return value
 
 
+class EventSubCategoryListSerializer(EventSubCategorySerializer):
+    class Meta(EventSubCategorySerializer.Meta):
+        fields = ['id', 'title', 'title_others', 'event_category_title', 'created_at', 'is_active', 'is_menu']
+
+
 class EventSerializer(serializers.ModelSerializer):
-    category_title = serializers.CharField(source='event_category.title', read_only=True)
+    category_title = serializers.CharField(source='category.title', read_only=True)
 
     class Meta:
         model = Event
@@ -56,10 +56,12 @@ class EventSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'category_title', 'created_at']
 
-
-class EventListSerializer(EventSerializer):
-    class Meta(EventSerializer.Meta):
-        fields = ['id', 'title', 'title_others', 'category_title', 'created_at', 'is_active']
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance._request = self.context.get('request')
+        instance.save()
+        return instance
 
     def validate_title(self, value):
         if self.instance is None:
@@ -69,3 +71,7 @@ class EventListSerializer(EventSerializer):
             if Event.objects.filter(title__iexact=value).exclude(id=self.instance.id).exists():
                 raise serializers.ValidationError("Another event with this title already exists.")
         return value
+
+class EventListSerializer(EventSerializer):
+    class Meta(EventSerializer.Meta):
+        fields = ['id', 'title', 'title_others', 'category_title', 'is_published', 'published_at', 'created_at', 'is_active']

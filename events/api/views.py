@@ -200,16 +200,6 @@ class EventViewSet(viewsets.ModelViewSet):
         user = self.request.user if self.request.user.is_authenticated else None
         serializer.save(published_by=user)
 
-    # ⬇️ Overriding CRUD methods for custom response
-
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.filter_queryset(self.get_queryset())
-    #     serializer = self.get_serializer(queryset, many=True)
-    #     return ok(
-    #         data= serializer.data,
-    #         message= "Event list fetched successfully."
-    #     )
-
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)

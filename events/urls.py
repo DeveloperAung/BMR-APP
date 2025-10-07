@@ -14,4 +14,5 @@ urlpatterns = [
 
     path('i/list/', views.EventList, name='event_list'),
     path('i/create/', views.EventCreateView.as_view(), name='event_create'),
+    path('i/<int:pk>/edit/', views.EventEditView.as_view(), name='event_edit'),
 ]

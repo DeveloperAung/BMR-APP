@@ -117,7 +117,6 @@ class EventEditView(View):
 
     def get(self, request, pk):
         categories = EventCategory.objects.filter(is_active=True).order_by('title')
-        subcategories = EventSubCategory.objects.filter(is_active=True).order_by('title')
 
         try:
             event = get_object_or_404(Event, pk=pk)
@@ -129,7 +128,6 @@ class EventEditView(View):
             'subcategory_id': pk,
             'event': event,
             'categories': categories,
-            'subcategories': subcategories,
             'page_title': f'Edit Event: {event.title if event else "Unknown"}'
         }
         return render(request, self.template_name, context)

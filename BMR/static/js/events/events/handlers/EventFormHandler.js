@@ -64,7 +64,19 @@ export class EventFormHandler {
 
         const formData = new FormData(this.form);
 
+        const switches = ['is_published', 'is_active', 'set_banner', 'is_registered', 'is_short_course'];
+        switches.forEach(name => {
+            const field = this.form.querySelector(`[name="${name}"]`);
+            formData.set(name, field?.checked ? 'true' : 'false');
+        });
+
+        // Debug: To check contain entries
+        // for (const [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value);
+        // }
+
         const coverImage = formData.get('cover_image');
+
         if (!coverImage || !coverImage.name) {
             formData.delete('cover_image');
         }
@@ -92,7 +104,7 @@ export class EventFormHandler {
 
         try {
             const formData = this.getFormData();
-            console.log("form data", formData.description)
+
             const eventId = this.form.dataset.eventId; // for update
 
             if (eventId) {
@@ -103,9 +115,9 @@ export class EventFormHandler {
                 this.notificationService.showSuccess('Event created successfully!');
             }
 
-            // setTimeout(() => {
-            //     window.location.href = '/events/i/list/';
-            // }, 1500);
+            setTimeout(() => {
+                window.location.href = '/events/i/list/';
+            }, 1500);
         } catch (error) {
             console.error('catch error', error);
             ApiErrorHandler.handle(error, this.notificationService, { form: this.form });
