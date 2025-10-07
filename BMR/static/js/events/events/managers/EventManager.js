@@ -49,7 +49,7 @@ export class EventManager extends BaseManager {
 
     async viewEvent(Id) {
         console.log(`Viewing category ${Id}`);
-        window.location.href = `/events/i/${Id}/`;
+        window.location.href = `/events/i/media/create/`;
     }
 
     async editEvent(Id) {

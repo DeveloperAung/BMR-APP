@@ -33,6 +33,40 @@ export class NotificationService {
         this.show(message, 'info');
     }
 
+    showLoading(message = 'Loading...') {
+        // prevent duplicate loaders
+        if (this.loaderEl) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay d-flex justify-content-center align-items-center';
+        overlay.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                <div class="mt-3 fw-bold text-primary">${message}</div>
+            </div>
+        `;
+
+        Object.assign(overlay.style, {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 2000,
+        });
+
+        document.body.appendChild(overlay);
+        this.loaderEl = overlay;
+    }
+
+    hideLoading() {
+        if (this.loaderEl) {
+            this.loaderEl.remove();
+            this.loaderEl = null;
+        }
+    }
+
     show(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `alert alert-${type} alert-dismissible fade show`;

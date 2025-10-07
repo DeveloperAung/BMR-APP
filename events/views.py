@@ -131,3 +131,23 @@ class EventEditView(View):
             'page_title': f'Edit Event: {event.title if event else "Unknown"}'
         }
         return render(request, self.template_name, context)
+
+
+def EventMediaList(request):
+    return render(request, 'private/events/event_media/list.html')
+
+
+class EventMediaCreate(View):
+    template_name = 'private/events/event_media/create.html'
+
+    def get(self, request):
+        events = Event.objects.filter(is_active=True).order_by('title')
+        subcategories = EventSubCategory.objects.filter(is_active=True).order_by('title')
+
+        context = {
+            'mode': 'edit',
+            'subcategories': subcategories,
+            'events': events,
+            'page_title': f'Create Event Media'
+        }
+        return render(request, self.template_name, context)

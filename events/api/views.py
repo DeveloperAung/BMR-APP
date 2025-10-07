@@ -1,4 +1,5 @@
 from rest_framework import status, generics, filters, viewsets
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,7 +11,7 @@ from ..models import EventCategory, EventSubCategory, Event
 from .serializers import (
     EventCategorySerializer,
     EventSubCategorySerializer,
-    EventSubCategoryListSerializer, EventListSerializer, EventSerializer
+    EventSubCategoryListSerializer, EventListSerializer, EventSerializer, EventMediaUploadSerializer
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiExample, OpenApiResponse
@@ -227,4 +228,63 @@ class EventViewSet(viewsets.ModelViewSet):
         return ok(
             data=serializer.data,
             message="Event updated successfully."
+        )
+
+
+@extend_schema(
+    tags=["Events"],
+    summary="Upload multiple media files for an event",
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "event": {"type": "integer", "example": 1, "description": "Event ID"},
+                "sub_category": {"type": "integer", "example": 2, "description": "SubCategory ID"},
+                "media_title": {"type": "string", "example": "Meditation Day 2024 Photos"},
+                "media_date": {"type": "string", "format": "date-time", "example": "2025-10-06T09:00:00Z"},
+                "media_location": {"type": "string", "example": "Singapore Dhamma Center"},
+                "media_files": {
+                    "type": "array",
+                    "items": {"type": "string", "format": "binary"},
+                    "description": "Attach one or more media files",
+                },
+            },
+            "required": ["event", "sub_category", "media_title", "media_files"],
+        }
+    },
+    responses={
+        201: OpenApiResponse(
+            description="Media uploaded successfully",
+            examples=[
+                OpenApiExample(
+                    "Example success",
+                    value={
+                        "success": True,
+                        "message": "Media uploaded successfully.",
+                        "data": {
+                            "media_info_id": 12,
+                            "created_count": 3,
+                            "media_info_created": True,
+                        },
+                    },
+                )
+            ],
+        ),
+    },
+)
+class EventMediaUploadView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    """
+    Handle multiple media uploads for a specific event & subcategory.
+    """
+    def post(self, request, *args, **kwargs):
+        serializer = EventMediaUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            result = serializer.save()
+            return ok(
+                message= "Media uploaded successfully.",
+                data=result
+            )
+        return fail(
+            error=serializer.errors,
         )

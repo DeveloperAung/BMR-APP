@@ -1,13 +1,26 @@
-from enum import unique
+import os
 from django.conf import settings
 from django.db import models
-
+from django.utils.text import slugify
 from core.models import AuditModel
 
 
 def event_image_path(instance, filename):
     return "event/image/cover/{}/{}".format(instance.id, filename)
 
+
+def event_media_path(instance, filename):
+    """
+    Save file to: event/media/{event_title}/{event_sub_category}/{filename}
+    """
+    event_title = instance.media_info.event.title if instance.media_info and instance.media_info.event else "unknown_event"
+    sub_category_title = instance.media_info.sub_category.title if instance.media_info and instance.media_info.sub_category else "unknown_subcategory"
+
+    # use slugify (remove spaces/special chars)
+    event_folder = slugify(event_title)
+    sub_folder = slugify(sub_category_title)
+
+    return os.path.join("event", "media", event_folder, sub_folder, filename)
 
 class EventCategory(AuditModel):
     title = models.CharField(max_length=250, unique=True)
@@ -71,7 +84,7 @@ class Event(AuditModel):
         return self.title.encode("utf-8", "ignore").decode("utf-8")
 
 
-class EventDate(models.Model):
+class EventDate(AuditModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_dates", null=True)
     event_date = models.DateField()
     from_time = models.TimeField(blank=True)
@@ -79,4 +92,29 @@ class EventDate(models.Model):
 
     def __str__(self):
         return f"{self.event.title} on {self.event_date}"
+
+
+class EventMediaInfo(AuditModel):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_media_info", null=True)
+    sub_category = models.ForeignKey(EventSubCategory, on_delete=models.CASCADE, related_name="event_media_info", null=True)
+
+    def __str__(self):
+        return f"{self.event.title} on {self.sub_category.title}"
+
+
+class EventMedia(AuditModel):
+    media_info = models.ForeignKey(EventMediaInfo, on_delete=models.CASCADE, related_name="event_media_info", null=True)
+    media_type = models.CharField(max_length=250)
+    title = models.CharField(max_length=500)
+    media_location = models.CharField(blank=True, max_length=1500)
+    filename = models.CharField(max_length=500)
+    file_type = models.CharField(max_length=50, blank=True, null=True, help_text="live video, home video, image, mp3, etc.")
+    media_date = models.DateTimeField(blank=True, null=True)
+    media_file = models.FileField(upload_to=event_media_path, blank=True, null=True)
+    embed_url = models.URLField(blank=True, null=True)
+    downloaded_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.media_type} on {self.title}"
+
 

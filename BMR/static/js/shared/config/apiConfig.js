@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
         CATEGORIES: `${BASE_API_URL}/events/categories/`,
         SUB_CATEGORIES: `${BASE_API_URL}/events/subcategories/`,
         EVENTS: `${BASE_API_URL}/events/events/`,
+        MEDIAS: `${BASE_API_URL}/events/event-media/upload/`,
         EVENT_DATES: `${BASE_API_URL}/events/dates/`
     },
 
