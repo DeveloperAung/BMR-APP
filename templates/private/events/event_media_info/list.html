@@ -4,7 +4,7 @@
 {% block title %}Event Media Management{% endblock %}
 
 {% block content %}
-    {% include 'private/events/event_media/partials/page-header.html' %}
+    {% include 'private/events/event_media_info/partials/page-header.html' %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
@@ -13,19 +13,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h3 class="mb-0">
-                                    <i class="fas fa-list-alt me-2"></i>Event Medias
+                                    <i class="fas fa-list-alt me-2"></i>Event Media Info
                                 </h3>
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <a class="btn btn-primary" href="{% url 'event_media_create' %}">
-                                    <i class="fas fa-plus me-1"></i> Create New
-                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body table-responsive">
-                        {% include 'private/events/event_media/partials/filters.html' %}
-                        {% include 'private/events/event_media/partials/media-table.html' %}
+                        {% include 'private/events/event_media_info/partials/filters.html' %}
+                        {% include 'private/events/event_media_info/partials/media-info-table.html' %}
                         <div class="row">
                             <div class="col-sm-6">
                                 <div id="resultsInfo" class="text-muted small mt-4"></div>
@@ -40,6 +35,6 @@
         </div>
     </div>
     {% block extra_js %}
-        <script src="{% static 'js/events/event_media/eventMedias.js' %}" type="module"></script>
+        <script src="{% static 'js/events/event_media/eventMediaInfos.js' %}" type="module"></script>
     {% endblock %}
 {% endblock %}

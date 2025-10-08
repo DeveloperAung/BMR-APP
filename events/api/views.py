@@ -1,4 +1,5 @@
 from rest_framework import status, generics, filters, viewsets
+from rest_framework.generics import ListAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
@@ -7,11 +8,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from core.utils import mixins
 from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
-from ..models import EventCategory, EventSubCategory, Event
+from ..models import EventCategory, EventSubCategory, Event, EventMedia, EventMediaInfo
 from .serializers import (
     EventCategorySerializer,
     EventSubCategorySerializer,
-    EventSubCategoryListSerializer, EventListSerializer, EventSerializer, EventMediaUploadSerializer
+    EventSubCategoryListSerializer, EventListSerializer, EventSerializer, EventMediaUploadSerializer,
+    EventMediaSerializer, EventMediaInfoSerializer
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiExample, OpenApiResponse
@@ -230,6 +232,25 @@ class EventViewSet(viewsets.ModelViewSet):
             message="Event updated successfully."
         )
 
+@extend_schema(
+    tags=["Events"],
+    summary="Media files for an event",
+    description="Retrieve a paginated list of media files for events, ordered and filtered as specified.",
+    responses={200: EventMediaInfoSerializer(many=True)}
+)
+class EventMediaInfoView(ListAPIView):
+    queryset = EventMediaInfo.objects.all().order_by('-created_at')
+    serializer_class = EventMediaInfoSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['event__title', 'sub_category__title']
+    ordering_fields = ['created_at']
+    pagination_class = StandardResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return response
+
 
 @extend_schema(
     tags=["Events"],
@@ -288,3 +309,20 @@ class EventMediaUploadView(APIView):
         return fail(
             error=serializer.errors,
         )
+
+
+@extend_schema(
+        tags=["Events"],
+        responses={201: EventMediaSerializer(many=True)},
+        summary="Event Media CRUD",
+        description="Event Media CRUD"
+    )
+class EventMediaViewSet(viewsets.ModelViewSet):
+    queryset = EventMedia.objects.all().order_by('-created_at')
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description', 'media_info', 'media_type']
+    ordering_fields = ['created_at']
+
+    def get_serializer_class(self):
+        return EventMediaSerializer # if self.action == 'list' else EventSerializer

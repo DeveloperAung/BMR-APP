@@ -77,8 +77,21 @@ class EventListSerializer(EventSerializer):
     class Meta(EventSerializer.Meta):
         fields = ['id', 'title', 'title_others', 'category_title', 'is_published', 'published_at', 'created_at', 'is_active']
 
+class EventMediaInfoSerializer(serializers.ModelSerializer):
+    event_title = serializers.CharField(source='event.title', read_only=True)
+    subcategory_title = serializers.CharField(source='sub_category.title', read_only=True)
+
+    class Meta:
+        model = EventMediaInfo
+        fields = [
+            'id', 'event_title', 'subcategory_title', 'event', 'sub_category', 'is_active', 'created_at'
+        ]
+        read_only_fields = ['id', 'event_title', 'subcategory_title', 'is_active', 'created_at']
 
 class EventMediaSerializer(serializers.ModelSerializer):
+    event_title = serializers.CharField(source='media_info.event.title', read_only=True)
+    subcategory_title = serializers.CharField(source='media_info.subcategory.title', read_only=True)
+
     class Meta:
         model = EventMedia
         fields = [
@@ -86,6 +99,8 @@ class EventMediaSerializer(serializers.ModelSerializer):
             'media_info',
             'media_type',
             'title',
+            'event_title',
+            'subcategory_title',
             'media_location',
             'filename',
             'file_type',
@@ -95,7 +110,7 @@ class EventMediaSerializer(serializers.ModelSerializer):
             'downloaded_count',
             'created_at',
         ]
-        read_only_fields = ['downloaded_count', 'created_at']
+        read_only_fields = ['downloaded_count', 'created_at', 'event_name', 'subcategory_name']
 
 
 class EventMediaUploadSerializer(serializers.Serializer):

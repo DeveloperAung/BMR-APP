@@ -133,6 +133,10 @@ class EventEditView(View):
         return render(request, self.template_name, context)
 
 
+def EventMediaInfoList(request):
+    return render(request, 'private/events/event_media_info/list.html')
+
+
 def EventMediaList(request):
     return render(request, 'private/events/event_media/list.html')
 

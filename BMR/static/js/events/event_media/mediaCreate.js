@@ -1,7 +1,6 @@
 import { NotificationService } from '../../shared/services/NotificationService.js';
 import { loadDropdown } from '../../shared/utils/dropdownHelper.js';
-import { API_ENDPOINTS } from '../../shared/config/apiConfig.js';
-import { EventMediaRepository } from './repositories/mediaRepository.js';
+import { EventMediaUploadRepository } from './repositories/mediaUploadRepository.js';
 import { EventRepository } from '../events/repositories/EventRepository.js';
 import { EventSubCategoryRepository } from '../subcategories/repositories/EventSubCategoryRepository.js';
 
@@ -11,7 +10,7 @@ export async function initEventMediaUpload() {
 
     const notification = new NotificationService();
     const eventRepo = new EventRepository();
-    const eventMediaRepo = new EventMediaRepository();
+    const eventMediaUploadRepo = new EventMediaUploadRepository();
     const subRepo = new EventSubCategoryRepository();
 
     try {
@@ -37,16 +36,17 @@ export async function initEventMediaUpload() {
         notification.showLoading('Uploading media...');
 
         try {
-            const response = await eventMediaRepo.submitPost(formData)
+            const response = await eventMediaUploadRepo.submitMedia(formData)
             notification.hideLoading();
-            this.notificationService.showSuccess('Event updated successfully!');
+            notification.showSuccess('Event updated successfully!');
             setTimeout(() => {
-                window.location.href = `/events/i/list`;
+                window.location.href = `/events/i/media/list`;
             }, 1500);
         } catch (err) {
             notification.hideLoading();
             alert("Error")
-            notification.showError('Unexpected upload error.');
+            console.log("Error", err)
+            notification.showError('Unexpected upload error.', err);
             console.error(err);
         }
     });
