@@ -141,6 +141,10 @@ def EventMediaList(request):
     return render(request, 'private/events/event_media/list.html')
 
 
+def EventMediaInfoDetails(request):
+    return render(request, 'private/events/event_media_info/details.html')
+
+
 class EventMediaCreate(View):
     template_name = 'private/events/event_media/create.html'
 

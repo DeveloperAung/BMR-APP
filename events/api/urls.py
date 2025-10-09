@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import EventMediaUploadView, EventMediaInfoView
+from .views import EventMediaUploadView, EventMediaInfoView, EventSubCategoryByEventView
 
 app_name = 'events_api'
 
@@ -24,6 +24,7 @@ urlpatterns = [
 
     path('event-media-upload/', EventMediaUploadView.as_view(), name='event-media-upload'),
     path('event-media-info/', EventMediaInfoView.as_view(), name='event-media-info'),
+    path("<int:event_id>/subcategories/", EventSubCategoryByEventView.as_view(), name="event-subcategory-by-event"),
 ]
 
 urlpatterns += router.urls

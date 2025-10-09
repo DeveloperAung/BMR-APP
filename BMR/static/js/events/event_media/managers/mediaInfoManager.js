@@ -38,7 +38,7 @@ export class EventMediaInfoManager extends BaseManager {
 
     async viewMediaInfo(id) {
         console.log(`Viewing media ${id}`);
-        window.location.href = `/events/i/medias/${id}/`;
+        window.location.href = `/events/i/media-info/details/`;
     }
 
     async editMediaInfo(id) {

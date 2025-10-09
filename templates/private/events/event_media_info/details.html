@@ -1,0 +1,147 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}Event Media Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h3>Event Media Details</h3>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'dashboard' %}">
+                            <i data-feather="home"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'event_media_info_list' %}">Media Info</a>
+                    </li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Media Info Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="eventMediaForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="event" class="form-label">Select Event <span class="text-danger">*</span></label>
+                                <select id="event" name="event" class="form-select" required>
+                                    <option value="">-- Select Event --</option>
+
+                                </select>
+                                <div class="invalid-feedback">Please select an event.</div>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="sub_category" class="form-label">Select Subcategory <span class="text-danger">*</span></label>
+                                <select id="sub_category" name="sub_category" class="form-select" required>
+                                    <option value="">-- Select an Event First --</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a subcategory.</div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="accordion dark-accordion" id="simpleaccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button accordion-light-primary text-primary active"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                        aria-expanded="true" aria-controls="collapseOne">What do web designers
+                                    do?<i class="iconly-Arrow-Down-2 icli ms-auto icon"></i></button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseOne"
+                                 aria-labelledby="headingOne" data-bs-parent="#simpleaccordion" style="">
+                                <div class="accordion-body">
+                                    <p>Web design<em class="text-danger"> identifies the goals</em> of a website
+                                        or webpage and promotes accessibility for all potential users. This
+                                        process involves organizing content and images across a series of pages
+                                        and integrating applications and other interactive elements. </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item accordion-wrapper">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed accordion-light-primary text-primary"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                                        aria-expanded="false" aria-controls="left-collapseTwo">What is the use
+                                    of web design? <i class="iconly-Arrow-Down-2 icli ms-auto icon"></i>
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse" id="collapseTwo"
+                                 aria-labelledby="headingTwo" data-bs-parent="#simpleaccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3"><strong> Search engine optimization: </strong> Search engine
+                                        optimization (SEO) is a method for improving the chances for a website
+                                        to be found by search engines. Web design codes information in a way
+                                        that search engines can read it. It can boost business because the site
+                                        shows up on the top search result pages, helping people to find it.</p>
+                                    <p class="mb-3"><strong> Mobile responsiveness:</strong> Mobile
+                                        responsiveness is the feature of a website that allows it to display on
+                                        a mobile device and adapt its layout and proportions to be legible. Web
+                                        design ensures sites are easy to view and navigate from mobile devices.
+                                        When a website is well-designed and mobile-responsive, customers can
+                                        reach the business with ease.</p>
+                                    <p class="mb-3"><strong> Improved sales:</strong>Increasing the number of
+                                        items sold or acquiring more active customers are objectives of a
+                                        compelling website. As web design reaches targeted customers and search
+                                        engines, it helps the business make conversions on their site and
+                                        improve its sales.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item accordion-wrapper">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed accordion-light-primary text-primary"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree"
+                                        aria-expanded="false" aria-controls="left-collapseThree">What are the
+                                    elements of web design?<i
+                                            class="iconly-Arrow-Down-2 icli ms-auto icon"> </i></button>
+                            </h2>
+                            <div class="accordion-collapse collapse" id="collapseThree"
+                                 aria-labelledby="headingThree" data-bs-parent="#simpleaccordion">
+                                <div class="accordion-body">
+                                    <p>The web design process allows designers to adjust to any preferences and
+                                        provide effective solutions. There are many standard components of every
+                                        web design, including:</p>
+                                    <ul class="d-flex flex-column gap-2 accordions-content">
+                                        <li>--&gt; Layout</li>
+                                        <li>--&gt; Images</li>
+                                        <li>--&gt; Visual hierarchy</li>
+                                        <li>--&gt; Color scheme</li>
+                                        <li>--&gt; Typography</li>
+                                        <li>--&gt; Navigation</li>
+                                        <li>--&gt; Readability</li>
+                                        <li>--&gt; Content</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script type="module">
+    import { initEventSubCategoryHandler } from '{% static "js/events/event_media/details.js" %}';
+    document.addEventListener('DOMContentLoaded', () => initEventSubCategoryHandler());
+</script>
+{% endblock %}
+{% endblock %}

@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
 
     // Events
     EVENTS: {
+        BASE: `${BASE_API_URL}/events/`,
         CATEGORIES: `${BASE_API_URL}/events/categories/`,
         SUB_CATEGORIES: `${BASE_API_URL}/events/subcategories/`,
         EVENTS: `${BASE_API_URL}/events/events/`,

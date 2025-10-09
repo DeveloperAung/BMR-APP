@@ -17,6 +17,7 @@ urlpatterns = [
     path('i/<int:pk>/edit/', views.EventEditView.as_view(), name='event_edit'),
 
     path('i/media-info/list/', views.EventMediaInfoList, name='event_media_info_list'),
+    path('i/media-info/details/', views.EventMediaInfoDetails, name='event_media_info_details'),
     path('i/media/list/', views.EventMediaList, name='event_media_list'),
     path('i/media/create/', views.EventMediaCreate.as_view(), name='event_media_create'),
 ]

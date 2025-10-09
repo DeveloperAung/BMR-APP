@@ -110,7 +110,7 @@ class EventMediaSerializer(serializers.ModelSerializer):
             'downloaded_count',
             'created_at',
         ]
-        read_only_fields = ['downloaded_count', 'created_at', 'event_name', 'subcategory_name']
+        read_only_fields = ['downloaded_count', 'created_at', 'event_title', 'subcategory_title']
 
 
 class EventMediaUploadSerializer(serializers.Serializer):

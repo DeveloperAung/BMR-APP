@@ -16,7 +16,7 @@ from .serializers import (
     EventMediaSerializer, EventMediaInfoSerializer
 )
 from drf_spectacular.utils import (
-    extend_schema, OpenApiExample, OpenApiResponse
+    extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter
 )
 
 
@@ -142,10 +142,24 @@ class EventSubCategoryListCreateView(generics.ListCreateAPIView):
 
 @extend_schema(
         tags=["Events"],
-        responses={201: EventSubCategoryListSerializer},
+        # responses={201: EventSubCategoryListSerializer},
         summary="Create, Update and Delete Event Sub Category",
-        description="Create, Update and Delete Event Sub Category"
+        description="Create, Update and Delete Event Sub Category",
+        parameters=[
+            OpenApiParameter(
+                name="event_id",
+                description="Filter subcategories by event ID (for list mode)",
+                required=False,
+                type=int,
+                location=OpenApiParameter.QUERY,
+            )
+        ],
+        responses={
+            200: EventSubCategoryListSerializer(many=True),
+            201: EventSubCategorySerializer,
+        },
     )
+
 class EventSubCategoryRetrieveUpdateDestroyView(
         mixins.SoftDeleteMixin,
         generics.RetrieveUpdateDestroyAPIView
@@ -250,6 +264,28 @@ class EventMediaInfoView(ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
         return response
+
+
+@extend_schema(
+    tags=["Events"],
+    summary="List subcategories related to a specific event",
+    description="Retrieve unique subcategories that have media linked to the given event ID via EventMediaInfo.",
+    responses={200: EventSubCategoryListSerializer(many=True)},
+)
+class EventSubCategoryByEventView(generics.ListAPIView):
+    serializer_class = EventSubCategoryListSerializer
+
+    def get_queryset(self):
+        event_id = self.kwargs.get("event_id")
+
+        # ✅ Get unique subcategories linked through EventMediaInfo
+        subcategory_ids = (
+            EventMediaInfo.objects.filter(event_id=event_id)
+            .values_list("sub_category_id", flat=True)
+            .distinct()
+        )
+
+        return EventSubCategory.objects.filter(id__in=subcategory_ids, is_active=True).order_by("title")
 
 
 @extend_schema(
