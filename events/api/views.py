@@ -1,3 +1,4 @@
+from drf_spectacular.types import OpenApiTypes
 from rest_framework import status, generics, filters, viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -351,7 +352,11 @@ class EventMediaUploadView(APIView):
         tags=["Events"],
         responses={201: EventMediaSerializer(many=True)},
         summary="Event Media CRUD",
-        description="Event Media CRUD"
+        description="Event Media CRUD",
+        parameters=[
+            OpenApiParameter(name="event_id", type=OpenApiTypes.INT, description="Filter by event ID"),
+            OpenApiParameter(name="subcategory_id", type=OpenApiTypes.INT, description="Filter by subcategory ID"),
+        ],
     )
 class EventMediaViewSet(viewsets.ModelViewSet):
     queryset = EventMedia.objects.all().order_by('-created_at')
@@ -361,4 +366,20 @@ class EventMediaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at']
 
     def get_serializer_class(self):
-        return EventMediaSerializer # if self.action == 'list' else EventSerializer
+        return EventMediaSerializer
+
+    def get_queryset(self):
+        """Filter event media by event_id or subcategory_id."""
+        queryset = super().get_queryset()
+
+        # Get query parameters
+        event_id = self.request.query_params.get('event_id')
+        subcategory_id = self.request.query_params.get('subcategory_id')
+
+        # Apply filters if provided
+        if event_id:
+            queryset = queryset.filter(media_info__event_id=event_id)
+        if subcategory_id:
+            queryset = queryset.filter(media_info__sub_category_id=subcategory_id)
+
+        return queryset

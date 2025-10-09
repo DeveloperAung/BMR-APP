@@ -35,6 +35,29 @@ export class EventMediaManager extends BaseManager {
         this.filterHandler = new MediaFilterHandler(this.handleFiltersChange.bind(this));
     }
 
+    async loadEventMedia({ eventId, subCategoryId = null }) {
+        try {
+            const filters = {};
+            if (eventId) filters.event_id = eventId;
+            if (subCategoryId) filters.subcategory_id = subCategoryId;
+
+            console.log('Fetching Event Media with filters:', filters);
+            const response = await this.repository.getMedias(filters);
+
+            // The API returns an array or paginated object
+            const items =
+                Array.isArray(response)
+                    ? response
+                    : response.items || response.results || [];
+
+            console.log('Loaded Event Media items:', items);
+            return items;
+        } catch (error) {
+            console.error('Error loading event media:', error);
+            throw error;
+        }
+    }
+
     async createMedia(data) {
         try {
             this.notificationService?.showLoading?.('Creating media...');

@@ -38,9 +38,9 @@ export async function initEventMediaUpload() {
         try {
             const response = await eventMediaUploadRepo.submitMedia(formData)
             notification.hideLoading();
-            notification.showSuccess('Event updated successfully!');
+            notification.showSuccess('Event Media created successfully!');
             setTimeout(() => {
-                window.location.href = `/events/i/media/list`;
+                window.location.href = `/events/i/media-info/details/`;
             }, 1500);
         } catch (err) {
             notification.hideLoading();

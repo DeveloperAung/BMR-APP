@@ -90,7 +90,7 @@ class EventMediaInfoSerializer(serializers.ModelSerializer):
 
 class EventMediaSerializer(serializers.ModelSerializer):
     event_title = serializers.CharField(source='media_info.event.title', read_only=True)
-    subcategory_title = serializers.CharField(source='media_info.subcategory.title', read_only=True)
+    subcategory_title = serializers.CharField(source='media_info.sub_category.title', read_only=True)
 
     class Meta:
         model = EventMedia
