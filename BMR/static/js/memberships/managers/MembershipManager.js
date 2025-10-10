@@ -1,11 +1,40 @@
 // static/js/memberships/managers/MembershipManager.js
 import { MembershipRepository } from '../repositories/MembershipRepository.js';
+import {BaseManager} from "../../shared/managers/BaseManager.js";
+import {MembershipTableRenderer} from "../renderers/MembershipTableRenderer.js";
+import {MembershipFilterHandler} from "../handlers/FilterHandler.js";
 
-export class MembershipManager {
+export class MembershipManager extends BaseManager {
     constructor({ authService, notificationService }) {
-        this.authService = authService;
-        this.notificationService = notificationService;
-        this.repository = new MembershipRepository({ notificationService });
+        const repository = new MembershipRepository({ notificationService });
+        const tableRenderer = new MembershipTableRenderer();
+        const filterHandler = new MembershipFilterHandler();
+
+        super({
+            authService,
+            notificationService,
+            repository,
+            tableRenderer,
+            filterHandler,
+
+             getItemsFn: async (params) => {
+                console.log("before call repo")
+                const res = await repository.getMemberships(params);
+                console.log("result", res)
+                console.log('[MembershipManager] Raw response from repository.getMemberships:', res);
+                return res;
+              },
+            extractItemsFn: (response) => response || response.items || [],
+
+            itemType: 'memberships',
+
+            defaultPerPage: 30,
+            defaultFilters: {
+                ordering: '-published_at'
+            }
+        });
+
+        this.filterHandler = new MembershipFilterHandler(this.handleFiltersChange.bind(this));
     }
 
     async submitPage1(pageData) {

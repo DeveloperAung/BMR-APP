@@ -137,6 +137,9 @@ class StatusSerializer(serializers.ModelSerializer):
 
 class MembershipReadSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
+    membership_type_name = serializers.CharField(source="membership_type.name", read_only=True)
+    workflow_status_name = serializers.CharField(source="workflow_status.internal_status", read_only=True)
+
     membership_type = MembershipTypeListSerializer(read_only=True)
     profile_info = PersonalInfoSerializer(read_only=True)
     contact_info = ContactInfoReadSerializer(read_only=True)
@@ -149,11 +152,13 @@ class MembershipReadSerializer(serializers.ModelSerializer):
         model = Membership
         fields = (
             "uuid", "reference_no", "user", "profile_picture", "applied_date",
-            "membership_type", "membership_number", "profile_info", "contact_info",
-            "education_info", "work_info", "workflow_status", "reason",
+            "membership_type", "membership_type_name", "membership_number", "profile_info", "contact_info",
+            "education_info", "work_info", "workflow_status", "workflow_status_name", "reason",
             "is_profile_completed", "is_contact_completed", "is_education_completed",
             "is_work_completed", "is_payment_generated", "submitted_at", "can_edit"
         )
+
+        read_only_fields = ("uuid", "reference_no", "user", "membership_type_name")
 
     def get_can_edit(self, obj):
         return obj.can_edit()

@@ -10,6 +10,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.views import View
 from django.http import JsonResponse
+
+from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
 from memberships.models import Membership, EducationLevel, Institution, MembershipType, MembershipPayment, PersonalInfo, \
     ContactInfo
@@ -46,7 +48,7 @@ class MembershipMetaView(View):
         gender_choices = _choices_to_list(PersonalInfo.GENDER_CHOICES)
         countries = _choices_to_list(PersonalInfo.COUNTRY_CHOICES)
         citizenships = _choices_to_list(PersonalInfo.CITIZEN_CHOICES)
-        resendial_statuses = _choices_to_list(ContactInfo.RESIDENTIAL_STATUS_CHOICES)
+        residential_statuses = _choices_to_list(ContactInfo.RESIDENTIAL_STATUS_CHOICES)
 
         # DB-backed lookups
         membership_types_qs = MembershipType.objects.all().order_by("name")
@@ -62,7 +64,7 @@ class MembershipMetaView(View):
 
         data = {
             "gender_choices": gender_choices,
-            "resendial_statuses": resendial_statuses,
+            "resendial_statuses": residential_statuses,
             "countries": countries,
             "citizenships": citizenships,
             "membership_types": membership_types,
@@ -82,13 +84,16 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     """
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    serializer_class = MembershipReadSerializer
+    pagination_class = StandardResultsSetPagination
+    ordering_fields = ["-created_at"]
     lookup_field = "uuid"
 
     def get_queryset(self):
         base_qs = Membership.objects.select_related(
             "membership_type", "profile_info", "contact_info",
             "education_info", "work_info", "workflow_status"
-        )
+        ).order_by('id')
         # Management sees all
         if self.request.user.is_staff:  # or use IsManagementUser() logic
             return base_qs
@@ -110,7 +115,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         from core.models import Status
         draft_status, _ = Status.objects.get_or_create(
             status_code="10",
-            defaults={"internal_status": "Draft", "external_status": "Draft"}
+            defaults={"internal_status": "Draft Application", "external_status": "Draft Application"}
         )
         return draft_status
 
@@ -158,16 +163,20 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     @action(detail=False, methods=["POST"], url_path="submit-page1")
     def submit_page1(self, request):
         """Page 1: Submit Profile Info, Contact Info, Membership Type, and Profile Picture"""
-        membership = self.get_or_create_membership()
-        serializer = MembershipPage1Serializer(
-            data=request.data,
-            context={'membership': membership}
-        )
-        serializer.is_valid(raise_exception=True)
-        membership = serializer.save()
+        try:
+            membership = self.get_or_create_membership()
+            serializer = MembershipPage1Serializer(
+                data=request.data,
+                context={'membership': membership}
+            )
+            serializer.is_valid(raise_exception=True)
+            membership = serializer.save()
 
-        response_serializer = MembershipReadSerializer(membership, context={'request': request})
-        return ok(response_serializer.data, "Page 1 completed successfully. Please proceed to Page 2.")
+            response_serializer = MembershipReadSerializer(membership, context={'request': request})
+            return ok(response_serializer.data, "Page 1 completed successfully. Please proceed to Page 2.")
+        except Exception as e:
+            print("error", e)
+            return fail(error=str(e), message=str(e))
 
     @extend_schema(
         tags=["Memberships"],
@@ -240,7 +249,8 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         serializer = MembershipReadSerializer(qs, many=True, context={'request': request})
-        return ok(serializer.data)
+        response = super().list(request, *args, **kwargs)
+        return response
 
     @extend_schema(
         tags=["Payments"],
