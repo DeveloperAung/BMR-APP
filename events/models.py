@@ -1,6 +1,7 @@
 import os
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils.text import slugify
 from core.models import AuditModel
 
@@ -82,6 +83,9 @@ class Event(AuditModel):
 
     def __str__(self):
         return self.title.encode("utf-8", "ignore").decode("utf-8")
+
+    def get_absolute_url(self):
+        return reverse('news_detail', args=[str(self.id)])
 
 
 class EventDate(AuditModel):

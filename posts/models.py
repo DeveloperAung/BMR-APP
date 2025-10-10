@@ -1,4 +1,6 @@
 from django.db import models
+from django.urls import reverse
+
 from core.models import AuditModel
 from django.conf import settings
 
@@ -43,6 +45,11 @@ class Post(AuditModel):
     set_banner = models.BooleanField(default=False)
     banner_order = models.PositiveIntegerField(default=0)
 
+    def get_absolute_url(self):
+        return reverse('news_detail', args=[str(self.id)])
+
     def __str__(self):
         return self.title
+
+
         

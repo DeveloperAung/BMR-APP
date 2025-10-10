@@ -14,7 +14,6 @@ export class MembershipTableRenderer extends BaseTableRenderer {
     }
 
     render(memberships, currentPage = 1, perPage = 10) {
-       console.log("memberships", memberships)
        this.setPagination(currentPage, perPage);
         if (!memberships || memberships.length === 0) {
             this.renderEmpty('No memberships Found', '📂');

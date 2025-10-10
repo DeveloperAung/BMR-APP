@@ -1,0 +1,112 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}Banner - Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="page-title">
+    <div class="row">
+      <div class="col-sm-6">
+        <h2>Banner Order</h2>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#"><i class="iconly-Home icli svg-color"></i></a></li>
+          <li class="breadcrumb-item">Banner Order</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div id="dragula-left" class="py-2">
+                {% if data %}
+                  {% for i in data %}
+                    <div class="card rounded border mb-2 draggable-item"
+                         data-id="{{ i.id }}"
+                         data-model="{{ i.model_name|lower }}">
+                      <div class="card-body p-3">
+                        <div class="media">
+                          <i class="ti-desktop icon-sm align-self-center me-3"></i>
+                          <div class="media-body">
+                            <h6 class="mb-1">{{ i.order_index }}. {{ i.title }}</h6>
+                            <p class="mb-0 text-muted">{{ i.category_title }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <p>No banners found.</p>
+                {% endif %}
+              </div>
+              <button class="btn btn-primary mt-3" id="update-order-btn">Update Order</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module">
+import BaseRepository from '{%  static 'js/shared/repositories/baseRepository.js' %}';
+
+  const repo = new BaseRepository();
+  dragula([document.getElementById("dragula-left")]);
+
+  const modelRepositories = {
+    event: new BaseRepository('/api/events/events/'),
+    post: new BaseRepository('/api/posts/')
+
+  };
+
+  async function updateBannerOrders() {
+    const container = document.getElementById("dragula-left");
+    const cards = container.querySelectorAll(".draggable-item");
+
+    const updates = Array.from(cards).map((el, index) => ({
+      id: el.getAttribute("data-id"),
+      model: el.getAttribute("data-model"),
+      banner_order: index + 1
+    }));
+
+    try {
+      const results = await Promise.all(
+        updates.map(({ model, id, banner_order }) => {
+          const repo = modelRepositories[model];
+          if (!repo) throw new Error(`No repository for model: ${model}`);
+          return repo.updateItem(id, { banner_order });
+        })
+      );
+
+      Swal.fire("Success", "Reorder completed", "success");
+      setTimeout(() => location.reload(), 1500);
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to update banners", "error");
+    }
+  }
+
+  document.querySelector("#update-order-btn")
+          .addEventListener("click", updateBannerOrders);
+</script>
+
+<style>
+  .draggable-item {
+    cursor: grab;
+  }
+</style>
+{% endblock %}

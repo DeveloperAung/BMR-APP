@@ -5,6 +5,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from authentication.api.views import google_callback
 
+url_api = [
+    path('api/auth/', include('authentication.api.urls')),
+    path('api/association/', include('association.api.routers')),
+    path('api/posts/', include('posts.api.urls')),
+    path('api/events/', include('events.api.urls')),
+    path('api/donations/', include('donations.api.urls')),
+    path('api/membership/', include('memberships.api.routers')),
+]
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('authentication.urls')),
@@ -13,6 +22,7 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('donations/', include('donations.urls')),
     path('memberships/', include('memberships.urls')),
+    path('banner/', include('banner.urls')),
 
     path('api/auth/', include('authentication.api.urls')),
     path('api/association/', include('association.api.routers')),
