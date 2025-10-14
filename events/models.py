@@ -57,7 +57,8 @@ class Event(AuditModel):
     location = models.CharField(blank=True, max_length=1500)
     feature_image = models.CharField(blank=True, max_length=1500)
     cover_image = models.ImageField(upload_to=event_image_path, blank=True)
-    is_registered = models.BooleanField(default=False)
+    event_dates = models.JSONField(default=list, blank=True, null=True)
+    need_registration = models.BooleanField(default=False)
     is_short_course = models.BooleanField(default=False)
     max_seat = models.IntegerField(default=0, blank=True)
     is_published = models.BooleanField(default=False)
@@ -88,14 +89,14 @@ class Event(AuditModel):
         return reverse('news_detail', args=[str(self.id)])
 
 
-class EventDate(AuditModel):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_dates", null=True)
-    event_date = models.DateField()
-    from_time = models.TimeField(blank=True)
-    to_time = models.TimeField(blank=True)
-
-    def __str__(self):
-        return f"{self.event.title} on {self.event_date}"
+# class EventDate(AuditModel):
+#     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_dates", null=True)
+#     event_date = models.DateField()
+#     from_time = models.TimeField(blank=True)
+#     to_time = models.TimeField(blank=True)
+#
+#     def __str__(self):
+#         return f"{self.event.title} on {self.event_date}"
 
 
 class EventMediaInfo(AuditModel):

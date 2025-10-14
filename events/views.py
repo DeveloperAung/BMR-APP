@@ -1,7 +1,10 @@
+import json
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.http import JsonResponse
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.views import View
 from .models import EventCategory, EventSubCategory, Event
@@ -127,6 +130,7 @@ class EventEditView(View):
             'mode': 'edit',
             'subcategory_id': pk,
             'event': event,
+            "event_dates_json": mark_safe(json.dumps(event.event_dates or [])),
             'categories': categories,
             'page_title': f'Edit Event: {event.title if event else "Unknown"}'
         }

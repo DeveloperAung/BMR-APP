@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from rest_framework import serializers
 from ..models import EventCategory, EventSubCategory, Event, EventMediaInfo, EventMedia
 
@@ -51,7 +53,7 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = [
             'id', 'title', 'title_others', 'short_description', 'description', 'location',
-            'category', 'category_title', 'cover_image', 'is_registered', 'is_short_course', 'max_seat',
+            'category', 'category_title', 'cover_image', 'event_dates', 'need_registration', 'is_short_course', 'max_seat',
             'is_published', 'published_at', 'created_at', 'is_active', 'published_by_email',
             'set_banner', 'banner_order'
         ]
@@ -72,6 +74,39 @@ class EventSerializer(serializers.ModelSerializer):
             if Event.objects.filter(title__iexact=value).exclude(id=self.instance.id).exists():
                 raise serializers.ValidationError("Another event with this title already exists.")
         return value
+
+    def validate(self, data):
+        request = self.context.get('request')
+
+        # --- Normalize event_dates[] ---
+        if request:
+            raw_dates = request.data.getlist('event_dates[]') or request.data.getlist('event_dates')
+            if raw_dates:
+                data['event_dates'] = raw_dates
+
+        # --- Range to list conversion ---
+        if request and request.data.get('is_short_course') == 'false':
+            start = request.data.get('start_date')
+            end = request.data.get('end_date')
+            if start and end:
+                from datetime import datetime, timedelta
+                start_date = datetime.strptime(start, "%Y-%m-%d").date()
+                end_date = datetime.strptime(end, "%Y-%m-%d").date()
+                if start_date <= end_date:
+                    days = (end_date - start_date).days + 1
+                    data['event_dates'] = [
+                        (start_date + timedelta(days=i)).isoformat() for i in range(days)
+                    ]
+
+        if not data.get('event_dates'):
+            data['event_dates'] = []
+
+        return data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['event_dates'] = data.get('event_dates') or []
+        return data
 
 class EventListSerializer(EventSerializer):
     class Meta(EventSerializer.Meta):

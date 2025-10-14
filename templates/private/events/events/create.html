@@ -38,9 +38,11 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <form id="eventForm" data-event-id="{{ event.id|default:'' }}" class="needs-validation" novalidate>
+                        <form id="eventForm" data-event-id="{{ event.id|default:'' }}"
+                              data-event-dates='{{ event_dates_json }}'
+                              data-is-short-course="{{ event.is_short_course|yesno:'true,false' }}"
+                              novalidate>
                             {% csrf_token %}
-
                             <!-- Basic Information -->
                             <div class="row">
                                 <div class="col-md-6">
@@ -77,6 +79,43 @@
                                     </div>
                                 </div>
                                 <input type="hidden" name="description" id="description">
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6 mt-5">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="is_short_course" class="form-label fw-bold text-start">Is Short Course</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input border-primary" type="checkbox" id="is_short_course" name="is_short_course">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row mb-3" id="multi-date-container" style="display:none;">
+                                      <label class="form-label fw-bold text-start">Multiple Dates</label>
+                                      <div class="">
+                                        <div class="input-group flatpicker-calender">
+                                          <input class="form-control flatpickr-input" id="multiple-date" type="text" placeholder="Select multiple dates" readonly>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div class="row mb-3" id="range-date-container" style="display:none;">
+                                      <label class="form-label fw-bold text-start">Date Range</label>
+                                      <div class="">
+                                        <div class="input-group flatpicker-calender">
+                                          <input class="form-control flatpickr-input" id="range-date" type="text" placeholder="Select date range" readonly>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <!-- Event Details -->
@@ -162,19 +201,12 @@
 
                                 <div class="col-md-3">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="is_registered" name="is_registered"
-                                               {% if event.is_registered %}checked{% endif %}>
-                                        <label class="form-check-label" for="is_registered">Registration Required</label>
+                                        <input class="form-check-input" type="checkbox" id="need_registration" name="need_registration"
+                                               {% if event.need_registration %}checked{% endif %}>
+                                        <label class="form-check-label" for="need_registration">Registration Required</label>
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="is_short_course" name="is_short_course"
-                                               {% if event.is_short_course %}checked{% endif %}>
-                                        <label class="form-check-label" for="is_short_course">Short Course</label>
-                                    </div>
-                                </div>
                             </div>
 
                             <div class="row mb-3">
@@ -190,10 +222,10 @@
                             <!-- Action Buttons -->
                             <div class="d-flex justify-content-between mt-4">
                                 <a href="{% url 'event_list' %}" class="btn btn-outline-danger">
-                                    <i class="fa fa-arrow-left me-2"></i>Cancel
+                                    Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fa fa-save me-2"></i>{% if mode == 'edit' %}Update{% else %}Create{% endif %} Event
+                                    {% if mode == 'edit' %}Update{% else %}Create{% endif %} Event
                                 </button>
                             </div>
                         </form>
@@ -213,5 +245,8 @@
                 initEventCreate();
             });
         </script>
+        <link rel="stylesheet" type="text/css" href="{% static 'assets/css/vendors/flatpickr/flatpickr.min.css' %}">
+        <script src="{% static 'assets/js/flat-pickr/flatpickr.js' %}"></script>
+        <script src="{% static 'assets/js/flat-pickr/custom-flatpickr.js' %}"></script>
     {% endblock %}
 {% endblock %}

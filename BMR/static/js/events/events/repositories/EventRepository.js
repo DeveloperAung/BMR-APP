@@ -13,6 +13,7 @@ export class EventRepository extends BaseRepository {
         try {
             return await super.createItem(data);
         } catch (error) {
+            this.notificationService?.hideLoading?.();
             ApiErrorHandler.handle(error, this.notificationService);
             throw error;
         }
@@ -23,6 +24,7 @@ export class EventRepository extends BaseRepository {
         try {
             return await super.updateItem(id, data);
         } catch (error) {
+            this.notificationService?.hideLoading?.();
             ApiErrorHandler.handle(error, this.notificationService);
             throw error;
         }
