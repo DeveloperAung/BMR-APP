@@ -166,7 +166,13 @@
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="banner_order" class="form-label fw-bold">Banner Order</label>
+                                        <label for="banner_order" class="form-label fw-bold">
+                                            <span class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="set_banner" name="set_banner"
+                                                {% if event.set_banner %}checked{% endif %}>
+                                                <label class="form-check-label">Use as Banner? Order</label>
+                                            </span>
+                                        </label>
                                         <input type="number" class="form-control" id="banner_order" name="banner_order"
                                                value="{{ event.banner_order|default:0 }}" min="0">
                                     </div>
@@ -203,22 +209,6 @@
                                         <input class="form-check-input" type="checkbox" id="is_published" name="is_published"
                                                {% if event.is_published %}checked{% endif %}>
                                         <label class="form-check-label" for="is_published">Published</label>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="need_registration" name="need_registration"
-                                               {% if event.need_registration %}checked{% endif %}>
-                                        <label class="form-check-label" for="need_registration">Registration Required</label>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="set_banner" name="set_banner"
-                                               {% if event.set_banner %}checked{% endif %}>
-                                        <label class="form-check-label" for="set_banner">Set as Banner</label>
                                     </div>
                                 </div>
                             </div>

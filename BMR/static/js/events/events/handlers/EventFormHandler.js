@@ -50,6 +50,7 @@ export class EventFormHandler {
       time_24hr: false,
     });
     const coverInput = this.form.querySelector('#cover_image');
+
     if (coverInput) {
       coverInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -63,6 +64,36 @@ export class EventFormHandler {
       });
     }
 
+    const regSwitch = document.getElementById('need_registration');
+    const maxSeatInput = document.getElementById('max_seat');
+
+    const bannerSwitch = document.getElementById('set_banner');
+    const bannerOrderInput = document.getElementById('banner_order');
+
+
+  function toggleRegistrationFields() {
+        const enabled = regSwitch.checked;
+        maxSeatInput.disabled = !enabled;
+        maxSeatInput.readOnly = !enabled;
+        maxSeatInput.classList.toggle('bg-light', !enabled);
+        if (!enabled) maxSeatInput.value = ''; // optional: clear when disabled
+      }
+
+  function toggleBannerFields() {
+        const enabled = bannerSwitch.checked;
+        bannerOrderInput.disabled = !enabled;
+        bannerOrderInput.readOnly = !enabled;
+        bannerOrderInput.classList.toggle('bg-light', !enabled);
+        if (!enabled) bannerOrderInput.value = 0; // optional: reset when off
+      }
+      
+      // --- Initialize states on page load ---
+      toggleRegistrationFields();
+      toggleBannerFields();
+
+      // --- Listen for switch changes ---
+      regSwitch.addEventListener('change', toggleRegistrationFields);
+      bannerSwitch.addEventListener('change', toggleBannerFields);
     this.initializeDatePickers();
   }
 
