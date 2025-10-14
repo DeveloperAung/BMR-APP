@@ -32,6 +32,23 @@ export class EventFormHandler {
 
     this.form.addEventListener('submit', (e) => this.handleSubmit(e));
 
+    flatpickr("#from_time", {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:i",        // <-- 24-hour format to match Django's expected format
+      altInput: true,           // <-- show user-friendly 12-hour format
+      altFormat: "h:i K",       // <-- display 12-hour format with AM/PM
+      time_24hr: false,         // <-- 12-hour UI
+    });
+
+    flatpickr("#to_time", {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:i",
+      altInput: true,
+      altFormat: "h:i K",
+      time_24hr: false,
+    });
     const coverInput = this.form.querySelector('#cover_image');
     if (coverInput) {
       coverInput.addEventListener('change', (e) => {

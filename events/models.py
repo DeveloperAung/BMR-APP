@@ -61,6 +61,8 @@ class Event(AuditModel):
     need_registration = models.BooleanField(default=False)
     is_short_course = models.BooleanField(default=False)
     max_seat = models.IntegerField(default=0, blank=True)
+    from_time = models.TimeField(blank=True, null=True)
+    to_time = models.TimeField(blank=True, null=True)
     is_published = models.BooleanField(default=False)
     published_at = models.DateTimeField(blank=True, null=True)
     published_by = models.ForeignKey(
