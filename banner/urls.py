@@ -7,7 +7,7 @@ internal_urls = [
 ]
 
 public_urls = [
-    path('banner/list', views.banner_list, name='banner_list'),
+    path('banner/list', views.landing_page_view, name='home'),
 ]
 
 urlpatterns = [

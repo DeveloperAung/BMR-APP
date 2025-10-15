@@ -20,9 +20,12 @@ class PostCategorySerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    post_category_title = serializers.CharField(source='post_category.title', read_only=True)
+    published_by_email = serializers.CharField(source='published_by.username', read_only=True)
+
     class Meta:
         model = Post
-        fields = ['id', 'title', 'short_description', 'is_published', 'published_at', 'is_active', 'created_at']
+        fields = ['id', 'title', 'post_category_title', 'is_published', 'published_by_email', 'published_at', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 

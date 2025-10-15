@@ -12,7 +12,13 @@ internal_urls = [
     path('posts/<int:pk>/edit/', views.PostEditView.as_view(), name='post_edit'),
 ]
 
+public_urls = [
+    path('books/', views.book_list, name='book_list'),
+    path('articles/', views.article_list, name='article_list'),
+    path('article/<int:pk>/details/', views.article_details, name='article_details'),
+]
+
 urlpatterns = [
     path('i/', include(internal_urls)),
-
+    path('', include(public_urls)),
 ] 

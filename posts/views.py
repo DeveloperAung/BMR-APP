@@ -6,6 +6,23 @@ from django.views import View
 def PostCategoryList(request):
     return render(request, 'private/posts/category/list.html')
 
+def post_details (request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    return render(request, '')
+
+def book_list(request):
+    books = Post.objects.filter(is_published=True, is_active=True, post_category=6)
+    return render(request, 'public/posts/books.html', {'books': books})
+
+def article_list(request):
+    articles = Post.objects.filter(is_published=True, is_active=True, post_category=2)
+    return render(request, 'public/posts/articles.html', {'articles': articles})
+
+
+def article_details(request, pk):
+    article = get_object_or_404(Post, id=pk)
+    return render(request, 'public/posts/article_details.html', {'article': article})
+
 
 class CategoryCreateView(View):
     template_name = 'private/posts/category/create.html'

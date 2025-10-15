@@ -41,14 +41,13 @@ export class PostTableRenderer extends BaseTableRenderer {
                 <td class="text-center serial-number">
                     <span class="badge bg-primary text-dark">${serialNumber}</span>
                 </td>
-                <td><p class="f-light mb-0">${escapeHtml(post.title)}</p></td>                
-                <td><p class="f-light mb-0">${escapeHtml(post.short_description)}</p></td>
-                <td><p class="f-light mb-0">${escapeHtml(post.post_category)}</p></td>                           
+                <td><p class="f-light mb-0">${escapeHtml(post.title)}</p></td>                                
+                <td><p class="f-light mb-0">${escapeHtml(post.post_category_title)}</p></td>                           
                 <td class="text-center">
                     <span class="fa-solid ${post.is_published ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td> 
-                <td><p class="f-light mb-0">${escapeHtml(post.published_by)}</p></td>  
+                <td><p class="f-light mb-0">${escapeHtml(post.published_by_email)}</p></td>  
                 <td data-field="is_active">
                     <span class="badge ${ post.is_active ? 'bg-success' : 'bg-warning'}">
                         ${ post.is_active ? 'Active' : 'Inactive'}

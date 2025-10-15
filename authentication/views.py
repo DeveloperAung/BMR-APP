@@ -2,9 +2,13 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-def home(request):
+from core.utils.menu_items import get_menu_items
 
-    return render(request, 'public/home.html')
+
+def home(request):
+    slideshow_items = get_menu_items()
+    print('slideshow_items', slideshow_items)
+    return render(request, 'public/home.html', {'slideshow_items': slideshow_items})
 
 def login_page(request):
     context = {

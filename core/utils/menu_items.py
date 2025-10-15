@@ -13,7 +13,7 @@ def get_menu_items():
             menu_items.append({
                 'title': obj.title,
                 'model_name': model_name,
-                'image': obj.image.url if obj.image else None,
+                'image': obj.cover_image.url if obj.cover_image else None,
                 'url': obj.get_absolute_url()
             })
 

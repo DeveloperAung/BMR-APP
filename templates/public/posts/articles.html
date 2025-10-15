@@ -1,0 +1,43 @@
+{% extends 'public/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="page-title mt-5">
+            <div class="row">
+                <div class="col-sm-6 col-12">
+                    <h2>ဆရာတော်ထုတ်ဝေခဲ့သောစာအုပ်များ</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="learning-card border-5">
+                <div class="col-xl-12">
+                    {% for article in articles %}
+                        <div class="card border-primary">
+                            <div class="blog-box blog-list p-2 row">
+                                <div class="col-sm-5"><img class="img-fluid sm-100-w"
+                                                           src="{{ article.cover_image.url }}"
+                                                           alt=""></div>
+                                <div class="col-sm-7">
+                                    <a href="{% url 'article_details' article.id %}">
+                                        <div class="">
+                                            <div class="blog-date"><span>05</span> January 2024</div>
+                                            <h5 class="fw-bold">{{ article.title }} | 15 Hits </h5>
+                                            <div class="blog-bottom-content">
+                                                <hr>
+                                                <p class="mt-0 fw-medium">{{ article.short_description }}</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
