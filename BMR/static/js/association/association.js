@@ -30,11 +30,11 @@ class AssociationApp {
 
     setupEventListeners() {
         document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-action="view-post"]')) {
+            if (e.target.matches('[data-action="view-asso-post"]')) {
                 this.assoicationManager.viewAssoPost(e.target.dataset.postId);
-            } else if (e.target.matches('[data-action="edit-post"]')) {
+            } else if (e.target.matches('[data-action="edit-asso-post"]')) {
                 this.assoicationManager.editAssoPost(e.target.dataset.postId);
-            } else if (e.target.matches('[data-action="delete-post"]')) {
+            } else if (e.target.matches('[data-action="delete-asso-post"]')) {
                 this.assoicationManager.toggleStatus(e.target.dataset.postId, false, 'Are you sure you want to deactivate category ' + e.target.dataset.title + '?');
             }
         });

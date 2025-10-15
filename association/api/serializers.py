@@ -15,10 +15,12 @@ class AssociationSerializer(serializers.ModelSerializer):
 
 
 class AssociationPostSerializer(serializers.ModelSerializer):
+    published_by_email = serializers.CharField(source='published_by.email', read_only=True)
+
     class Meta:
         model = AssociationPosts
         fields = [
-            'id', 'title', 'content', 'is_published', 'published_at', 'published_by',
+            'id', 'title', 'title_others', 'content', 'is_published', 'published_at', 'published_by', 'published_by_email',
             'created_at', 'created_by', 'modified_at', 'modified_by', 'is_active'
         ]
         read_only_fields = ['id', 'created_at', 'created_by', 'modified_at', 'modified_by']

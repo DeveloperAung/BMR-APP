@@ -11,6 +11,26 @@ export class AssociationRepository extends BaseRepository {
         console.log('Initializing DonationCategoryRepository with endpoint:', endpoint);
     }
 
+    async submitPost(postData) {
+        try {
+            return await super.createItem(postData);
+        } catch (error) {
+            ApiErrorHandler.handle(error, this.notificationService);
+            throw error;
+        }
+    }
+
+    async updatePost(postId, postData) {
+
+        try {
+            console.log("Post data ", postData)
+            return await super.updateItem(postId, postData);
+        } catch (error) {
+            ApiErrorHandler.handle(error, this.notificationService);
+            throw error;
+        }
+    }
+
     async getAssoPosts(params = {}) {
         return this.getList(params);
     }

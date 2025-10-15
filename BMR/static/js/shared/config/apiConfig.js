@@ -52,7 +52,7 @@ export const API_ENDPOINTS = {
     },
 
     ASSOCIATION: {
-        POSTS: `${BASE_API_URL}/association/posts`
+        POSTS: `${BASE_API_URL}/association/posts/`
     },
 
     MEMBERSHIP: {

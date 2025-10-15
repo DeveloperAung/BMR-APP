@@ -6,6 +6,11 @@ internal_urls = [
     path('banner/list', views.banner_list, name='banner_list'),
 ]
 
+public_urls = [
+    path('banner/list', views.banner_list, name='banner_list'),
+]
+
 urlpatterns = [
     path('i/',include(internal_urls)),
+    path('',include(public_urls)),
 ]

@@ -32,8 +32,8 @@ export class AssociationManager extends BaseManager {
 
     async createAssoPost(data) {
         try {
-            this.notificationService?.showLoading?.('Creating category...');
-            const response = await this.repository.submitCategory(data);
+            this.notificationService?.showLoading?.('Creating post...');
+            const response = await this.repository.submitPost(data);
             this.notificationService?.hideLoading?.();
             return response;
         } catch (error) {
@@ -45,7 +45,7 @@ export class AssociationManager extends BaseManager {
     async updateAssoPost(id, data) {
         try {
             this.notificationService?.showLoading?.('Updating post...');
-            const response = await this.repository.updateCategory(id, data);
+            const response = await this.repository.updatePost(id, data);
             this.notificationService?.hideLoading?.();
             return response;
         } catch (error) {
@@ -57,12 +57,12 @@ export class AssociationManager extends BaseManager {
     // Category-specific methods
     async viewAssoPost(id) {
         console.log(`Viewing category ${id}`);
-        window.location.href = `/associations/i/posts/${id}/`;
+        window.location.href = `/association/i/asso_post/${id}/`;
     }
 
     async editAssoPost(id) {
         console.log(`Editing category ${id}`);
-        window.location.href = `/associations/i/posts/${id}/edit/`;
+        window.location.href = `/association/i/asso_post/${id}/edit/`;
     }
 
 }

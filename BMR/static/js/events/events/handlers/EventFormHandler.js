@@ -86,7 +86,7 @@ export class EventFormHandler {
         bannerOrderInput.classList.toggle('bg-light', !enabled);
         if (!enabled) bannerOrderInput.value = 0; // optional: reset when off
       }
-      
+
       // --- Initialize states on page load ---
       toggleRegistrationFields();
       toggleBannerFields();
