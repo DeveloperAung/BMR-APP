@@ -8,7 +8,12 @@ internal_urls = [
     path('asso_post/<int:pk>/edit/', views.AssoPostEditView.as_view(), name='association_post_edit'),
 ]
 
+public_urls = [
+    path('post/<str:title_others>/', views.association_post_details, name='association_post_details'),
+]
+
 urlpatterns = [
     path('i/', include(internal_urls)),
+    path('', include(public_urls)),
 ]
 

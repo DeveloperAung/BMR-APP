@@ -7,18 +7,28 @@
 <body>
 
 <nav class="navbar navbar-light p-0" id="navbar-example2">
-    <a class="navbar-brand" href="javascript:void(0)">
+    <a class="navbar-brand" href="{% url 'home' %}">
         <img class="img-fluid" src="{% static 'BMR_logo.png' %}" alt="" style="max-width: 70px;">
     </a>
     <ul class="landing-menu nav nav-pills">
-        <li class="nav-item menu-back">back<i class="fa-solid fa-angle-right"></i></li>
-        <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#layout">About Team</a></li>
-        <li class="nav-item"><a class="nav-link" href="#applications">Dhamma Courses</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'article_list' %}">Articles</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'book_list' %}">Books</a></li>
-        <li class="nav-item"><a class="nav-link" href="#core-feature">Activities</a></li>
-        <li class="nav-item"><a class="nav-link" href="">Contact Us</a></li>
+        <li class="nav-item mx-2"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+
+        <li class="nav-item dropdown mx-2">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            About Us
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><a class="dropdown-item" href="{% url 'association_post_details' 'about_us' %}">About Us</a></li>
+            <li><a class="dropdown-item" href="{% url 'association_post_details' 'objectives' %}">Objectives</a></li>
+            <li><a class="dropdown-item" href="{% url 'association_post_details' 'biography' %}">Biography</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item mx-2"><a class="nav-link" href="#applications">Dhamma Courses</a></li>
+        <li class="nav-item mx-2"><a class="nav-link" href="{% url 'article_list' %}">Articles</a></li>
+        <li class="nav-item mx-2"><a class="nav-link" href="{% url 'book_list' %}">Books</a></li>
+        <li class="nav-item mx-2"><a class="nav-link" href="#core-feature">Activities</a></li>
+        <li class="nav-item mx-2"><a class="nav-link" href="">Contact Us</a></li>
     </ul>
 
     <div class="buy-block">

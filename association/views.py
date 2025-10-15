@@ -1,9 +1,16 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+
+from posts.models import Post
 from .models import *
 
 def association_post_list(request):
     return render(request, 'private/association_posts/list.html')
+
+
+def association_post_details(request, title_others):
+    post = get_object_or_404(AssociationPosts, title_others=title_others)
+    return render(request, 'public/association/post-details.html', {'post': post})
 
 
 class AssoPostCreateView(View):
