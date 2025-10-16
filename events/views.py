@@ -148,6 +148,9 @@ def EventMediaList(request):
 def EventMediaInfoDetails(request):
     return render(request, 'private/events/event_media_info/details.html')
 
+def event_medias(request):
+    events = Event.objects.filter(is_active=True).order_by('title')
+    return render(request, 'public/events/details.html', {'events': events})
 
 class EventMediaCreate(View):
     template_name = 'private/events/event_media/create.html'

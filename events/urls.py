@@ -23,7 +23,12 @@ internal_urls = [
     path('media/create/', views.EventMediaCreate.as_view(), name='event_media_create'),
 ]
 
+public_urls = [
+    path('dhamma_class/', views.event_medias, name='event_medias'),
+]
+
 urlpatterns = [
     path('i/', include(internal_urls)),
+    path('', include(public_urls)),
 ]
 

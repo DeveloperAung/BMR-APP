@@ -1,0 +1,65 @@
+{% extends 'public/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div class="card border-primary bookmark-card">
+                <div class="card-header bg-primary py-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="mb-0">
+                                ဓမ္မသင်တန်းဖိုင်များ
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="eventMediaForm" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="event" class="form-label">Select Event <span class="text-danger">*</span></label>
+                                <select id="event" name="event" class="form-select" required>
+                                    <option value="">-- Select Event --</option>
+
+                                </select>
+                                <div class="invalid-feedback">Please select an event.</div>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="sub_category" class="form-label">Select Subcategory <span class="text-danger">*</span></label>
+                                <select id="sub_category" name="sub_category" class="form-select" required>
+                                    <option value="">-- Select an Event First --</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a subcategory.</div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="accordion dark-accordion" id="simpleaccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button accordion-light-primary text-primary active"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                        aria-expanded="true" aria-controls="collapseOne">
+                                    <i class="iconly-Arrow-Down-2 icli ms-auto icon"></i></button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseOne"
+                                 aria-labelledby="headingOne" data-bs-parent="#simpleaccordion" style="">
+                                <div class="accordion-body">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module">
+    import { initEventSubCategoryHandler } from '{% static "js/events/event_media/details.js" %}';
+    document.addEventListener('DOMContentLoaded', () => initEventSubCategoryHandler());
+</script>
+{% endblock %}

@@ -35,7 +35,6 @@ export class PostTableRenderer extends BaseTableRenderer {
     }
 
     renderPostRow(post, serialNumber) {
-        console.log("Posts data", post)
         return `
             <tr class="category-row" data-post-id="${post.id}">
                 <td class="text-center serial-number">

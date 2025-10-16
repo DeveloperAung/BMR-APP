@@ -4,14 +4,26 @@ import { escapeHtml, formatDate } from '../../shared/utils/domUtils.js';
 export class UserTableRenderer extends BaseTableRenderer {
     constructor() {
         super('usersTableBody');
+        this.currentPage = 1;
+        this.perPage = 10; // Default items per page
     }
 
-    render(users) {
+    setPagination(page, perPage) {
+        this.currentPage = page || 1;
+        this.perPage = perPage || 10;
+    }
+
+    render(users, currentPage = 1, perPage = 10) {
+        this.setPagination(currentPage, perPage);
+
         if (!users || users.length === 0) {
-            this.renderEmpty('No Users Found', '👥');
+            this.renderEmpty('No Users Found', '📂');
             return;
         }
-        this.tbody.innerHTML = users.map(user => this.renderUserRow(user)).join('');
+        const startIndex = (this.currentPage - 1) * this.perPage;
+        this.tbody.innerHTML = users
+            .map((user, index) => this.renderUserRow(user, startIndex + index + 1))
+            .join('');
     }
 
     renderUserRow(user) {
