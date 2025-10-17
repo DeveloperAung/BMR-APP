@@ -1,7 +1,7 @@
 {% load static %}
 <div class="col-xl-3 col-md-4 box-col-4">
     <div class="file-sidebar">
-        <div class="card">
+        <div class="card border-primary">
             <div class="card-body">
                 <!-- User Profile Section -->
                 <div class="user-profile-section">
@@ -29,26 +29,26 @@
                 <div class="">
                     <div class="list-group" id="list-tab" role="tablist">
                         <a class="list-group-item list-group-item-action bg-primary" id="list-home-list"
-                           href="{% url 'dashboard' %}" aria-controls="list-home"
-                           aria-selected="false" tabindex="-1">Dashboard
+                           aria-controls="list-home"
+                           aria-selected="false" tabindex="-1">Menu
                         </a>
                         <a class="list-group-item list-group-item-action  list-hover-primary" id="list-home-profile"
                            href="#list-home" aria-controls="list-home"
                            aria-selected="false" tabindex="-1">Profile
                         </a>
                         <a
-                            class="list-group-item list-group-item-action list-hover-primary"
-                            id="list-profile-list" href="#list-profile"
+                            class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path %}active{% endif %}"
+                            id="list-profile-list" href="{% url 'member_reg_step_1' %}"
                             aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership
                         </a>
                         <a
-                            class="list-group-item list-group-item-action list-hover-primary"
-                            id="list-messages-list" href="#list-messages"
-                            aria-controls="list-messages" aria-selected="false" tabindex="-1">Donation
+                            class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}"
+                            id="list-settings-list" href="{% url 'member_donation' %}"
+                            aria-controls="list-settings" aria-selected="true">Donation
                         </a>
                         <a
-                            class="list-group-item list-group-item-action list-hover-primary active"
-                            id="list-settings-list" href="#list-settings"
+                            class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}"
+                            id="list-settings-list" href="{% url 'member_event' %}"
                             aria-controls="list-settings" aria-selected="true">Event
                         </a>
                     </div>

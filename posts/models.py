@@ -46,7 +46,7 @@ class Post(AuditModel):
     banner_order = models.PositiveIntegerField(default=0)
 
     def get_absolute_url(self):
-        return reverse('news_detail', args=[str(self.id)])
+        return reverse('article_details', args=[str(self.id)])
 
     def __str__(self):
         return self.title

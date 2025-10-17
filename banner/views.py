@@ -33,7 +33,7 @@ def banner_list(request):
 
 def landing_page_view(request):
     slideshow_items = get_menu_items()
-    print('slideshow_items', slideshow_items)
+
     return render(request, 'public/home.html', {'slideshow_items': slideshow_items})
 
 

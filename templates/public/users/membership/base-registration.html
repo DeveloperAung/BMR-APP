@@ -29,13 +29,11 @@
             <div class="file-content">
                 <!-- Overview Tab -->
                 <div class="tab-content active" id="overview-content">
-                    <div class="card">
-                        <div class="card-header text-center">
+                    <div class="card border-primary">
+                        <div class="card-header basic-wizard text-center bg-primary">
                             <h3>Membership Registration</h3>
-                        </div>
-                        <div class="card-body basic-wizard">
-                            <div class="stepper-horizontal" id="stepper1">
-                                <div class="stepper-one stepper step {% if 'step-1' in request.path %}editing active{% endif %}">
+                            <div class="stepper-horizontal mt-4 mb-0" id="stepper1">
+                                <div class="stepper-one stepper step {% if 'step-1' in request.path %}editing{% endif %}">
                                     <div class="step-circle"><span>1</span></div>
                                     <div class="step-title">Profile & Contact</div>
                                     <div class="step-bar-left"></div>
@@ -60,6 +58,8 @@
                                     <div class="step-bar-right"></div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="card-body">
                             {% block steps %}
                             {% endblock %}
                         </div>

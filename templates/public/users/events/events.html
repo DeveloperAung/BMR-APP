@@ -1,0 +1,86 @@
+{% extends 'public/base.html' %}
+{% load static %}
+{% block content %}
+<!-- Membership Registration Wizard -->
+  <div class="container-fluid">
+    <div class="page-title mt-3">
+      <div class="row">
+        <div class="col-sm-6 col-12">
+          <h2>Dashboard</h2>
+        </div>
+        <div class="col-sm-6 col-12">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="iconly-Home icli svg-color"></i></a></li>
+            <li class="breadcrumb-item">Profile</li>
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Container-fluid starts-->
+  <div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'public/users/partials/_sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="col-xl-9 col-md-8 box-col-8">
+                <div class="card border-primary" style="min-height: 700px">
+                  <div class="card-header card-no-border bg-primary">
+                    <h3>Events </h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class="nav nav-tabs border-tab mb-0" id="bottom-tab" role="tablist">
+                      <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info active" id="bottom-inbox-tab" data-bs-toggle="tab" href="#bottom-inbox" role="tab" aria-controls="bottom-inbox" aria-selected="true"><i class="fa-solid fa-inbox">  </i>Upcoming</a></li>
+                      <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-contact-tab" data-bs-toggle="tab" href="#bottom-contact" role="tab" aria-controls="bottom-contact" aria-selected="false" tabindex="-1"><i class="fa-solid fa-phone"></i>Joined</a></li>
+                    </ul>
+                    <div class="tab-content" id="bottom-tabContent">
+                      <div class="tab-pane fade show active" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
+                        <div class="card-body pb-0">
+                          <div class="main-inbox">
+                            <div class="header-inbox">
+                              <div class="header-left-inbox">
+                                <div class="inbox-img"><img src="../assets/images/user/6.jpg" alt="profile"></div>
+                                <div class="inbox-content">
+                                  <h6>Dalbult Caslin</h6>
+                                  <p class="text-muted">stroman.rogers@gmail.com</p>
+                                </div>
+                              </div>
+                              <ul class="header-right-inbox">
+                                <li>
+                                  <p>8 JAN 11:30PM</p>
+                                </li>
+                                <li class="text-danger"><i class="iconly-Delete icli"></i></li>
+                              </ul>
+                            </div>
+                            <div class="body-inbox mt-2">
+                              <div class="body-h-wrapper"><i class="iconly-Star icbo"></i><em>Compare Prices Find the Best Computer Assessors Fronted Issue.</em></div>
+                              <p class="pt-2">Site speed and design are two of the most important ranking factors Google takes into consideration, as they have the biggest effect of customer staying on site as the website respond faster.                                          </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="bottom-contact" role="tabpanel" aria-labelledby="bottom-contact-tab">
+                        <div class="card-body px-0 pb-0">
+                          <div class="form">
+                            <div class="mb-3">
+                              <label class="form-label" for="exampleFormControltwo">Email address</label>
+                              <input class="form-control" id="exampleFormControltwo" type="email" placeholder="youremail@gmail.com">
+                            </div>
+                            <div class="mb-0">
+                              <label class="form-label" for="exampleFormControlTextarea1">Example textarea</label>
+                              <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        </div>
+    </div>
+  </div>
+{% endblock %}
+
+

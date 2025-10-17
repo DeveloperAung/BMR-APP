@@ -19,11 +19,11 @@
                         <div class="row" id="bookmarkData">
                             {% for book in books %}
                                 <div class="col-xxl-3 col-md-4 col-ed-4 col-sm-6">
-                                    <div class="card card-with-border bookmark-card overflow-hidden">
+                                    <div class="card card-with-border border-primary pt-2 bookmark-card overflow-hidden">
                                         <div class="details-website">
-                                            <img class="img-fluid" style="height: 400px;" src="{{ book.cover_image.url }}" alt="">
+                                            <img class="img-fluid mb-2" style="height: 400px;" src="{{ book.cover_image.url }}" alt="">
 
-                                            <div class="desciption-data bg-primary">
+                                            <div class="description-data bg-primary">
                                                 <div class="title-bookmark">
                                                     <h3 class="p-2">{{ book.title }}</h3>
                                                 </div>

@@ -88,7 +88,7 @@ class Event(AuditModel):
         return self.title.encode("utf-8", "ignore").decode("utf-8")
 
     def get_absolute_url(self):
-        return reverse('news_detail', args=[str(self.id)])
+        return reverse('article_details', args=[str(self.id)])
 
 
 # class EventDate(AuditModel):

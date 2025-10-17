@@ -76,4 +76,9 @@ def member_reg_step_3(request):
     return render(request, 'public/users/membership/submit-page3.html', ctx)
 
 
+def member_event(request):
+    return render(request, 'public/users/events/events.html')
 
+
+def member_donation(request):
+    return render(request, 'public/users/events/donations.html')

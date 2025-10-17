@@ -55,11 +55,12 @@ export const initMembershipPage2 = async () => {
                     sessionStorage.setItem('membership_qr_currency', currency);
 
                     // Redirect to Page3
-                    window.location.href = '/membership/page3/';
+                    window.location.href = '/memberships/registration/step-3/';
                 }
                 else
                 {
                     notificationService.showError('Payment QR Code error. Please try again!');
+                    window.location.href = '/memberships/registration/step-3/';
                 }
             } catch (err) {
                 console.error('Submit page 2 failed:', err);
