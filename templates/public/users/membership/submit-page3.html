@@ -1,20 +1,134 @@
 {% extends 'public/users/membership/base-registration.html' %}
 {% block steps %}
-    <form id="membership-page3" enctype="multipart/form-data">
-        {% csrf_token %}
+<form id="membership-page3" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        <div class="wizard-step" id="step-2">
-            <div class="d-none mt-4 text-center" id="registration-success">
-                <img src="/static/assets/images/gif/success/successful.gif" alt="Success" style="max-width:120px;">
-                <h4 class="mt-3">Registration Successful!</h4>
-                <p>Your reference number: <span id="success-reference-no"></span></p>
-                <a href="/" class="btn btn-primary mt-2">Go to Home</a>
+    <div class="wizard-step" id="step-2">
+
+        <!-- Payment Method Section -->
+        <div class="mt-4">
+            <h5 class="fw-bold mb-3">Select Payment Method</h5>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="payment_method" id="paynow" value="paynow" checked>
+                <label class="form-check-label" for="paynow">PayNow</label>
+            </div>
+            <div id="paynow-section" class="ms-4 mb-3 text-center">
+                <img id="dynamic-qr"
+                     src="/static/assets/images/qr/paynow_qr.png"
+                     alt="PayNow QR Code"
+                     class="img-fluid border rounded p-2"
+                     style="max-width:200px;">
+                <p id="qr-info" class="small mt-2 text-muted">
+                    Scan this QR code to make your payment via PayNow.
+                </p>
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
-                <a href="{% url 'member_reg_step_2' %}" type="button" class="btn btn-secondary" id="step2-prev">Previous</a>
-                <button type="button" class="btn btn-primary" id="step2-next">Continue</button>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="payment_method" id="cash" value="cash">
+                <label class="form-check-label" for="cash">Cash</label>
+            </div>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="bank_transfer">
+                <label class="form-check-label" for="bank_transfer">Bank Transfer</label>
+            </div>
+
+            <!-- Upload Screenshot Section -->
+            <div id="upload-section" class="d-none ms-4 mb-3">
+                <label for="payment_screenshot" class="form-label fw-semibold">Upload Payment Screenshot</label>
+                <input type="file" class="form-control" id="payment_screenshot" name="payment_screenshot"
+                       accept="image/*">
+                <p class="small text-muted mt-1">Accepted formats: JPG, PNG (Max 5MB)</p>
             </div>
         </div>
-    </form>
+
+        <!-- Success Message -->
+        <div class="d-none mt-4 text-center" id="registration-success">
+            <img src="/static/assets/images/gif/success/successful.gif" alt="Success" style="max-width:120px;">
+            <h4 class="mt-3">Registration Successful!</h4>
+            <p>Your reference number: <span id="success-reference-no"></span></p>
+            <a href="/" class="btn btn-primary mt-2">Go to Home</a>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'member_reg_step_2' %}" type="button" class="btn btn-secondary" id="step2-prev">Previous</a>
+            <button type="button" class="btn btn-primary" id="step2-next">Continue</button>
+        </div>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const paynowRadio = document.getElementById('paynow');
+    const cashRadio = document.getElementById('cash');
+    const bankRadio = document.getElementById('bank_transfer');
+    const paynowSection = document.getElementById('paynow-section');
+    const uploadSection = document.getElementById('upload-section');
+
+    function toggleSections() {
+        if (paynowRadio.checked) {
+            paynowSection.classList.remove('d-none');
+            uploadSection.classList.add('d-none');
+        } else if (cashRadio.checked || bankRadio.checked) {
+            paynowSection.classList.add('d-none');
+            uploadSection.classList.remove('d-none');
+        }
+    }
+
+    [paynowRadio, cashRadio, bankRadio].forEach(radio =>
+        radio.addEventListener('change', toggleSections)
+    );
+
+    toggleSections(); // initialize on page load
+});
+</script>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // handle the PayNow / Cash / Bank toggle
+  const paynowRadio = document.getElementById('paynow');
+  const cashRadio   = document.getElementById('cash');
+  const bankRadio   = document.getElementById('bank_transfer');
+  const paynowSection = document.getElementById('paynow-section');
+  const uploadSection = document.getElementById('upload-section');
+
+  function toggleSections() {
+    if (paynowRadio.checked) {
+      paynowSection.classList.remove('d-none');
+      uploadSection.classList.add('d-none');
+    } else {
+      paynowSection.classList.add('d-none');
+      uploadSection.classList.remove('d-none');
+    }
+  }
+  [paynowRadio, cashRadio, bankRadio].forEach(r => r.addEventListener('change', toggleSections));
+  toggleSections();
+
+  // --- load QR data from sessionStorage ---
+  const qrUrl    = sessionStorage.getItem('membership_qr_code');
+  const amount   = sessionStorage.getItem('membership_qr_amount');
+  const currency = sessionStorage.getItem('membership_qr_currency');
+
+  const qrImg  = document.getElementById('dynamic-qr');
+  const qrInfo = document.getElementById('qr-info');
+
+  console.log('Loaded QR URL:', qrUrl);
+
+  if (qrUrl && qrImg) {
+    qrImg.src = qrUrl;                     // replace the static image
+    qrImg.alt = 'PayNow QR Code';
+    if (qrInfo) {
+      qrInfo.innerHTML = `Scan to pay <strong>${amount} ${currency}</strong> via PayNow.`;
+    }
+  } else {
+    // fallback if no QR in storage
+    qrImg.src = '/static/assets/images/qr/paynow_qr.png';
+    if (qrInfo) {
+      qrInfo.innerHTML =
+        '<span class="text-danger">Payment QR not found – please go back to Step 2 to regenerate.</span>';
+    }
+  }
+});
+</script>
 {% endblock %}

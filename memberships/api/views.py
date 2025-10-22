@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, mixins
@@ -30,6 +31,7 @@ from .serializers import (
     MembershipWorkflowDecisionSerializer,
 )
 from authentication.utils.permissions import IsManagementUser
+from ..services.payments import HitPayClient
 
 LOOKUP_PERMISSION = AllowAny
 
@@ -216,7 +218,12 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         membership = serializer.save()
 
         # Get the generated payment with QR
-        payment = serializer.context.get('payment')
+        payment_serializer = CreateOnlinePaymentSerializer(
+            data={},  # empty data — defaults are handled inside
+            context={'membership': membership}
+        )
+        payment_serializer.is_valid(raise_exception=True)
+        payment = payment_serializer.save()
 
         response_data = {
             "membership": MembershipReadSerializer(membership, context={'request': request}).data,
@@ -432,7 +439,7 @@ class ManagementMembershipViewSet(viewsets.GenericViewSet):
         ],
         summary="Approve / Reject / Revise Membership",
         description=(
-            "Management users may **approve**, **reject**, or **revise** a membership "
+            "Management users may **approve (8) **, **terminated (7) **, **reject (6)**, or **revise (5)** a membership "
             "by updating its `workflow_status` and `reason`.\n\n"
             "- Provide either `action` (approve/reject/revise), OR explicit `status_id` / `status_code`.\n"
             "- `comment` is stored into the `reason` field."

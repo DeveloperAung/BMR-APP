@@ -45,11 +45,11 @@ export const initMembershipPage2 = async () => {
                 const response = await manager.submitPage2(payload);
                 console.log("Return response", response)
                 const qrUrl = response?.qr_code_url;
+                console.log("QRUrl", qrUrl)
                 const amount = response?.payment_amount;
                 const currency = response?.payment_currency;
 
                 if (qrUrl) {
-                    // Save for page3
                     sessionStorage.setItem('membership_qr_code', qrUrl);
                     sessionStorage.setItem('membership_qr_amount', amount);
                     sessionStorage.setItem('membership_qr_currency', currency);

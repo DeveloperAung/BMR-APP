@@ -11,4 +11,7 @@ admin.site.register(ContactInfo)
 admin.site.register(EducationInfo)
 admin.site.register(WorkInfo)
 admin.site.register(WorkflowLog)
+admin.site.register(MembershipPayment)
+admin.site.register(PaymentLog)
+
 

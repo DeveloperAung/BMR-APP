@@ -1,31 +1,82 @@
 import requests
 from django.conf import settings
 
-class PaymentCreateError(Exception): ...
-class PaymentVerifyError(Exception): ...
+class HitPayClient:
+    def __init__(self):
+        self.api_key = settings.HITPAY_API_KEY
+        self.base_url = settings.HITPAY_API_URL
+        self.headers = {
+            "X-BUSINESS-API-KEY": self.api_key,
+            "Content-Type": "application/json",
+        }
 
-def create_hitpay_payment(amount: str, currency: str = "SGD", webhook_url: str | None = None) -> dict:
-    url = getattr(settings, "HITPAY_CREATE_PAYMENT_URL", "https://api.sandbox.hit-pay.com/v1/payment-requests")
-    api_key = getattr(settings, "HITPAY_API_KEY", "")
-    if not api_key:
-        raise PaymentCreateError("HITPAY_API_KEY not configured")
-
-    headers = {
-        "X-BUSINESS-API-KEY": api_key,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-Requested-With": "XMLHttpRequest",
-    }
-    payload = {
-        "amount": str(amount),
-        "currency": (currency or "SGD").upper(),
-        "payment_methods[]": "paynow_online",
-        "generate_qr": "true",
-        "webhook": webhook_url or getattr(settings, "HITPAY_WEBHOOK_URL", "https://example.com/webhook/"),
-    }
-
-    resp = requests.post(url, data=payload, headers=headers, timeout=30)
-    try:
+    def create_charge(self, amount, currency="sgd", **kwargs):
+        url = f"{self.base_url}/charges"
+        data = {
+            "amount": amount,
+            "currency": currency,
+            # include other required fields per the docs...
+            **kwargs
+        }
+        resp = requests.post(url, json=data, headers=self.headers)
         resp.raise_for_status()
-    except requests.HTTPError as e:
-        raise PaymentCreateError(f"HTTP {resp.status_code}: {resp.text}") from e
-    return resp.json()
+        return resp.json()
+
+    def get_webhook_event(self, event_id):
+        url = f"{self.base_url}/webhook-events/{event_id}"
+        resp = requests.get(url, headers=self.headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    def create_payment_request(self,
+                               amount,
+                               currency,
+                               payment_methods,
+                               generate_qr=True,
+                               name=None,
+                               email=None,
+                               phone=None,
+                               purpose=None,
+                               reference_number=None,
+                               redirect_url=None,
+                               webhook_url=None,
+                               allow_repeated_payments=False,
+                               expiry_date=None):
+        """
+        Create a payment request with HitPay.
+        """
+
+        url = f"{self.base_url}/payment-requests"
+
+        body = {
+            "amount": amount,
+            "currency": currency,
+            "payment_methods": payment_methods,
+            "generate_qr": "true",
+        }
+        print("body", body)
+        if generate_qr:
+            body["generate_qr"] = True
+        if name:
+            body["name"] = name
+        if email:
+            body["email"] = email
+        if phone:
+            body["phone"] = phone
+        if purpose:
+            body["purpose"] = purpose
+        if reference_number:
+            body["reference_number"] = reference_number
+        if redirect_url:
+            body["redirect_url"] = redirect_url
+        if webhook_url:
+            body["webhook"] = webhook_url
+        if allow_repeated_payments:
+            body["allow_repeated_payments"] = True
+        if expiry_date:
+            body["expiry_date"] = expiry_date
+
+        resp = requests.post(url, json=body, headers=self.headers)
+        resp.raise_for_status()
+
+        return resp.json()

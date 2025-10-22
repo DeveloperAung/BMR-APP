@@ -9,7 +9,9 @@ from memberships.models import (
     Status, EducationLevel, Institution, MembershipType,
     PersonalInfo, ContactInfo, WorkInfo, EducationInfo, Membership, MembershipPayment
 )
-from memberships.services.payments import create_hitpay_payment, PaymentCreateError
+from memberships.services.payments import HitPayClient
+
+# from memberships.services.payments import create_hitpay_payment, PaymentCreateError
 
 User = get_user_model()
 
@@ -395,6 +397,8 @@ class MembershipPage2Serializer(serializers.Serializer):
 # Keep only the ones we still use for updates if needed
 
 class PaymentReadSerializer(serializers.ModelSerializer):
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=True)
+
     class Meta:
         model = MembershipPayment
         fields = ("uuid", "method", "provider", "status", "external_id", "reference_no",
@@ -428,47 +432,45 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
         description = self.validated_data["description"]
         period_year = self.validated_data["period_year"]
 
-        try:
-            # Get webhook URL from settings
-            from django.conf import settings
-            webhook_url = getattr(settings, 'HITPAY_WEBHOOK_URL', None)
+        from django.conf import settings
+        webhook_url = getattr(settings, 'HITPAY_WEBHOOK_URL', None)
+        client = HitPayClient()
 
-            # Validate webhook URL
-            if not webhook_url or 'localhost' in webhook_url:
-                if getattr(settings, 'DEBUG', False):
-                    # In development, create payment without HitPay for now
-                    payment = MembershipPayment.objects.create(
-                        membership=membership,
-                        method="hitpay",
-                        provider="hitpay",
-                        status="created",
-                        external_id=f"dev-{membership.reference_no}",
-                        description=description,
-                        amount=amount,
-                        currency=currency.upper(),
-                        period_year=period_year,
-                        qr_code="DEV_MODE_QR_CODE",  # Placeholder for development
-                        raw_response={"dev_mode": True, "message": "Development mode - no actual payment required"},
-                    )
-                    return payment
-                else:
-                    raise serializers.ValidationError("Invalid webhook URL configured for production")
-
-            # Create actual HitPay payment
-            data = create_hitpay_payment(str(amount), currency, webhook_url)
-        except PaymentCreateError as e:
-            error_msg = str(e)
-            if 'localhost not work' in error_msg:
-                raise serializers.ValidationError(
-                    "HitPay webhook URL cannot be localhost. Please use ngrok (https://ngrok.com) to expose your local server. "
-                    "Run 'ngrok http 8000' and update HITPAY_WEBHOOK_URL in your .env file with the ngrok HTTPS URL."
+        # Development mode
+        if not webhook_url or 'localhost' in webhook_url:
+            if getattr(settings, 'DEBUG', False):
+                return MembershipPayment.objects.create(
+                    membership=membership,
+                    method="hitpay",
+                    provider="hitpay",
+                    status="created",
+                    external_id=f"dev-{membership.reference_no}",
+                    description=description,
+                    amount=amount,
+                    currency=currency.upper(),
+                    period_year=period_year,
+                    qr_code="/static/assets/images/qr/sample_paynow.png",
+                    raw_response={"dev_mode": True}
                 )
-            raise serializers.ValidationError(f"Payment creation failed: {error_msg}")
+            raise serializers.ValidationError("Invalid webhook URL configured for production")
+
+        # Create real payment
+        try:
+            data = client.create_payment_request(
+                amount=str(amount),
+                currency=currency,
+                payment_methods=["paynow_online"],
+                generate_qr=True,
+                reference_number=f"membership_{membership.id}",
+                webhook_url=webhook_url
+            )
+        except Exception as e:
+            raise serializers.ValidationError(f"Payment creation failed: {str(e)}")
 
         external_id = data.get("id")
-        qr_code = (data.get("qr_code_data") or {}).get("qr_code")
+        qr_code = data.get("qr_code") or (data.get("qr_code_data") or {}).get("qr_code")
 
-        payment = MembershipPayment.objects.create(
+        return MembershipPayment.objects.create(
             membership=membership,
             method="hitpay",
             provider="hitpay",
@@ -479,9 +481,8 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
             currency=currency.upper(),
             period_year=period_year,
             qr_code=qr_code,
-            raw_response=data,
+            raw_response=data
         )
-        return payment
 
 
 class CreateOfflinePaymentSerializer(serializers.Serializer):

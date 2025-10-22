@@ -3,16 +3,26 @@
 
 {% block title %}Users Management{% endblock %}
 
-{% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/users/dashboard.css' %}">
-{% endblock %}
-
 {% block content %}
     {% include 'private/users/partials/page-header.html' %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-list-alt me-2"></i>Users
+                                </h3>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a class="btn btn-primary" href="{% url 'user_create' %}">
+                                    <i class="fas fa-plus me-1"></i> Create New
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body table-responsive">
                         {% include 'private/users/partials/filters.html' %}
                         {% include 'private/users/partials/users-table.html' %}
