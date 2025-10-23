@@ -10,31 +10,22 @@
 
     </div>
   </div>
-{{ slideshow_items }}
   <div class="card border-primary">
       <div class="row p-4 mt-3">
-        <div class="col-12 col-md-7 col-lg-8">
+        <div class="col-12 col-md-7 col-lg-8 border-light">
           <div id="sportVideoCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
             <div class="carousel-inner">
-
-              <div class="carousel-item active">
-                <div class="single-feature-post video-post bg-img" style="background-image:url('https://bmr.sg/storage/images/17398381600_1742619274.png');height:400px; background-size:cover;">
-                  <div class="post-content p-4 text-white">
-                    <a href="#" class="post-cata text-white">အပတ်စဉ်လှုပ်ရှားမှုများ</a>
-                    <a href="" class="post-title h5 d-block mt-2 text-white">2025 Annual General Meeting Invitation</a>
+              {% for item in slideshow_items %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <div class="single-feature-post video-post bg-img"
+                       style="background-image:url('{{ item.image }}');height:400px; background-size:cover;">
+                    <div class="post-content p-4">
+                      <a href="{{ item.url }}" class="post-cata text-primary bg-white">{{ item.model_name }}</a>
+                      <a href="{{ item.url }}" class="post-title h5 d-block mt-2 text-primary bg-white">{{ item.title }}</a>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div class="carousel-item">
-                <div class="single-feature-post video-post bg-img" style="background-image:url('https://bmr.sg/storage/images/17398381600_1742619274.png');height:400px; background-size:cover;">
-                  <div class="post-content p-4 text-white">
-                    <a href="#" class="post-cata text-white">အပတ်စဉ်လှုပ်ရှားမှုများ</a>
-                    <a href="" class="post-title h5 d-block mt-2 text-white">Another Event Title</a>
-                  </div>
-                </div>
-              </div>
-
+              {% endfor %}
             </div>
 
             <button class="carousel-control-prev" type="button" data-bs-target="#sportVideoCarousel" data-bs-slide="prev">
@@ -47,26 +38,35 @@
             </button>
 
             <div class="carousel-indicators">
-              <button type="button" data-bs-target="#sportVideoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-              <button type="button" data-bs-target="#sportVideoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              {% for item in slideshow_items %}
+                <button type="button"
+                        data-bs-target="#sportVideoCarousel"
+                        data-bs-slide-to="{{ forloop.counter0 }}"
+                        class="{% if forloop.first %}active{% endif %}"
+                        aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                        aria-label="Slide {{ forloop.counter }}">
+                </button>
+              {% endfor %}
             </div>
           </div>
         </div>
 
-        <div class="col-12 col-md-5 col-lg-4 ps-3">
-          <ul class="nav flex-column" role="tablist">
+        <div class="col-12 col-md-5 col-lg-4 ps-3" style="background-color:#4d5051">
+          <ul class="nav flex-column mt-2" role="tablist">
+            {% for item in slideshow_items %}
             <li class="nav-item mb-2">
-              <a class="nav-link p-0" href="https://bmr.sg/events/bebfe242-65ec-4a97-b9e7-0677bf73018f">
+              <a class="nav-link p-0" href="{{ item.url }}">
                 <div class="single-blog-post style-2 d-flex align-items-center">
                   <div class="post-thumbnail me-2">
-                    <img src="https://bmr.sg/storage/images/viber_image_2024-12-28_18-39-18-464_1735382464.png" alt="" style="height:70px;">
+                    <img src="{{ item.image }}" alt="" style="height:70px; width:70px">
                   </div>
                   <div class="post-content">
-                    <h6 class="post-title mb-0">ပါရာယနဒေသနာ 2024 Revision</h6>
+                    <h6 class="post-title mb-0 text-white fw-500">{{ item.title }}</h6>
                   </div>
                 </div>
               </a>
             </li>
+            {% endfor %}
             <!-- Repeat li.nav-item for other posts -->
           </ul>
         </div>

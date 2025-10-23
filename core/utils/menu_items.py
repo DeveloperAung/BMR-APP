@@ -7,7 +7,7 @@ def get_menu_items():
 
     for model_class in model_classes:
         model_name = model_class.__name__
-        objects = model_class.objects.filter(set_banner=True)
+        objects = model_class.objects.filter(set_banner=True, is_active=True)
 
         for obj in objects:
             menu_items.append({

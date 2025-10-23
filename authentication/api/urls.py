@@ -1,8 +1,15 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from authentication.api import views
+from authentication.api.views import GroupViewSet, RolePermissionViewSet, AssignUserToGroupView, UserPermissionsView
+
+router = DefaultRouter()
+router.register('groups', GroupViewSet)
+router.register('permissions', RolePermissionViewSet)
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
@@ -17,4 +24,7 @@ urlpatterns = [
     path('users/<int:user_id>/', views.user_detail, name='user_detail'),
     path('users/<int:user_id>/update/', views.update_user, name='update_user'),
     path('users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
+
+    path('api/users/assign-group/', AssignUserToGroupView.as_view(), name='assign-user-group'),
+    path('api/users/<int:user_id>/permissions/', UserPermissionsView.as_view()),
 ]

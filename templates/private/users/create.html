@@ -1,0 +1,140 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} User{% endblock %}
+
+{% block content %}
+{% include 'private/users/partials/page-header.html' %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                        {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} User
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="result"></div>
+                    <!-- Category Form -->
+                    <form id="categoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
+
+                        {% csrf_token %}
+
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-bold">
+                                username <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                id="username"
+                                name="username"
+                                placeholder="Enter username"
+                                required
+                                {% if mode == 'edit' and category %}
+                                    value="{{ category.title }}"
+                                {% endif %}
+                            >
+                            <div class="invalid-feedback">
+                                Please provide username.
+                            </div>
+                            <div class="form-text">
+                                A descriptive name for the post category.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-bold">
+                                email<span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                id="email"
+                                name="email"
+                                placeholder="Enter email"
+                                required
+                                {% if mode == 'edit' %}
+                                    value="{{ user.email }}"
+                                {% endif %}
+                            >
+                            <div class="invalid-feedback">
+                                Please provide Email Address.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="event_category" class="form-label">Role <span class="text-danger">*</span></label>
+                            <select class="form-select" id="event_category" name="event_category" required>
+                                <option value="">Select role</option>
+                                {% for role in roles %}
+                                    <option value="{{ category.id }}"
+                                            {% if user and user.role_id == role.id %}selected{% endif %}>
+                                        {{ role.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a role.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mt-3">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                           {% if mode == 'create' or category.is_active %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">
+                                        Active?
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-3">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="is_locked" name="is_locked"
+                                           {% if mode == 'create' or user.is_locked %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_locked">
+                                        Locked?
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to List
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light me-2">
+                                    <i class="fas fa-undo me-1"></i> Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="button-text">
+                                        <i class="fas fa-save me-1"></i>
+                                        {% if mode == 'edit' %}Update{% else %}Create{% endif %} User
+                                    </span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    {% block extra_js %}
+    <script type="module">
+        import { initUserCreate } from '{% static 'js/user/userCreate.js' %}';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing user form...');
+            initUserCreate();
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

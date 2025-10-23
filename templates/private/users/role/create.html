@@ -1,0 +1,122 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} User Role{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-6">
+                    <h3>{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Role</h3>
+                </div>
+                <div class="col-6">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'dashboard' %}">
+                                <i data-feather="home"></i>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'role_list' %}">Roles</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            {% if mode == 'edit' %}Edit{% else %}New{% endif %}
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                            {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Role
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="eventCategoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="role" name="role"
+                                       value="{{ category.title|default:'' }}" required>
+                                <div class="invalid-feedback">
+                                    Please provide a title for the role.
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="title_others" class="form-label fw-bold">
+                                    Permissions<span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    id="title_others"
+                                    name="title_others"
+                                    placeholder="Enter (other) category title"
+                                    required
+                                    {% if mode == 'edit' %}
+                                        value="{{ category.title_others }}"
+                                    {% endif %}
+                                >
+                                <div class="invalid-feedback">
+                                    Please provide English category title.
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {% if mode == 'create' or category.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="is_menu" name="is_menu"
+                                               {% if mode == 'create' or category.is_menu %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_menu">
+                                            Menu?
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'event_category_list' %}" type="button" id="cancelBtn" class="btn btn-outline-danger">
+                                    <i class="fa fa-arrow-left me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save me-2"></i>{% if mode == 'edit' %}Update{% else %}Create{% endif %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% block extra_js %}
+        <script type="module">
+        import { initEventCategoryCreate } from '{% static 'js/events/categories/eventCategoryCreate.js' %}';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing event category form...');
+            initEventCategoryCreate();
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

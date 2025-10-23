@@ -1,8 +1,10 @@
 # authentication/views.py
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.models import Group
+from django.contrib.messages import success
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -12,6 +14,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 import requests as http_requests
@@ -20,8 +23,9 @@ from authentication.api.serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
     GoogleAuthSerializer,
-    UserSerializer
+    UserSerializer, GroupSerializer, RolePermissionSerializer, UserGroupAssignSerializer
 )
+from authentication.models import RolePermission
 from core.utils.handle_google_user import handle_google_user
 from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
@@ -365,7 +369,7 @@ def users_list(request):
     if not request.user.is_staff:
         return fail(
             message="Access denied. Staff privileges required.",
-            status_code=status.HTTP_403_FORBIDDEN
+            status=status.HTTP_403_FORBIDDEN
         )
 
     # Get query parameters
@@ -465,7 +469,7 @@ def user_detail(request, user_id):
     if not request.user.is_staff:
         return fail(
             message="Access denied. Staff privileges required.",
-            status_code=status.HTTP_403_FORBIDDEN
+            status=status.HTTP_403_FORBIDDEN
         )
     try:
         user = User.objects.get(id=user_id)
@@ -477,7 +481,7 @@ def user_detail(request, user_id):
     except User.DoesNotExist:
         return fail(
             message="User not found",
-            status_code=status.HTTP_404_NOT_FOUND
+            status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -498,7 +502,7 @@ def update_user(request, user_id):
     if not request.user.is_staff:
         return fail(
             message="Access denied. Staff privileges required.",
-            status_code=status.HTTP_403_FORBIDDEN
+            status=status.HTTP_403_FORBIDDEN
         )
 
     try:
@@ -517,7 +521,7 @@ def update_user(request, user_id):
     except User.DoesNotExist:
         return fail(
             message="User not found",
-            status_code=status.HTTP_404_NOT_FOUND
+            status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -537,7 +541,7 @@ def delete_user(request, user_id):
     if not request.user.is_staff:
         return fail(
             message="Access denied. Staff privileges required.",
-            status_code=status.HTTP_403_FORBIDDEN
+            status=status.HTTP_403_FORBIDDEN
         )
 
     try:
@@ -556,5 +560,105 @@ def delete_user(request, user_id):
     except User.DoesNotExist:
         return fail(
             message="User not found",
-            status_code=status.HTTP_404_NOT_FOUND
+            status=status.HTTP_404_NOT_FOUND
         )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List all groups"),
+    create=extend_schema(summary="Create new group"),
+    retrieve=extend_schema(summary="Get group by ID"),
+    update=extend_schema(summary="Update group"),
+    partial_update=extend_schema(summary="Partially update group"),
+    destroy=extend_schema(summary="Delete group"),
+)
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+    @extend_schema(
+        tags=['Users'],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "permission_code": {
+                        "type": "string",
+                        "example": "article_publish"
+                    }
+                },
+                "required": ["permission_code"]
+            }
+        },
+        description="Add a custom permission code to a specific group"
+    )
+    @action(detail=True, methods=['post'])
+    def add_permission(self, request, pk=None):
+        group = self.get_object()
+        permission_code = request.data.get('permission_code')
+
+        if not permission_code:
+            return fail(
+                error="permission_code is required",
+                status=400
+            )
+
+        obj, created = RolePermission.objects.get_or_create(group=group, permission_code=permission_code)
+
+        if not created:
+            return fail(
+                message= 'Permission already exists for this role',
+                status=200
+            )
+
+        return Response({'message': f'Permission \"{permission_code}\" added to group \"{group.name}\"'}, status=201)
+
+
+class RolePermissionViewSet(viewsets.ModelViewSet):
+    queryset = RolePermission.objects.all()
+    serializer_class = RolePermissionSerializer
+
+
+class AssignUserToGroupView(APIView):
+    permission_classes = [IsAdminUser]
+
+    @extend_schema(
+        summary="Assign user to a group (role)",
+        description="Assigns a Django user to a specific group (i.e., role), granting them all custom permissions associated with that group.",
+        request=UserGroupAssignSerializer,
+        responses={
+            200: OpenApiResponse(description="User assigned to group"),
+            400: OpenApiResponse(description="Invalid input or user/group not found")
+        },
+        tags=["Users"]
+    )
+    def post(self, request):
+        serializer = UserGroupAssignSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return ok(
+                data=serializer.data,
+                message= "User assigned to group",
+                status=status.HTTP_200_OK
+            )
+        return fail(error=serializer.errors, message="Something went wrong")
+
+
+class UserPermissionsView(APIView):
+    @extend_schema(
+        summary="List user’s effective custom permissions",
+        description="Returns all custom permission codes the user has access to, based on the groups they belong to.",
+        responses={
+            200: OpenApiResponse(description="List of permissions"),
+            404: OpenApiResponse(description="User not found")
+        },
+        tags=["Users"]
+    )
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return fail(error= "User not found", status=404)
+
+        perms = RolePermission.objects.filter(group__in=user.groups.all()).values_list('permission_code', flat=True)
+        return ok(data=list(perms), message="Permissions list retrieved successfully")

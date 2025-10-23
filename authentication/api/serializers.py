@@ -1,7 +1,10 @@
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
+
+from authentication.models import RolePermission
 
 User = get_user_model()
 
@@ -68,4 +71,41 @@ class StaffUserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         user = User.objects.create_user(**validated_data)
+        return user
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
+
+class RolePermissionSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(source='group.name', read_only=True)
+
+    class Meta:
+        model = RolePermission
+        fields = ['id', 'group', 'group_name', 'permission_code']
+
+
+class UserGroupAssignSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    group_id = serializers.IntegerField()
+
+    def validate(self, data):
+        try:
+            data['user'] = User.objects.get(id=data['user_id'])
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+
+        try:
+            data['group'] = Group.objects.get(id=data['group_id'])
+        except Group.DoesNotExist:
+            raise serializers.ValidationError("Group not found")
+
+        return data
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        group = validated_data['group']
+        user.groups.add(group)
         return user
