@@ -1,10 +1,13 @@
 from django.urls import path, include
-
 from .views import *
 
-public_urls = [
+
+internal_urls = [
+    path('approval/<int:pk>/', membership_approval, name='membership_approval'),
     path('list/', membership_list, name='membership_list'),
-    # path('registration/', detect_steps, name='membership_registration'),
+]
+
+public_urls = [
 
     path('registration/step-1/', member_reg_step_1, name='member_reg_step_1'),
     path('registration/step-2/', member_reg_step_2, name='member_reg_step_2'),
@@ -16,4 +19,5 @@ public_urls = [
 
 urlpatterns = [
     path('', include(public_urls)),
+    path('i/', include(internal_urls)),
 ]

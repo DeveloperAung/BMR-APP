@@ -26,6 +26,7 @@ from authentication.api.serializers import (
     UserSerializer, GroupSerializer, RolePermissionSerializer, UserGroupAssignSerializer
 )
 from authentication.models import RolePermission
+from authentication.utils.permissions import HasRolePermission
 from core.utils.handle_google_user import handle_google_user
 from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
@@ -565,12 +566,12 @@ def delete_user(request, user_id):
 
 
 @extend_schema_view(
-    list=extend_schema(summary="List all groups"),
-    create=extend_schema(summary="Create new group"),
-    retrieve=extend_schema(summary="Get group by ID"),
-    update=extend_schema(summary="Update group"),
-    partial_update=extend_schema(summary="Partially update group"),
-    destroy=extend_schema(summary="Delete group"),
+    list=extend_schema(tags=['Users'], summary="List all groups"),
+    create=extend_schema(tags=['Users'], summary="Create new group"),
+    retrieve=extend_schema(tags=['Users'], summary="Get group by ID"),
+    update=extend_schema(tags=['Users'], summary="Update group"),
+    partial_update=extend_schema(tags=['Users'], summary="Partially update group"),
+    destroy=extend_schema(tags=['Users'], summary="Delete group"),
 )
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
@@ -611,12 +612,70 @@ class GroupViewSet(viewsets.ModelViewSet):
                 status=200
             )
 
-        return Response({'message': f'Permission \"{permission_code}\" added to group \"{group.name}\"'}, status=201)
+        return ok(message = f'Permission \"{permission_code}\" added to group \"{group.name}\"', status=201)
 
 
+@extend_schema(
+    tags=['Users'],
+    description="Manage role-based permission codes for groups.",
+    responses={200: RolePermissionSerializer(many=True)},
+)
 class RolePermissionViewSet(viewsets.ModelViewSet):
     queryset = RolePermission.objects.all()
     serializer_class = RolePermissionSerializer
+    permission_classes = [IsAuthenticated, HasRolePermission]
+    required_permission = 'manage_role_permissions'
+
+    @extend_schema(
+        summary="List Role Permissions",
+        description="Returns a list of all role-based permissions mapped to groups.",
+        responses={200: RolePermissionSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create Role Permission",
+        description="Create a new permission code and assign it to a group.",
+        request=RolePermissionSerializer,
+        responses={201: RolePermissionSerializer},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Retrieve Role Permission",
+        description="Get a single role-permission entry by its ID.",
+        responses={200: RolePermissionSerializer},
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Update Role Permission",
+        description="Update an existing role-permission entry.",
+        request=RolePermissionSerializer,
+        responses={200: RolePermissionSerializer},
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Partial Update Role Permission",
+        description="Partially update an existing role-permission entry.",
+        request=RolePermissionSerializer,
+        responses={200: RolePermissionSerializer},
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Delete Role Permission",
+        description="Delete a role-permission entry by its ID.",
+        responses={204: None},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
 class AssignUserToGroupView(APIView):

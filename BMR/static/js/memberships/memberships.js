@@ -28,6 +28,19 @@ class MembershipApp {
         }
     }
 
+    setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            alert("click event")
+            if (e.target.matches('[data-action="view-membership"]')) {
+                this.membershipManager.viewMembership(e.target.dataset.membershipId);
+            } else if (e.target.matches('[data-action="edit-membership"]')) {
+                this.membershipManager.editMembership(e.target.dataset.membershipId);
+            } else if (e.target.matches('[data-action="delete-membership"]')) {
+                this.membershipManager.toggleStatus(e.target.dataset.membershipId, false, 'Are you sure you want to deactivate category ' + e.target.dataset.title + '?');
+            }
+        });
+    }
+
     showLoginRequired() {
         document.getElementById('membershipsTableBody').innerHTML = `
             <tr><td colspan="8" class="text-center p-4">

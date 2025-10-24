@@ -99,4 +99,14 @@ export class MembershipManager extends BaseManager {
             throw error;
         }
     }
+
+    async viewMembership(id) {
+        console.log(`Viewing membership ${id}`);
+        window.location.href = `/memberships/i/approval/${id}/`;
+    }
+
+    async editMembership(id) {
+        console.log(`Editing category ${id}`);
+        window.location.href = `/memberships/i/categories/${id}/edit/`;
+    }
 }

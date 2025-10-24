@@ -292,7 +292,18 @@
 
                     // Update email
                     if (userData.email) {
-                        document.getElementById('navUserEmail').textContent = userData.email;
+                        const email = userData.email;
+                        const [namePart, domainPart] = email.split('@');
+
+                        if (namePart.length > 2) {
+                            // Number of hidden chars = namePart length - 2 (first & last are visible)
+                            const stars = '*'.repeat(namePart.length - 2);
+                            const masked = `${namePart[0]}${stars}${namePart[namePart.length - 1]}@${domainPart}`;
+                            document.getElementById('navUserEmail').textContent = masked;
+                        } else {
+                            // For very short emails, keep as is
+                            document.getElementById('navUserEmail').textContent = email;
+                        }
                     }
                 }
             } else if (response.status === 401) {

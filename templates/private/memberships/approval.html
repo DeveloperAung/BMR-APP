@@ -1,0 +1,139 @@
+{% extends 'private/partials/base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Donation Category{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-sm-6 col-12">
+                <h2>Membership Approval</h2>
+            </div>
+            <div class="col-sm-6 col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'private_dashboard' %}">
+                            <i class="iconly-Home icli svg-color"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Memberships Approval</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                        {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Category
+                    </h5>
+                </div>
+                <div class="card-body">                
+                    <div id="result"></div>
+                    <!-- Category Form -->
+                    <form id="categoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
+
+                        {% csrf_token %}
+                        
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">
+                                Title <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="title" 
+                                name="title"
+                                placeholder="Enter category title"
+                                required
+                                {% if mode == 'edit' and category %}
+                                    value="{{ category.title }}"
+                                {% endif %}
+                            >
+                            <div class="invalid-feedback">
+                                Please provide a category title.
+                            </div>
+                            <div class="form-text">
+                                A descriptive name for the donation category.
+                            </div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-3">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="is_date_required"
+                                        name="is_date_required"
+                                        {% if mode == 'edit' and category.is_date_required %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label fw-bold" for="is_date_required">
+                                        Require Date
+                                    </label>
+                                    <div class="form-text">
+                                        Check if donors need to specify a date for this category.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-3">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="is_multi_select_required"
+                                        name="is_multi_select_required"
+                                        {% if mode == 'edit' and category.is_multi_select_required %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label fw-bold" for="is_multi_select_required">
+                                        Allow Multiple Selections
+                                    </label>
+                                    <div class="form-text">
+                                        Allow donors to select multiple options in this category.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                            <a href="{% url 'donation_category_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to List
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light me-2">
+                                    <i class="fas fa-undo me-1"></i> Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="button-text">
+                                        <i class="fas fa-save me-1"></i>
+                                        {% if mode == 'edit' %}Update{% else %}Create{% endif %} Category
+                                    </span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    {% block extra_js %}
+    <script type="module">        
+        import { initDonationCategoryCreate } from '{% static 'js/donations/categories/donationCategoryCreate.js' %}';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing donation category form...');
+            initDonationCategoryCreate();
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

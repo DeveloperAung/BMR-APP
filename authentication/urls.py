@@ -8,9 +8,9 @@ internal_urls = [
     path('users/create', views.user_create, name='user_create'),
     path('users/<int:pk>/edit', views.user_edit, name='user_edit'),
 
-    path('roles/list', views.role_list, name='role_list'),
-    path('roles/create', views.role_create, name='role_create'),
-    path('roles/<int:pk>/edit', views.role_edit, name='role_edit'),
+    path('roles/list/', views.role_list, name='role_list'),
+    path('roles/create/', views.role_create, name='role_create'),
+    path('roles/<int:pk>/edit/', views.role_edit, name='role_edit'),
 ]
 
 urlpatterns = [
