@@ -25,102 +25,193 @@
 </div>
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary py-3">
                     <h5 class="mb-0">
                         <i class="fas {% if mode == 'edit' %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
-                        {% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Category
+                        Reference No.: - {{ member.reference_no }}
                     </h5>
                 </div>
                 <div class="card-body">                
                     <div id="result"></div>
-                    <!-- Category Form -->
-                    <form id="categoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
+                        <!-- Step 1: Personal Info and Membership Type -->
+                        <div class="wizard-step" id="step-1">
+                            <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Profile Info</span></h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="" class="form-label">Profile Picture <span
+                                            class="text-danger">*</span></label>
+                                    <div class="mb-2">
+                                        <img id="profile_picture_preview"
+                                             src="{% if member.profile_picture %}{{ member.profile_picture.url }}{% endif %}"
+                                             alt="Profile Preview"
+                                             class="img-thumbnail"
+                                             style="max-width: 150px;">
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" name="name" minlength="5"
+                                               value="{{ member.profile_info.full_name }}" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="gender" value="{{ member.profile_info.get_gender_display }}" readonly>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="date_of_birth" class="form-label">Date of Birth <span
+                                                class="text-danger">*</span></label>
+                                        <input class="form-control" id="date_of_birth" name="date_of_birth" value="{{ member.profile_info.date_of_birth }}" readonly>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="city_of_birth" class="form-label">City of Birth</label>
+                                        <input type="text" class="form-control" id="city_of_birth" name="city_of_birth" value="{{ member.profile_info.city_of_birth }}" readonly >
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="country_of_birth" class="form-label">Country of Birth <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" id="country_of_birth" class="form-control" value="{{ member.profile_info.get_country_of_birth_display }}" readonly>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="citizenship" class="form-label">Citizenship <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" id="citizenship" class="form-control" value="{{ member.profile_info.get_citizenship_display }}" readonly>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Contact Info</span></h5>
+                            <div class="row g-3">
 
-                        {% csrf_token %}
-                        
-                        <!-- Title Field -->
-                        <div class="mb-4">
-                            <label for="title" class="form-label fw-bold">
-                                Title <span class="text-danger">*</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                class="form-control form-control-lg" 
-                                id="title" 
-                                name="title"
-                                placeholder="Enter category title"
-                                required
-                                {% if mode == 'edit' and category %}
-                                    value="{{ category.title }}"
-                                {% endif %}
-                            >
-                            <div class="invalid-feedback">
-                                Please provide a category title.
-                            </div>
-                            <div class="form-text">
-                                A descriptive name for the donation category.
-                            </div>
-                        </div>
-                        
-                        <!-- Options -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-switch mb-3">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        id="is_date_required"
-                                        name="is_date_required"
-                                        {% if mode == 'edit' and category.is_date_required %}checked{% endif %}
-                                    >
-                                    <label class="form-check-label fw-bold" for="is_date_required">
-                                        Require Date
-                                    </label>
-                                    <div class="form-text">
-                                        Check if donors need to specify a date for this category.
+                                <div class="col-md-6">
+                                    <label for="mobile" class="form-label">Primary Contact <span
+                                            class="text-danger">*</span></label>
+                                    <div class="masked-field-wrapper">
+                                        <input type="tel"
+                                               class="form-control"
+                                               id="mobile"
+                                               name="mobile"
+                                               value="{{ member.contact_info.primary_contact }}"
+                                               readonly>
                                     </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="secondary_contact" class="form-label">Secondary Contact</label>
+                                    <div class="masked-field-wrapper">
+                                        <input type="tel"
+                                               class="form-control"
+                                               id="secondary_contact"
+                                               name="secondary_contact"
+                                               value="{% if member.contact_info.secondary_contact %}{{ member.contact_info.secondary_contact }}{% else %}-{% endif %}"
+                                               readonly
+                                        >
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="nric_fin" class="form-label">NRIC/FIN <span class="text-danger">*</span></label>
+                                    <div class="masked-field-wrapper">
+                                        <input type="text"
+                                               class="form-control"
+                                               id="nric_fin"
+                                               name="nric_fin"
+                                               value="{{ member.contact_info.nric_fin }}"
+                                               required>
+                                    </div>
+                                    <div class="form-text">Format: S1234567A</div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="residential_status" class="form-label">Residential Status <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" id="residential_status" class="form-control" value="{{ member.contact_info.get_residential_status_display }}" readonly>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="postal_code" class="form-label">Postal Code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ member.contact_info.postal_code }}" readonly>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="address" name="address" rows="2"
+                                              readonly>{{ member.contact_info.address }}</textarea>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-switch mb-3">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        id="is_multi_select_required"
-                                        name="is_multi_select_required"
-                                        {% if mode == 'edit' and category.is_multi_select_required %}checked{% endif %}
-                                    >
-                                    <label class="form-check-label fw-bold" for="is_multi_select_required">
-                                        Allow Multiple Selections
-                                    </label>
-                                    <div class="form-text">
-                                        Allow donors to select multiple options in this category.
-                                    </div>
+
+                            <hr>
+                        </div>
+
+                        <div class="wizard-step" id="step-2">
+                            <h5 class="mb-3"><span class="badge badge-primary">Education Info</span></h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="education" class="form-label">Education Level <span class="text-danger">*</span></label>
+                                    <input type="text" id="education" class="form-control" value="{{ member.education_info.get_education_display }}" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="institution" class="form-label">Institution</label>
+                                    <input type="text" id="institution" class="form-control" value="{{ member.education_info.get_institution_display }}" readonly>
+                                </div>
+                                <div class="col-12">
+                                    <label for="other_societies" class="form-label">Other Societies</label>
+                                    <textarea class="form-control" id="other_societies" name="other_societies" rows="2" readonly>{{ member.education_info.other_societies }}</textarea>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Form Actions -->
-                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-                            <a href="{% url 'donation_category_list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Back to List
-                            </a>
-                            <div>
-                                <button type="reset" class="btn btn-light me-2">
-                                    <i class="fas fa-undo me-1"></i> Reset
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <span class="button-text">
-                                        <i class="fas fa-save me-1"></i>
-                                        {% if mode == 'edit' %}Update{% else %}Create{% endif %} Category
-                                    </span>
-                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                </button>
+
+                            <hr class="my-4">
+
+                            <h5 class="mb-3"><span class="badge badge-primary">Work Info</span></h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="occupation" class="form-label">Occupation <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="occupation" name="occupation" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="company_name" class="form-label">Company Name</label>
+                                    <input type="text" class="form-control" id="company_name" name="company_name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="company_contact" class="form-label">Company Contact</label>
+                                    <input type="text" class="form-control" id="company_contact" name="company_contact">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="company_postal_code" class="form-label">Company Postal Code</label>
+                                    <input type="text" class="form-control" id="company_postal_code" name="company_postal_code">
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="company_address" class="form-label">Company Address</label>
+                                    <textarea class="form-control" id="company_address" name="company_address"
+                                              rows="2"></textarea>
+                                </div>
                             </div>
+                            <hr class="p-2">
+                            <div class="col-md-12">
+                                <label for="remarks" class="form-label">Remarks</label>
+                                    <textarea class="form-control" id="remarks" name="remarks"
+                                              rows="2"></textarea>
+                            </div>
+                            <div class="text-end mt-3">
+                                <button class="btn btn-danger btn-air-light me-2" type="submit">Reject</button>
+                                <button class="btn btn-warning btn-air-light me-2" type="submit">Revise</button>
+                                <button class="btn btn-success btn-air-light me-2" type="submit">Approve</button>
+                          </div>
                         </div>
-                    </form>
                 </div>
             </div>
         </div>

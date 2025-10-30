@@ -2,11 +2,11 @@ import {CategoryFormHandler} from './handlers/permissionFormHandler.js';
 import {AuthService} from '../../shared/services/AuthService.js';
 import {NotificationService} from '../../shared/services/NotificationService.js';
 
-export const initEventCategoryCreate = () => {
+export const initPermissionCreate = () => {
     try {
-        const form = document.getElementById('eventCategoryForm');
+        const form = document.getElementById('permissionForm');
         if (!form) {
-            console.error('Event Category form not found');
+            console.error('Permission form not found');
             return;
         }
 

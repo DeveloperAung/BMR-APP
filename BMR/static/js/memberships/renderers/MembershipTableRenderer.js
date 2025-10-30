@@ -27,8 +27,9 @@ export class MembershipTableRenderer extends BaseTableRenderer {
     }
 
     renderMembershipRow(data, serialNumber) {
+        console.log("data", data)
         return `
-            <tr class="membership-row" data-membership-id="${data.id}">
+            <tr class="membership-row" data-membership-id="${data.reference_no}">
                 <td class="text-center serial-number">
                     <span class="badge bg-primary text-dark">${serialNumber}</span>
                 </td>
@@ -47,9 +48,9 @@ export class MembershipTableRenderer extends BaseTableRenderer {
                 </td>
                 <td>
                     <div class="product-action">
-                        <button class="btn btn-sm btn-outline-primary" data-action="view-membership" data-membership-id="${data.id}" title="View Membership">👁️</button>
-                        <button class="btn btn-sm btn-outline-warning" data-action="edit-membership" data-membership-id="${data.id}" title="Edit Membership">✏️</button>
-                        <button class="btn btn-sm btn-outline-danger" data-action="delete-membership" data-membership-id="${data.id}" data-title="${escapeHtml(data.user)}" title="Delete Membership">🗑️</button>
+                        <button class="btn btn-sm btn-outline-primary" data-action="view-membership" data-membership-id="${data.reference_no}" title="View Membership">👁️</button>
+                        <button class="btn btn-sm btn-outline-warning" data-action="edit-membership" data-membership-id="${data.reference_no}" title="Edit Membership">✏️</button>
+                        <button class="btn btn-sm btn-outline-danger" data-action="delete-membership" data-membership-id="${data.reference_no}" data-title="${escapeHtml(data.user)}" title="Delete Membership">🗑️</button>
                     </div>
                 </td>
             </tr>

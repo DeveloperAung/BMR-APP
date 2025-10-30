@@ -11,18 +11,13 @@ class MembershipApp {
 
     async init() {
         try {
-            if (!await this.authService.isAuthenticated()) {
-                 this.showLoginRequired();
-                 return;
-             }
-
-            // Initialize users manager
             this.membershipManager = new MembershipManager({
                 authService: this.authService,
                 notificationService: this.notificationService
             });
 
             await this.membershipManager.init();
+            this.setupEventListeners();
         } catch (error) {
             this.notificationService.showError('Failed to initialize membership', error);
         }
@@ -30,7 +25,6 @@ class MembershipApp {
 
     setupEventListeners() {
         document.addEventListener('click', (e) => {
-            alert("click event")
             if (e.target.matches('[data-action="view-membership"]')) {
                 this.membershipManager.viewMembership(e.target.dataset.membershipId);
             } else if (e.target.matches('[data-action="edit-membership"]')) {

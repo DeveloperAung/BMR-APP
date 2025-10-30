@@ -3,7 +3,7 @@ from .views import *
 
 
 internal_urls = [
-    path('approval/<int:pk>/', membership_approval, name='membership_approval'),
+    path('approval/<str:reference_no>/', membership_approval, name='membership_approval'),
     path('list/', membership_list, name='membership_list'),
 ]
 

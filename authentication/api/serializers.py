@@ -81,10 +81,11 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class RolePermissionSerializer(serializers.ModelSerializer):
     group_name = serializers.CharField(source='group.name', read_only=True)
+    permission_code = serializers.CharField(source='permission.code', read_only=True)
 
     class Meta:
         model = RolePermission
-        fields = ['id', 'group', 'group_name', 'permission_code']
+        fields = ['id', 'group', 'group_name', 'permission', 'permission_code']
 
 
 class UserGroupAssignSerializer(serializers.Serializer):

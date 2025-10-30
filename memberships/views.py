@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.conf import settings
 from .models import *
@@ -76,8 +76,14 @@ def member_reg_step_3(request):
     return render(request, 'public/users/membership/submit-page3.html', ctx)
 
 
-def membership_approval(request, pk):
-    return render(request, 'private/memberships/approval.html')
+def membership_approval(request, reference_no):
+
+    member = get_object_or_404(Membership, reference_no=reference_no)
+
+    context = {
+        'member': member,
+    }
+    return render(request, 'private/memberships/approval.html', context)
 
 
 def member_event(request):
