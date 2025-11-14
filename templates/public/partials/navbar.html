@@ -5,8 +5,9 @@
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
+<!-- Bootstrap 5 JS (must include bundle) -->
 
-<nav class="navbar navbar-light p-0" id="navbar-example2">
+<nav class="navbar navbar-expand-lg navbar-light justify-content-space-between">
     <a class="navbar-brand" href="{% url 'home' %}">
         <img class="img-fluid" src="{% static 'BMR_logo.png' %}" alt="" style="max-width: 70px;">
     </a>
@@ -24,7 +25,16 @@
           </ul>
         </li>
 
-        <li class="nav-item mx-2"><a class="nav-link" href="{% url 'event_medias' %}">Dhamma Courses</a></li>
+        <li class="nav-item dropdown mx-2">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-bs-toggle="dropdown">
+            Courses
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+            {% for category in event_category_menus %}
+              <li><a class="dropdown-item" href="{% url 'association_post_details' 'about_us' %}">{{ category.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
         <li class="nav-item mx-2"><a class="nav-link" href="{% url 'article_list' %}">Articles</a></li>
         <li class="nav-item mx-2"><a class="nav-link" href="{% url 'book_list' %}">Books</a></li>
         <li class="nav-item mx-2"><a class="nav-link" href="#core-feature">Activities</a></li>
@@ -123,21 +133,6 @@
     .user-content .text-muted {
         font-size: 12px;
         opacity: 0.8;
-    }
-
-    .custom-menu {
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-        min-width: 200px;
-        z-index: 1000;
     }
 
     .profile-nav:hover .custom-menu {

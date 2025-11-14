@@ -6,10 +6,17 @@ from authentication.models import User
 from core.utils.menu_items import get_menu_items
 from django.contrib.auth.models import Group
 
+from events.models import EventCategory
+
 
 def home(request):
     slideshow_items = get_menu_items()
-    return render(request, 'public/home.html', {'slideshow_items': slideshow_items})
+    event_category_menus = EventCategory.objects.filter(is_active=True)
+    context = {
+        'slideshow_items': slideshow_items,
+        'event_category_menus': event_category_menus,
+    }
+    return render(request, 'public/home.html', context)
 
 def login_page(request):
     context = {

@@ -1,7 +1,5 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-
-from posts.models import Post
 from .models import *
 
 def association_post_list(request):
@@ -10,7 +8,13 @@ def association_post_list(request):
 
 def association_post_details(request, title_others):
     post = get_object_or_404(AssociationPosts, title_others=title_others)
-    return render(request, 'public/association/post-details.html', {'post': post})
+    association_posts = AssociationPosts.objects.filter(is_active=True)
+
+    context = {
+        'post': post,
+        'association_posts': association_posts,
+    }
+    return render(request, 'public/association/post-details.html', context)
 
 
 class AssoPostCreateView(View):
