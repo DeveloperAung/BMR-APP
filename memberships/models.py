@@ -421,4 +421,4 @@ class WorkflowLog(AuditModel):
     reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.action_by} - {self.action_time} - {self.old_status} -> {self.new_status}"
+        return f"{self.membership} - {self.action_time} - {self.old_status} -> {self.new_status}"

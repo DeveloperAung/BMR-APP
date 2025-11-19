@@ -3,6 +3,7 @@ from datetime import date
 from decimal import Decimal
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.core.validators import RegexValidator
 
 from memberships.models import (
@@ -396,14 +397,75 @@ class MembershipPage2Serializer(serializers.Serializer):
 # Remove old individual serializers - no longer needed
 # Keep only the ones we still use for updates if needed
 
+
+def _normalize_qr_code_value(raw_value):
+    """
+    Format QR code strings returned from HitPay. They can be absolute URLs,
+    server-static paths or raw base64 without the data URI prefix.
+    """
+    if not raw_value:
+        return None
+
+    qr_code = str(raw_value).strip()
+    if not qr_code:
+        return None
+
+    lowered = qr_code.lower()
+    if (
+        qr_code.startswith(("http://", "https://", "/"))
+        or lowered.startswith("data:image")
+    ):
+        return qr_code
+
+    compact = ''.join(qr_code.split())
+    return f"data:image/png;base64,{compact}"
+
+
+def _extract_qr_code_from_response(data):
+    """
+    HitPay sometimes returns qr_code as a nested object or within qr_code_data.
+    Normalize those variations into a single string.
+    """
+    if not isinstance(data, dict):
+        return data
+
+    qr_blob = data.get("qr_code")
+    if isinstance(qr_blob, dict):
+        qr_blob = (
+            qr_blob.get("qr_code")
+            or qr_blob.get("base64")
+            or qr_blob.get("image")
+            or qr_blob.get("url")
+        )
+    if isinstance(qr_blob, str) and qr_blob.strip():
+        return qr_blob
+
+    qr_data = data.get("qr_code_data") or {}
+    if isinstance(qr_data, dict):
+        qr_blob = (
+            qr_data.get("qr_code")
+            or qr_data.get("base64")
+            or qr_data.get("image")
+        )
+        if isinstance(qr_blob, str) and qr_blob.strip():
+            return qr_blob
+
+    fallback = data.get("qr_code_url") or data.get("qr_code_link") or data.get("url")
+    return fallback
+
+
 class PaymentReadSerializer(serializers.ModelSerializer):
     amount = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=True)
+    qr_code = serializers.SerializerMethodField()
 
     class Meta:
         model = MembershipPayment
         fields = ("uuid", "method", "provider", "status", "external_id", "reference_no",
                   "description", "amount", "currency", "period_year", "due_date",
                   "paid_at", "qr_code")
+
+    def get_qr_code(self, obj):
+        return _normalize_qr_code_value(getattr(obj, "qr_code", None))
 
 
 class CreateOnlinePaymentSerializer(serializers.Serializer):
@@ -449,7 +511,7 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
                     amount=amount,
                     currency=currency.upper(),
                     period_year=period_year,
-                    qr_code="/static/assets/images/qr/sample_paynow.png",
+                    qr_code="/static/assets/images/forms/qr-code.png",
                     raw_response={"dev_mode": True}
                 )
             raise serializers.ValidationError("Invalid webhook URL configured for production")
@@ -468,7 +530,7 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"Payment creation failed: {str(e)}")
 
         external_id = data.get("id")
-        qr_code = data.get("qr_code") or (data.get("qr_code_data") or {}).get("qr_code")
+        qr_code = _extract_qr_code_from_response(data)
 
         return MembershipPayment.objects.create(
             membership=membership,
@@ -487,7 +549,7 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
 
 class CreateOfflinePaymentSerializer(serializers.Serializer):
     method = serializers.ChoiceField(choices=[("bank_transfer", "bank_transfer"), ("cash", "cash")])
-    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
     currency = serializers.CharField(required=False, default="SGD")
     period_year = serializers.IntegerField(required=False)
     reference_no = serializers.CharField(required=False, allow_blank=True)
@@ -495,6 +557,14 @@ class CreateOfflinePaymentSerializer(serializers.Serializer):
     receipt_image = serializers.ImageField(required=False, allow_null=True)
 
     def validate(self, attrs):
+        membership = self.context["membership"]
+        if "amount" not in attrs or attrs["amount"] in (None, ""):
+            amount = membership.calculate_membership_fee()
+            if amount is None:
+                raise serializers.ValidationError({"amount": "Unable to determine membership fee amount."})
+            attrs["amount"] = amount
+        if "currency" not in attrs or not attrs["currency"]:
+            attrs["currency"] = "SGD"
         if "period_year" not in attrs or not attrs["period_year"]:
             attrs["period_year"] = date.today().year
         return attrs
@@ -551,8 +621,7 @@ class MembershipWorkflowDecisionSerializer(serializers.Serializer):
         )
         obj = qs.order_by("id").first()
         if not obj:
-            # Fallback by common codes if you use numeric codes (adjust if needed)
-            code_map = {"approve": "40", "reject": "50", "revise": "30"}
+            code_map = {"approve": "16", "reject": "14", "revise": "13"}
             code = code_map[action]
             obj = Status.objects.filter(status_code=str(code)).first()
         if not obj:

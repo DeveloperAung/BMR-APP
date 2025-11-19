@@ -91,6 +91,18 @@ export class MembershipManager extends BaseManager {
         }
     }
 
+    async workflowDecision(uuid, data) {
+        try {
+            this.notificationService?.showLoading?.('Updating membership...');
+            const response = await this.repository.workflowDecision(uuid, data);
+            this.notificationService?.hideLoading?.();
+            return response;
+        } catch (error) {
+            this.notificationService?.hideLoading?.();
+            throw error;
+        }
+    }
+
     async listPayments() {
         try {
             return await this.repository.listPayments();

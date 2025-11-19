@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.views import View
@@ -121,6 +123,27 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         )
         return draft_status
 
+    def _set_pending_approval_status(self, membership):
+        """
+        Move membership to status code 12 (Pending Approval) once an offline payment is submitted.
+        """
+        if not membership:
+            return
+        current_status = getattr(getattr(membership, "workflow_status", None), "status_code", None)
+        if current_status == "12":
+            return
+        from core.models import Status
+        try:
+            membership.transition(
+                "12",
+                reason="Offline payment submitted by applicant.",
+                actor=getattr(self.request, "user", None),
+                save_membership=True,
+            )
+        except Status.DoesNotExist:
+            # Pending approval status not configured; skip silently to avoid blocking payment capture.
+            pass
+
     @extend_schema(
         tags=["Memberships"],
         responses={200: MembershipReadSerializer},
@@ -224,13 +247,14 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         )
         payment_serializer.is_valid(raise_exception=True)
         payment = payment_serializer.save()
+        payment_data = PaymentReadSerializer(payment).data if payment else None
 
         response_data = {
             "membership": MembershipReadSerializer(membership, context={'request': request}).data,
-            "payment": PaymentReadSerializer(payment).data if payment else None,
-            "qr_code_url": payment.qr_code if payment else None,
-            "payment_amount": str(payment.amount) if payment else None,
-            "payment_currency": payment.currency if payment else None
+            "payment": payment_data,
+            "qr_code_url": payment_data.get("qr_code") if payment_data else None,
+            "payment_amount": payment_data.get("amount") if payment_data else None,
+            "payment_currency": payment_data.get("currency") if payment_data else None
         }
         print("payment", response_data)
         return ok(
@@ -285,7 +309,28 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         serializer = CreateOfflinePaymentSerializer(data=request.data, context={"membership": membership})
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
+        self._set_pending_approval_status(membership)
         return ok(PaymentReadSerializer(payment).data, "Offline payment recorded (pending).", status=201)
+
+    @extend_schema(
+        tags=["Payments"],
+        request=CreateOfflinePaymentSerializer,
+        responses={201: PaymentReadSerializer},
+        summary="Upload a payment slip for offline payment methods"
+    )
+    @action(detail=False, methods=["POST"], url_path="upload-payment-slip")
+    def upload_payment_slip(self, request):
+        if not request.FILES.get("receipt_image"):
+            raise ValidationError({"receipt_image": "Payment slip image is required."})
+        membership = self.get_or_create_membership()
+        data = request.data.copy()
+        if "method" not in data or data["method"] not in {"cash", "bank_transfer"}:
+            data["method"] = "bank_transfer"
+        serializer = CreateOfflinePaymentSerializer(data=data, context={"membership": membership})
+        serializer.is_valid(raise_exception=True)
+        payment = serializer.save()
+        self._set_pending_approval_status(membership)
+        return ok(PaymentReadSerializer(payment).data, "Payment slip uploaded.", status=201)
 
     @extend_schema(
         tags=["Payments"],
@@ -454,9 +499,13 @@ class ManagementMembershipViewSet(viewsets.GenericViewSet):
         target_status = serializer.validated_data["target_status"]
         comment = serializer.validated_data.get("comment", "")
 
-        membership.workflow_status = target_status
-        membership.reason = comment or ""
-        membership.save(update_fields=["workflow_status", "reason"])
+        membership.transition(
+            target_status,
+            reason=comment or "",
+            actor=request.user,
+            save_membership=True,
+        )
+        membership.refresh_from_db()
 
         return Response(
             MembershipReadSerializer(membership, context={'request': request}).data,

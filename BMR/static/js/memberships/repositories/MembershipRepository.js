@@ -137,6 +137,18 @@ export class MembershipRepository extends BaseRepository {
         }
     }
 
+    async workflowDecision(uuid, data) {
+        try {
+            const endpoint = `${this.baseEndpoint}management/${uuid}/workflow-decision/`;
+            const jsonData = await this.apiService.post(endpoint, data);
+            return jsonData?.data || jsonData;
+        } catch (error) {
+            console.error('Workflow decision failed:', error);
+            ApiErrorHandler.handle(error, this.notificationService);
+            throw error;
+        }
+    }
+
     async getMemberships(params = {}) {
         return this.getList(params);
     }

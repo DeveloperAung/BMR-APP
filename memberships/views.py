@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.conf import settings
 from .models import *
+from .api.serializers import PaymentReadSerializer
 
 
 def membership_list(request):
@@ -66,11 +67,30 @@ def member_reg_step_2(request):
 
 
 def member_reg_step_3(request):
+    payment_context = {
+        "qr_code_url": "",
+        "payment_amount": "",
+        "payment_currency": "",
+    }
+
+    if request.user.is_authenticated:
+        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
+        if membership:
+            latest_payment = membership.payments.filter(method="hitpay").order_by('-created_at').first()
+            if latest_payment:
+                payment_data = PaymentReadSerializer(latest_payment).data
+                payment_context.update({
+                    "qr_code_url": payment_data.get("qr_code") or "",
+                    "payment_amount": payment_data.get("amount") or "",
+                    "payment_currency": payment_data.get("currency") or "",
+                })
+
     ctx = {
-        "initial_data" : {
+        "initial_data": {
             "membership_type": "",
             "profile_picture": "",
-        }
+        },
+        "payment_context": payment_context,
     }
 
     return render(request, 'public/users/membership/submit-page3.html', ctx)
