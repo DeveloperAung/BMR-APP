@@ -1,7 +1,7 @@
 {% extends 'private/partials/base.html' %}
 {% load static %}
 
-{% block title %}{% if mode == 'edit' %}Edit{% else %}Create New{% endif %} Donation Category{% endblock %}
+{% block title %}Membership Approval{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -154,6 +154,8 @@
                                 </div>
                             </div>
 
+                            
+
                             <hr>
                         </div>
 
@@ -201,7 +203,43 @@
                                               rows="2">{{ member.work_info.company_address }}</textarea>
                                 </div>
                             </div>                            
-                            {% if member.workflow_status.status_code|stringformat:"i" == "12"|stringformat:"i" %}
+                            </div>
+
+                            <!-- Offline payment screenshot(s) -->
+                            <hr class="my-4">
+                            <h5 class="mb-3"><span class="badge badge-secondary">Offline Payment</span></h5>
+                            <div class="row g-3 mb-3" id="offline-payments">
+                                {% with payments=member.payments.all|dictsortreversed:"created_at" %}
+                                    {% if payments %}
+                                        <div class="col-12">
+                                            <p class="mb-2 small text-muted">Uploaded payment slip(s) (click to view full size)</p>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                {% for p in payments %}
+                                                    {% if p.receipt_image %}
+                                                        <div class="card p-2" style="width: 140px;">
+                                                            <a href="{{ p.receipt_image.url }}" target="_blank" rel="noopener noreferrer">
+                                                                <img src="{{ p.receipt_image.url }}" alt="Receipt {{ p.receipt_no }}" class="img-fluid img-thumbnail" style="max-height:110px; object-fit:cover;">
+                                                            </a>
+                                                            <div class="mt-2 small">
+                                                                <div><strong>{{ p.receipt_no }}</strong></div>
+                                                                <div class="text-muted">{{ p.amount }} {{ p.currency }}</div>
+                                                                <div class="text-muted">{{ p.get_status_display }}</div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% empty %}
+                                                    <div class="text-muted small">No payment slips uploaded.</div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="col-12 text-muted small">No payment records.</div>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+
+                            {% if member.workflow_status.status_code == "12" %} true {% endif %}
+                            {% if member.workflow_status.status_code == "12" %}
                             <hr class="p-2">
                             <div class="col-md-12">
                                 <label for="remarks" class="form-label">Remarks</label>

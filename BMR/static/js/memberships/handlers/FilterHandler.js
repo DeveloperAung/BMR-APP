@@ -5,7 +5,8 @@ export class MembershipFilterHandler {
         this.currentFilters = {
             search: '',
             show_all: '',
-            ordering: '-created_at'
+            ordering: '-created_at',
+            status_code: '12'
         };
         this.debounceTimer = null;
         this.debounceDelay = 300; // ms
@@ -21,7 +22,8 @@ export class MembershipFilterHandler {
         this.elements = {
             searchInput: document.getElementById('searchInput'),
             searchBtn: document.getElementById('searchBtn'),
-            showAllFilter: document.getElementById('showAllFilter'),
+                showAllFilter: document.getElementById('showAllFilter'),
+                statusSelect: document.getElementById('statusSelect'),
             orderingSelect: document.getElementById('orderingSelect'),
             perPageSelect: document.getElementById('perPageSelect'),
             clearFiltersBtn: document.getElementById('clearFiltersBtn')
@@ -60,7 +62,8 @@ export class MembershipFilterHandler {
         // Filter dropdowns
         [
             { element: this.elements.showAllFilter, key: 'show_all' },
-            { element: this.elements.orderingSelect, key: 'ordering' }
+            { element: this.elements.orderingSelect, key: 'ordering' },
+            { element: this.elements.statusSelect, key: 'status_code' }
         ].forEach(({ element, key }) => {
             if (element) {
                 element.addEventListener('change', (e) => {
@@ -112,6 +115,7 @@ export class MembershipFilterHandler {
         if (this.elements.searchInput) this.elements.searchInput.value = '';
         if (this.elements.showAllFilter) this.elements.showAllFilter.value = '';
         if (this.elements.orderingSelect) this.elements.orderingSelect.value = '-created_at';
+        if (this.elements.statusSelect) this.elements.statusSelect.value = this.currentFilters.status_code || '12';
         if (this.elements.perPageSelect) this.elements.perPageSelect.value = '30';
 
         // Reset current filters
@@ -119,6 +123,7 @@ export class MembershipFilterHandler {
             search: '',
             show_all: '',
             ordering: '-created_at',
+            status_code: '12',
             per_page: 30
         };
 

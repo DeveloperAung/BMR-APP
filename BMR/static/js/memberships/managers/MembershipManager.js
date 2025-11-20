@@ -30,7 +30,8 @@ export class MembershipManager extends BaseManager {
 
             defaultPerPage: 30,
             defaultFilters: {
-                ordering: '-published_at'
+                ordering: '-published_at',
+                status_code: '12'
             }
         });
 
@@ -39,22 +40,21 @@ export class MembershipManager extends BaseManager {
 
     async submitPage1(pageData) {
         this.notificationService?.showLoading?.('Creating membership step 1...');
-        const response = await this.repository.submitPage1(pageData, true);
-        this.notificationService?.hideLoading?.();
-        return response;
+        try {
+            const response = await this.repository.submitPage1(pageData, true);
+            return response;
+        } finally {
+            this.notificationService?.hideLoading?.();
+        }
     }
 
     async submitPage2(data) {
+        this.notificationService?.showLoading?.('Submitting application...');
         try {
-            console.log("Inside manager try")
-            this.notificationService?.showLoading?.('Submitting application...');
             const response = await this.repository.submitPage2(data);
-            this.notificationService?.hideLoading?.();
             return response;
-        } catch (error) {
-            console.log("Inside manager catch")
+        } finally {
             this.notificationService?.hideLoading?.();
-            throw error;
         }
     }
 
@@ -70,9 +70,12 @@ export class MembershipManager extends BaseManager {
     async createOnlinePayment(data) {
         try {
             this.notificationService?.showLoading?.('Creating payment...');
-            const response = await this.repository.createOnlinePayment(data);
-            this.notificationService?.hideLoading?.();
-            return response;
+            try {
+                const response = await this.repository.createOnlinePayment(data);
+                return response;
+            } finally {
+                this.notificationService?.hideLoading?.();
+            }
         } catch (error) {
             this.notificationService?.hideLoading?.();
             throw error;
@@ -82,9 +85,12 @@ export class MembershipManager extends BaseManager {
     async createOfflinePayment(data) {
         try {
             this.notificationService?.showLoading?.('Recording payment...');
-            const response = await this.repository.createOfflinePayment(data);
-            this.notificationService?.hideLoading?.();
-            return response;
+            try {
+                const response = await this.repository.createOfflinePayment(data);
+                return response;
+            } finally {
+                this.notificationService?.hideLoading?.();
+            }
         } catch (error) {
             this.notificationService?.hideLoading?.();
             throw error;
@@ -94,9 +100,12 @@ export class MembershipManager extends BaseManager {
     async workflowDecision(uuid, data) {
         try {
             this.notificationService?.showLoading?.('Updating membership...');
-            const response = await this.repository.workflowDecision(uuid, data);
-            this.notificationService?.hideLoading?.();
-            return response;
+            try {
+                const response = await this.repository.workflowDecision(uuid, data);
+                return response;
+            } finally {
+                this.notificationService?.hideLoading?.();
+            }
         } catch (error) {
             this.notificationService?.hideLoading?.();
             throw error;

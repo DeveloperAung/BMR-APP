@@ -12,9 +12,13 @@
         </div>
         <div class="col-md-2">
             <label class="form-label">Status</label>
-            <select class="form-select" id="showAllFilter">
-                <option value="">Active Only</option>
-                <option value="true">Show All</option>
+            <select class="form-select" id="statusSelect">
+                <option value="">Any</option>
+                {% for s in statuses %}
+                    <option value="{{ s.status_code }}" {% if s.status_code == "12" %}selected{% endif %}>{{ s.external_status }}</option>
+                {% empty %}
+                    <option value="12" selected>Pending Approval</option>
+                {% endfor %}
             </select>
         </div>
         <div class="col-md-2">

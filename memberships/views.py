@@ -6,7 +6,10 @@ from .api.serializers import PaymentReadSerializer
 
 
 def membership_list(request):
-    return render(request, 'private/memberships/list.html')
+    # Provide status options (parent_code = '1') to populate the Status filter dropdown
+    from core.models import Status
+    statuses = Status.objects.filter(parent_code='1').order_by('internal_status')
+    return render(request, 'private/memberships/list.html', {'statuses': statuses})
 
 
 def _as_choice_list(choices):

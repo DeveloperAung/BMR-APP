@@ -100,6 +100,10 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         ).order_by('id')
         # Management sees all
         if self.request.user.is_staff:  # or use IsManagementUser() logic
+            # Allow filtering by status_code via query param (e.g. ?status_code=12)
+            status_code = self.request.query_params.get('status_code')
+            if status_code:
+                return base_qs.filter(workflow_status__status_code=str(status_code))
             return base_qs
         # Public users see only their own
         return base_qs.filter(user=self.request.user)

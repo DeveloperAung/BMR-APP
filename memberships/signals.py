@@ -57,3 +57,14 @@ def _log_status_change(sender, instance: Membership, created: bool, **kwargs):
         action_by=actor,
         reason=instance.reason,  # optional: copy membership.reason if you use it
     )
+
+    # If membership just moved to Approved (status_code == "13"), ensure membership_number exists
+    try:
+        if instance.workflow_status and getattr(instance.workflow_status, 'status_code', None) == "13":
+            if not instance.membership_number:
+                # generate_membership_number sets the field but does not persist by itself
+                instance.generate_membership_number()
+                instance.save(update_fields=["membership_number"])
+    except Exception:
+        # Avoid letting signal failures block the main save flow
+        pass
