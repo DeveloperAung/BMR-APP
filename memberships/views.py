@@ -31,6 +31,19 @@ def member_reg_step_1(request):
         "residential_statuses": _as_choice_list(ContactInfo.RESIDENTIAL_STATUS_CHOICES),
         "membership_types": MembershipType.objects.filter(is_active=True),
     }
+    # If the user already has a membership and it's not editable, show submitted/read-only page
+    if request.user.is_authenticated:
+        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
+        if membership:
+            status_code = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+            # editable only when status is Draft (10), Incomplete (11), or Pending Approval (12)
+            if status_code not in ("10", "11", "12"):
+                return render(request, 'public/users/membership/submitted-readonly.html', {
+                    'membership': membership,
+                    'step': 1,
+                })
+        ctx['membership'] = membership if membership else None
+        ctx['editable'] = True
     return render(request, 'public/users/membership/submit-page1.html', ctx)
 
 
@@ -42,6 +55,17 @@ def edit_member_reg_step_1(request, reference_no):
         "residential_statuses": _as_choice_list(ContactInfo.RESIDENTIAL_STATUS_CHOICES),
         "membership_types": MembershipType.objects.filter(is_active=True, reference_no=reference_no),
     }
+    # For editing via reference, determine if membership is editable
+    membership = Membership.objects.filter(reference_no=reference_no).order_by('-created_at').first()
+    if membership:
+        status_code = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+        if status_code not in ("10", "11", "12"):
+            return render(request, 'public/users/membership/submitted-readonly.html', {
+                'membership': membership,
+                'step': 1,
+            })
+    ctx['membership'] = membership if membership else None
+    ctx['editable'] = True
     return render(request, 'public/users/membership/submit-page1.html', ctx)
 
 
@@ -66,6 +90,18 @@ def member_reg_step_2(request):
             "profile_picture": "",
         }
     }
+    # If authenticated and membership exists, check editable status
+    if request.user.is_authenticated:
+        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
+        if membership:
+            status_code = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+            if status_code not in ("10", "11", "12"):
+                return render(request, 'public/users/membership/submitted-readonly.html', {
+                    'membership': membership,
+                    'step': 2,
+                })
+        ctx['membership'] = membership if membership else None
+        ctx['editable'] = True
     return render(request, 'public/users/membership/submit-page2.html', ctx)
 
 
@@ -95,6 +131,19 @@ def member_reg_step_3(request):
         },
         "payment_context": payment_context,
     }
+
+    # If authenticated and membership exists, check editable status
+    if request.user.is_authenticated:
+        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
+        if membership:
+            status_code = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+            if status_code not in ("10", "11", "12"):
+                return render(request, 'public/users/membership/submitted-readonly.html', {
+                    'membership': membership,
+                    'step': 3,
+                })
+        ctx['membership'] = membership if membership else None
+        ctx['editable'] = True
 
     return render(request, 'public/users/membership/submit-page3.html', ctx)
 

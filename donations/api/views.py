@@ -1,3 +1,48 @@
+from rest_framework import viewsets, permissions, mixins
+from donations.models import Donation, EventDonationOption, DonationCategory, DonationSubCategory
+from .serializers import (
+    DonationReadSerializer,
+    DonationCreateSerializer,
+    EventDonationOptionSerializer,
+    DonationCategorySerializer,
+    DonationSubCategorySerializer,
+)
+from rest_framework.response import Response
+from rest_framework import status
+
+
+class DonationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
+    queryset = Donation.objects.all().select_related("donated_by", "event", "event_option")
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return DonationReadSerializer
+        return DonationCreateSerializer
+
+    def perform_create(self, serializer):
+        # ensure donated_by is set to request.user if available
+        user = getattr(self.request, "user", None)
+        serializer.save(donated_by=user if user and user.is_authenticated else None)
+
+
+class EventDonationOptionViewSet(viewsets.ModelViewSet):
+    """CRUD for EventDonationOption."""
+    queryset = EventDonationOption.objects.all().select_related("event", "donation_category")
+    serializer_class = EventDonationOptionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class DonationCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = DonationCategory.objects.filter(is_active=True)
+    serializer_class = DonationCategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class DonationSubCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = DonationSubCategory.objects.filter(is_active=True)
+    serializer_class = DonationSubCategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 from rest_framework import status, generics, filters
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend

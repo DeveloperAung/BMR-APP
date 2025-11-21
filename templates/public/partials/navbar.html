@@ -7,7 +7,7 @@
 <body>
 <!-- Bootstrap 5 JS (must include bundle) -->
 
-<nav class="navbar navbar-expand-lg navbar-light justify-content-space-between">
+<nav class="navbar navbar-expand-lg d-flex justify-content-between">
     <a class="navbar-brand" href="{% url 'home' %}">
         <img class="img-fluid" src="{% static 'BMR_logo.png' %}" alt="" style="max-width: 70px;">
     </a>
@@ -25,16 +25,23 @@
           </ul>
         </li>
 
-        <li class="nav-item dropdown mx-2">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-bs-toggle="dropdown">
-            Courses
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
-            {% for category in event_category_menus %}
-              <li><a class="dropdown-item" href="{% url 'association_post_details' 'about_us' %}">{{ category.title }}</a></li>
-            {% endfor %}
-          </ul>
-        </li>
+                <li class="nav-item dropdown mx-2">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Courses
+                    </a>
+                    {% if event_category_menus %}
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+                        {% for category in event_category_menus %}
+                            <li><a class="dropdown-item" href="{% url 'association_post_details' 'about_us' %}">{{ category.title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <!-- Hide or show a disabled dropdown when there are no categories -->
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+                            <li><span class="dropdown-item text-muted">No courses available</span></li>
+                    </ul>
+                    {% endif %}
+                </li>
         <li class="nav-item mx-2"><a class="nav-link" href="{% url 'article_list' %}">Articles</a></li>
         <li class="nav-item mx-2"><a class="nav-link" href="{% url 'book_list' %}">Books</a></li>
         <li class="nav-item mx-2"><a class="nav-link" href="#core-feature">Activities</a></li>
@@ -215,6 +222,166 @@
         }
     }
 
+    /* Ensure landing menu dropdowns match other navbar dropdowns */
+    /* Positioning and appearance fixes so dropdowns behave like Bootstrap nav dropdowns */
+    ul.landing-menu .nav-item.dropdown {
+        position: relative;
+    }
+
+    ul.landing-menu .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 1050;
+        min-width: 200px;
+        background-color: #ffffff;
+        border-radius: 6px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        padding: 6px 0;
+    }
+
+    ul.landing-menu .dropdown-item {
+        color: #333333;
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    ul.landing-menu .dropdown-item:hover,
+    ul.landing-menu .dropdown-item:focus {
+        background-color: #f8f9fa;
+        color: #000;
+    }
+
+    /* Ensure dropdown caret is visible on desktop and matches link color */
+    .navbar .nav-link.dropdown-toggle {
+        color: inherit;
+    }
+
+    @media (min-width: 992px) {
+        .landing-menu .nav-link.dropdown-toggle::after {
+            /* make sure the caret uses the current color and is visible */
+            border-top-color: currentColor !important;
+            opacity: 1 !important;
+            margin-left: 0.35rem !important;
+        }
+    }
+
+    /* For small screens let dropdown behave as block inside mobile menu
+       and appear like other menu items (no floating rounded boxes) */
+    @media (max-width: 991px) {
+        /* Keep dropdowns inline in mobile menu and match nav-link look */
+        ul.landing-menu .dropdown-menu {
+            position: static !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+        }
+
+        /* Make dropdown items match nav links */
+        ul.landing-menu .dropdown-item {
+            display: block !important;
+            width: 100% !important;
+            color: var(--body-font-color) !important;
+            padding: 10px 20px !important;
+            background: transparent !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            text-align: center !important;
+        }
+
+        ul.landing-menu .dropdown-item:hover,
+        ul.landing-menu .dropdown-item:focus {
+            background: rgba(0,0,0,0.03) !important;
+            color: var(--theme-secondary) !important;
+            text-align: center !important;
+        }
+
+        /* Remove the caret/arrow on mobile and make the parent link act like a header */
+        ul.landing-menu .nav-link.dropdown-toggle::after {
+            display: none !important;
+        }
+
+        /* Ensure nav-link parents don't have pill/rounded backgrounds on mobile */
+        ul.landing-menu {
+            padding-left: 0 !important;
+        }
+        ul.landing-menu li.nav-item {
+            margin: 0 !important; /* remove side margins like mx-2 */
+            text-align: center !important; /* center list items */
+        }
+        ul.landing-menu li.nav-item a.nav-link {
+            background: transparent !important;
+            border-radius: 0 !important;
+            padding: 10px 0 !important; /* keep vertical padding but remove heavy side padding */
+            display: block !important;
+            color: var(--body-font-color) !important;
+            text-align: center !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+        }
+        /* specifically ensure dropdown toggles have no extra padding pushing text left */
+        ul.landing-menu li.nav-item.dropdown > a.nav-link.dropdown-toggle {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        /* When the mobile menu is opened, position it below the header
+           so it doesn't overlap the header; set top to 110px as requested */
+        ul.landing-menu.open {
+            top: 110px !important;
+        }
+
+        /* In case any .btn styles are applied inside the landing menu, neutralize them */
+        ul.landing-menu .btn {
+            padding: 0;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            color: inherit;
+        }
+
+        /* Simplify profile block: show avatar + email in a single row */
+        .profile-nav {
+            display: flex !important;
+            align-items: center;
+            padding: 10px 20px;
+            background: transparent;
+            gap: 10px;
+            justify-content: center; /* center profile on mobile */
+        }
+        .profile-nav .user-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0;
+        }
+        /* show email only when profile is inside mobile menu wrapper; hide on-screen but visible in sidebar */
+        .profile-nav .user-content {
+            display: none !important;
+            align-items: center;
+            gap: 8px;
+            color: var(--body-font-color) !important;
+        }
+        .profile-nav .user-content h6 { display: none !important; }
+        /* when moved into the mobile menu wrapper show the email */
+        ul.landing-menu li.mobile-profile-wrapper .profile-nav .user-content {
+            display: inline-flex !important;
+        }
+        ul.landing-menu li.mobile-profile-wrapper .profile-nav .user-content #navUserEmail {
+            display: inline-block !important; color: var(--body-font-color) !important; font-size: 14px;
+        }
+        /* hide the dropdown custom menu on mobile to keep menu compact */
+        .profile-nav .custom-menu { display: none !important; }
+        .profile-nav .user-img img {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            border: none !important;
+        }
+    }
+
     /* Mobile responsive */
     @media (max-width: 768px) {
         .custom-menu {
@@ -231,6 +398,24 @@
         .auth-buttons .btn {
             font-size: 12px;
             padding: 4px 12px;
+        }
+    }
+
+    /* Mobile: when we inject profile into the menu, ensure it displays cleanly */
+    @media (max-width: 991px) {
+        ul.landing-menu li.mobile-profile-wrapper {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 8px 0;
+        }
+        ul.landing-menu li.mobile-profile-wrapper .profile-nav {
+            display: flex !important;
+            align-items: center;
+            width: 100%;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            background: transparent;
+            justify-content: flex-start;
         }
     }
 </style>
@@ -408,6 +593,66 @@
             updateNavbarAuth();
         }
     });
+</script>
+
+<script>
+    (function () {
+        // Move profile/auth elements into mobile menu when it opens, and restore when closed
+        const landingMenu = document.querySelector('ul.landing-menu');
+        const toggle = document.querySelector('.toggle-menu');
+        const menuBack = document.querySelector('.menu-back');
+        const buyBlock = document.querySelector('.buy-block');
+        const profileNav = document.querySelector('.profile-nav');
+        const authButtons = document.querySelector('.auth-buttons');
+
+        if (!landingMenu || !toggle || !buyBlock) return;
+
+        // Save original positions to restore later
+        const originalProfileParent = profileNav ? profileNav.parentNode : null;
+        const originalProfileNext = profileNav ? profileNav.nextSibling : null;
+        const originalAuthParent = authButtons ? authButtons.parentNode : null;
+        const originalAuthNext = authButtons ? authButtons.nextSibling : null;
+
+        function moveIntoMenu() {
+            if (!profileNav && !authButtons) return;
+            // If menu is open and we haven't moved yet
+            if (landingMenu.classList.contains('open') && !landingMenu.querySelector('.mobile-profile-wrapper')) {
+                const wrapper = document.createElement('li');
+                wrapper.className = 'nav-item mobile-profile-wrapper';
+                // append nodes into wrapper
+                if (profileNav) wrapper.appendChild(profileNav);
+                if (authButtons) wrapper.appendChild(authButtons);
+                landingMenu.insertBefore(wrapper, landingMenu.firstChild);
+            }
+            // If menu closed, restore
+            if (!landingMenu.classList.contains('open')) {
+                const wrapper = landingMenu.querySelector('.mobile-profile-wrapper');
+                if (wrapper) {
+                    // restore profileNav
+                    if (profileNav && originalProfileParent) {
+                        if (originalProfileNext) originalProfileParent.insertBefore(profileNav, originalProfileNext);
+                        else originalProfileParent.appendChild(profileNav);
+                    }
+                    // restore authButtons
+                    if (authButtons && originalAuthParent) {
+                        if (originalAuthNext) originalAuthParent.insertBefore(authButtons, originalAuthNext);
+                        else originalAuthParent.appendChild(authButtons);
+                    }
+                    wrapper.remove();
+                }
+            }
+        }
+
+        // Run after toggle click (landing.js toggles class via jQuery)
+        toggle.addEventListener('click', function () {
+            // slight delay so other handlers finish toggling the class
+            setTimeout(moveIntoMenu, 20);
+        });
+        if (menuBack) menuBack.addEventListener('click', function () { setTimeout(moveIntoMenu, 20); });
+
+        // Also ensure correct placement on page load (in case menu is pre-open)
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(moveIntoMenu, 50); });
+    })();
 </script>
 
 {% include 'partials/_js_auth.html' %}

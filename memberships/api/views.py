@@ -194,6 +194,10 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         """Page 1: Submit Profile Info, Contact Info, Membership Type, and Profile Picture"""
         try:
             membership = self.get_or_create_membership()
+            # Prevent modification if membership is not in editable statuses
+            current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+            if current_status not in ("10", "11", "12"):
+                raise ValidationError({"detail": "Application cannot be modified at this stage."})
             serializer = MembershipPage1Serializer(
                 data=request.data,
                 context={'membership': membership}
@@ -235,6 +239,10 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     def submit_page2(self, request):
         """Page 2: Submit Education Info, Work Info, and Generate HitPay Payment QR"""
         membership = self.get_or_create_membership()
+        # Prevent modification if membership is not in editable statuses
+        current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+        if current_status not in ("10", "11", "12"):
+            raise ValidationError({"detail": "Application cannot be modified at this stage."})
 
         serializer = MembershipPage2Serializer(
             data=request.data,
@@ -310,6 +318,10 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
     @action(detail=False, methods=["POST"], url_path="offline-payment")
     def create_offline_payment(self, request):
         membership = self.get_or_create_membership()
+        # Prevent adding offline payment if membership is not editable
+        current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+        if current_status not in ("10", "11", "12"):
+            raise ValidationError({"detail": "Cannot record payment at this stage."})
         serializer = CreateOfflinePaymentSerializer(data=request.data, context={"membership": membership})
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
@@ -327,6 +339,10 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         if not request.FILES.get("receipt_image"):
             raise ValidationError({"receipt_image": "Payment slip image is required."})
         membership = self.get_or_create_membership()
+        # Prevent uploading slip if membership is not editable
+        current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+        if current_status not in ("10", "11", "12"):
+            raise ValidationError({"detail": "Cannot upload payment slip at this stage."})
         data = request.data.copy()
         if "method" not in data or data["method"] not in {"cash", "bank_transfer"}:
             data["method"] = "bank_transfer"

@@ -1,0 +1,68 @@
+{% extends 'public/users/membership/base-registration.html' %}
+{% load static %}
+
+{% block steps %}
+<div class="container">
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+      <div class="alert alert-info">
+        This application is currently read-only. You cannot edit it at this stage.
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Application Summary</h5>
+          <p><strong>Reference No:</strong> {{ membership.reference_no }}</p>
+          <p><strong>Status:</strong> {{ membership.workflow_status }}</p>
+          <p><strong>Membership Type:</strong> {{ membership.membership_type }}</p>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6>Profile</h6>
+          {% if membership.profile_info %}
+            <p><strong>Full name:</strong> {{ membership.profile_info.full_name }}</p>
+            <p><strong>DOB:</strong> {{ membership.profile_info.date_of_birth }}</p>
+            <p><strong>Gender:</strong> {{ membership.profile_info.gender }}</p>
+          {% else %}
+            <p>No profile information submitted.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6>Contact</h6>
+          {% if membership.contact_info %}
+            <p><strong>Primary Contact:</strong> {{ membership.contact_info.primary_contact }}</p>
+            <p><strong>Address:</strong> {{ membership.contact_info.address }}</p>
+          {% else %}
+            <p>No contact information submitted.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6>Education / Work</h6>
+          {% if membership.education_info %}
+            <p><strong>Education:</strong> {{ membership.education_info.education }}</p>
+            <p><strong>Institution:</strong> {{ membership.education_info.institution }}</p>
+          {% endif %}
+          {% if membership.work_info %}
+            <p><strong>Occupation:</strong> {{ membership.work_info.occupation }}</p>
+            <p><strong>Company:</strong> {{ membership.work_info.company_name }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="/" class="btn btn-secondary">Home</a>
+        <a href="/memberships/i/list/" class="btn btn-primary">View Memberships</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
