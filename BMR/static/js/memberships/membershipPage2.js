@@ -48,11 +48,19 @@ export const initMembershipPage2 = async () => {
                 console.log("QRUrl", qrUrl)
                 const amount = response?.payment_amount;
                 const currency = response?.payment_currency;
+                const paymentUuid = response?.payment_uuid || response?.payment?.uuid;
+                const paymentExternalId = response?.payment_external_id || response?.payment?.external_id;
 
                 if (qrUrl) {
                     sessionStorage.setItem('membership_qr_code', qrUrl);
                     sessionStorage.setItem('membership_qr_amount', amount);
                     sessionStorage.setItem('membership_qr_currency', currency);
+                    if (paymentUuid) {
+                        sessionStorage.setItem('membership_payment_uuid', paymentUuid);
+                    }
+                    if (paymentExternalId) {
+                        sessionStorage.setItem('membership_payment_external_id', paymentExternalId);
+                    }
 
                     // Redirect to Page3
                     window.location.href = '/memberships/registration/step-3/';

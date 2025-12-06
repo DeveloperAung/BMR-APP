@@ -72,6 +72,8 @@
 </form>
 
 {{ payment_context|json_script:"payment-context-data" }}
+{{ payment_context.payment_uuid|default_if_none:""|json_script:"payment-uuid" }}
+{{ payment_context.payment_external_id|default_if_none:""|json_script:"payment-external-id" }}
 {% block extra_js %}
 <script type="module" src="{% static 'js/memberships/membershipPage3.js' %}"></script>
 {% endblock %}

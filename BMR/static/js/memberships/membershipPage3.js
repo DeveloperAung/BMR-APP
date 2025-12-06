@@ -33,13 +33,13 @@ const normalizeQrUrl = (value = '') => {
 const parsePaymentContext = () => {
     const element = document.getElementById('payment-context-data');
     if (!element) {
-        return { qr_code_url: '', payment_amount: '', payment_currency: '' };
+        return { qr_code_url: '', payment_amount: '', payment_currency: '', payment_uuid: '', payment_external_id: '' };
     }
     try {
         return JSON.parse(element.textContent);
     } catch (error) {
         console.error('Unable to parse payment context data.', error);
-        return { qr_code_url: '', payment_amount: '', payment_currency: '' };
+        return { qr_code_url: '', payment_amount: '', payment_currency: '', payment_uuid: '', payment_external_id: '' };
     }
 };
 
@@ -127,10 +127,14 @@ export const initMembershipPage3 = () => {
     const storedQrUrl = sessionStorage.getItem('membership_qr_code');
     const storedAmount = sessionStorage.getItem('membership_qr_amount');
     const storedCurrency = sessionStorage.getItem('membership_qr_currency');
+    const storedPaymentUuid = sessionStorage.getItem('membership_payment_uuid');
+    const storedPaymentExternalId = sessionStorage.getItem('membership_payment_external_id');
 
     const resolvedQrUrl = storedQrUrl || serverPayment.qr_code_url || '';
     const resolvedAmount = storedAmount || serverPayment.payment_amount || '';
     const resolvedCurrency = storedCurrency || serverPayment.payment_currency || '';
+    const paymentUuid = storedPaymentUuid || serverPayment.payment_uuid || '';
+    const paymentExternalId = storedPaymentExternalId || serverPayment.payment_external_id || '';
 
     const qrImg = document.getElementById('dynamic-qr');
     const qrInfo = document.getElementById('qr-info');
@@ -244,6 +248,58 @@ export const initMembershipPage3 = () => {
         .forEach((radio) => radio.addEventListener('change', toggleSections));
     toggleSections();
 
+    const checkPaymentStatus = async () => {
+        const params = new URLSearchParams();
+        if (paymentExternalId) params.append('external_id', paymentExternalId);
+        else if (paymentUuid) params.append('payment_uuid', paymentUuid);
+        else {
+            showFeedback('No payment identifier found. Please go back to Step 2 and regenerate payment.', 'danger');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/memberships/payment-status/?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await resp.json();
+            if (resp.ok && data.success && data.data) {
+                const status = data.data.status || data.data.new_status || '';
+                if (status.toLowerCase() === 'paid') {
+                    showFeedback('Payment confirmed! Redirecting...', 'success');
+                    window.location.href = '/memberships/details/';
+                    return true;
+                }
+                showFeedback(`Payment status: ${status || 'unknown'}. If you already paid, please wait a few seconds and click Continue again.`, 'info');
+                return false;
+            }
+            showFeedback('Could not check payment status. Please try again.', 'danger');
+            return false;
+        } catch (error) {
+            console.error('Payment status check failed', error);
+            showFeedback('Could not check payment status. Please try again.', 'danger');
+            return false;
+        }
+    };
+
+    // Auto-poll payment status every 6 seconds (up to 20 attempts) when PayNow selected
+    let pollAttempts = 0;
+    let pollTimer = null;
+    const startPaymentPolling = () => {
+        if (pollTimer || !paynowRadio?.checked) return;
+        pollTimer = setInterval(async () => {
+            pollAttempts += 1;
+            const paid = await checkPaymentStatus();
+            if (paid || pollAttempts >= 20) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+        }, 6000);
+    };
+    startPaymentPolling();
+
     const uploadPaymentSlip = async () => {
         if (!slipInput || !slipInput.files.length) {
             showFeedback('Please upload your payment slip before continuing.', 'danger');
@@ -291,7 +347,7 @@ export const initMembershipPage3 = () => {
         continueBtn.addEventListener('click', (event) => {
             event.preventDefault();
             if (paynowRadio?.checked) {
-                showFeedback('Please scan the PayNow QR code to complete your payment.', 'info');
+                checkPaymentStatus();
                 return;
             }
             uploadPaymentSlip();

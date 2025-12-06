@@ -194,6 +194,10 @@ REST_FRAMEWORK = {
     ],
 }
 
+# OneSignal (optional)
+ONESIGNAL_APP_ID = config("ONESIGNAL_APP_ID", default="")
+ONESIGNAL_API_KEY = config("ONESIGNAL_API_KEY", default="")
+
 # JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),

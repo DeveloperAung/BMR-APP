@@ -4,6 +4,10 @@ import { AuthService } from '../../shared/services/AuthService.js';
 import { NotificationService } from '../../shared/services/NotificationService.js';
 
 export const initEventCreate = () => {
+    // Prevent double-initialization if the script is loaded more than once
+    if (window.eventApp) {
+        return;
+    }
     try {
         const form = document.getElementById('eventForm');
         if (!form) {

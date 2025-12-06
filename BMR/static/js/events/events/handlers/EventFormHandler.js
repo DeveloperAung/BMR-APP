@@ -24,6 +24,7 @@ export class EventFormHandler {
 
     this.multiPicker = null;
     this.rangePicker = null;
+    this.isSubmitting = false;
 
     this.bindEvents();
   }
@@ -219,11 +220,19 @@ export class EventFormHandler {
   /** Handle form submission */
   async handleSubmit(event) {
     event.preventDefault();
+
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
+    const submitBtn = this.form.querySelector('button[type="submit"], .event-submit-btn');
+    if (submitBtn) submitBtn.disabled = true;
+
     this.clearFieldErrors();
 
     if (!this.form.checkValidity()) {
       this.form.classList.add('was-validated');
       this.notificationService.showWarning('Please correct the errors in the form.');
+      this.isSubmitting = false;
+      if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
@@ -248,6 +257,9 @@ export class EventFormHandler {
     } catch (error) {
       console.error('catch error', error);
       ApiErrorHandler.handle(error, this.notificationService, { form: this.form });
+    } finally {
+      this.isSubmitting = false;
+      if (submitBtn) submitBtn.disabled = false;
     }
   }
 }

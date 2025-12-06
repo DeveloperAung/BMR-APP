@@ -110,6 +110,8 @@ def member_reg_step_3(request):
         "qr_code_url": "",
         "payment_amount": "",
         "payment_currency": "",
+        "payment_uuid": "",
+        "payment_external_id": "",
     }
 
     if request.user.is_authenticated:
@@ -122,6 +124,8 @@ def member_reg_step_3(request):
                     "qr_code_url": payment_data.get("qr_code") or "",
                     "payment_amount": payment_data.get("amount") or "",
                     "payment_currency": payment_data.get("currency") or "",
+                    "payment_uuid": payment_data.get("uuid") or "",
+                    "payment_external_id": payment_data.get("external_id") or "",
                 })
 
     ctx = {
@@ -164,3 +168,10 @@ def member_event(request):
 
 def member_donation(request):
     return render(request, 'public/users/events/donations.html')
+
+
+def membership_details(request):
+    membership = None
+    if request.user.is_authenticated:
+        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
+    return render(request, 'public/users/membership/details.html', {'membership': membership})

@@ -34,6 +34,7 @@ from .serializers import (
 )
 from authentication.utils.permissions import IsManagementUser
 from ..services.payments import HitPayClient
+from memberships.utils.onesignal import send_payment_notification
 
 LOOKUP_PERMISSION = AllowAny
 
@@ -266,7 +267,9 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
             "payment": payment_data,
             "qr_code_url": payment_data.get("qr_code") if payment_data else None,
             "payment_amount": payment_data.get("amount") if payment_data else None,
-            "payment_currency": payment_data.get("currency") if payment_data else None
+            "payment_currency": payment_data.get("currency") if payment_data else None,
+            "payment_uuid": payment_data.get("uuid") if payment_data else None,
+            "payment_external_id": payment_data.get("external_id") if payment_data else None,
         }
         print("payment", response_data)
         return ok(
@@ -308,6 +311,31 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
         return ok(PaymentReadSerializer(payment).data, "Online payment intent created.", status=201)
+
+    @extend_schema(
+        tags=["Payments"],
+        parameters=[],
+        responses={200: PaymentReadSerializer},
+        summary="Check payment status by external_id or payment_uuid"
+    )
+    @action(detail=False, methods=["GET"], url_path="payment-status")
+    def payment_status(self, request):
+        ext_id = request.query_params.get("external_id")
+        payment_uuid = request.query_params.get("payment_uuid")
+
+        qs = MembershipPayment.objects.filter(method="hitpay")
+        if ext_id:
+            qs = qs.filter(external_id=ext_id)
+        elif payment_uuid:
+            qs = qs.filter(uuid=payment_uuid)
+        else:
+            return fail("external_id or payment_uuid is required", status=400)
+
+        payment = qs.order_by("-created_at").first()
+        if not payment:
+            return fail("Payment not found", status=404)
+
+        return ok(PaymentReadSerializer(payment).data, "Payment status")
 
     @extend_schema(
         tags=["Payments"],
@@ -445,8 +473,22 @@ class HitPayWebhookView(APIView):
         from django.utils import timezone
         if new_status == "paid" and not payment.paid_at:
             payment.paid_at = timezone.now()
+            # Update membership flags
+            try:
+                membership = payment.membership
+                if membership:
+                    membership.is_payment_generated = True
+                    membership.save(update_fields=["is_payment_generated", "modified_at"])
+            except Exception:
+                pass
 
         payment.save()
+
+        # Send push notification via OneSignal if configured
+        try:
+            send_payment_notification(getattr(payment, "membership", None) and payment.membership.user, payment)
+        except Exception:
+            pass
 
         return ok(PaymentReadSerializer(payment).data, "Webhook processed successfully")
 
