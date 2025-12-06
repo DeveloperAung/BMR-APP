@@ -255,12 +255,17 @@ export class BaseRepository {
         }
     }
 
+    normalizedEndpoint() {
+        return this.baseEndpoint.replace(/\/$/, '');
+    }
+
     /**
      * Get list of items with pagination
      */
     async getList(params = {}) {
         try {
-            const jsonData = await this.apiService.get(this.baseEndpoint, params);
+            const base = this.normalizedEndpoint();
+            const jsonData = await this.apiService.get(`${base}/`, params);
             return this.extractListData(jsonData);
         } catch (error) {
             console.error(`${this.constructor.name}.getList failed:`, error);
@@ -273,7 +278,8 @@ export class BaseRepository {
      */
     async getItem(id) {
         try {
-            const jsonData = await this.apiService.get(`${this.baseEndpoint}/${id}/`);
+            const base = this.normalizedEndpoint();
+            const jsonData = await this.apiService.get(`${base}/${id}/`);
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error(`${this.constructor.name}.getItem failed:`, error);
@@ -286,7 +292,8 @@ export class BaseRepository {
      */
     async createItem(data) {
         try {
-            const jsonData = await this.apiService.post(`${this.baseEndpoint}`, data);
+            const base = this.normalizedEndpoint();
+            const jsonData = await this.apiService.post(`${base}/`, data);
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error(`${this.constructor.name}.createItem failed:`, error);
@@ -299,7 +306,8 @@ export class BaseRepository {
      */
     async updateItem(id, data) {
         try {
-            const jsonData = await this.apiService.patch(`${this.baseEndpoint}${id}/`, data);
+            const base = this.normalizedEndpoint();
+            const jsonData = await this.apiService.patch(`${base}/${id}/`, data);
             return jsonData?.data || jsonData;
         } catch (error) {
             console.error(`${this.constructor.name}.updateItem failed:`, error);

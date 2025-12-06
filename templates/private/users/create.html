@@ -17,15 +17,17 @@
                 </div>
                 <div class="card-body">
                     <div id="result"></div>
-                    <!-- Category Form -->
-                    <form id="categoryForm" data-category-id="{{ category.id|default:'' }}" class="needs-validation" novalidate>
+                    <form id="userForm"
+                          data-user-id="{{ user.id|default:'' }}"
+                          data-selected-role="{{ user.group_id|default:'' }}"
+                          class="needs-validation"
+                          novalidate>
 
                         {% csrf_token %}
 
-                        <!-- Title Field -->
                         <div class="mb-4">
                             <label for="username" class="form-label fw-bold">
-                                username <span class="text-danger">*</span>
+                                Username <span class="text-danger">*</span>
                             </label>
                             <input
                                 type="text"
@@ -34,46 +36,46 @@
                                 name="username"
                                 placeholder="Enter username"
                                 required
-                                {% if mode == 'edit' and category %}
-                                    value="{{ category.title }}"
-                                {% endif %}
+                                value="{{ user.username|default:'' }}"
                             >
                             <div class="invalid-feedback">
                                 Please provide username.
                             </div>
                             <div class="form-text">
-                                A descriptive name for the post category.
+                                Unique username for the user.
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <label for="email" class="form-label fw-bold">
-                                email<span class="text-danger">*</span>
+                                Email <span class="text-danger">*</span>
                             </label>
                             <input
-                                type="text"
+                                type="email"
                                 class="form-control form-control-lg"
                                 id="email"
                                 name="email"
                                 placeholder="Enter email"
                                 required
-                                {% if mode == 'edit' %}
-                                    value="{{ user.email }}"
-                                {% endif %}
+                                value="{{ user.email|default:'' }}"
                             >
                             <div class="invalid-feedback">
                                 Please provide Email Address.
                             </div>
                         </div>
 
+                        <div class="alert alert-info mb-4">
+                            A password setup email will be sent to the user after creation. No password is required here.
+                        </div>
+
                         <div class="mb-3">
-                            <label for="event_category" class="form-label">Role <span class="text-danger">*</span></label>
-                            <select class="form-select" id="event_category" name="event_category" required>
+                            <label for="roleSelect" class="form-label">Role <span class="text-danger">*</span></label>
+                            <select class="form-select" id="roleSelect" name="role" required>
                                 <option value="">Select role</option>
                                 {% for role in roles %}
-                                    <option value="{{ category.id }}"
-                                            {% if user and user.role_id == role.id %}selected{% endif %}>
-                                        {{ role.title }}
+                                    <option value="{{ role.id }}"
+                                            {% if user and user.group_id == role.id %}selected{% endif %}>
+                                        {{ role.name }}
                                     </option>
                                 {% endfor %}
                             </select>
@@ -86,7 +88,7 @@
                             <div class="col-md-4 mt-3">
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
-                                           {% if mode == 'create' or category.is_active %}checked{% endif %}>
+                                           {% if mode == 'create' or user.is_active|default:False %}checked{% endif %}>
                                     <label class="form-check-label" for="is_active">
                                         Active?
                                     </label>
@@ -95,9 +97,18 @@
                             <div class="col-md-4 mt-3">
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="is_locked" name="is_locked"
-                                           {% if mode == 'create' or user.is_locked %}checked{% endif %}>
+                                           {% if mode == 'create' or user.is_locked|default:False %}checked{% endif %}>
                                     <label class="form-check-label" for="is_locked">
                                         Locked?
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-3">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff"
+                                           {% if user and user.is_staff %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_staff">
+                                        Staff?
                                     </label>
                                 </div>
                             </div>
@@ -129,12 +140,8 @@
 </div>
     {% block extra_js %}
     <script type="module">
-        import { initUserCreate } from '{% static 'js/user/userCreate.js' %}';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing user form...');
-            initUserCreate();
-        });
+        import { initUserForm } from '{% static 'js/users/userForm.js' %}';
+        document.addEventListener('DOMContentLoaded', () => initUserForm());
     </script>
     {% endblock %}
 {% endblock %}

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
-from authentication.models import User
+from authentication.models import Permission, RolePermission, User
 from core.utils.menu_items import get_menu_items
 from django.contrib.auth.models import Group
 
@@ -30,6 +30,15 @@ def register_page(request):
     }
     return render(request, 'register.html', context)
 
+def forgot_password_page(request):
+    return render(request, 'forgot_password.html')
+
+def reset_password_page(request):
+    return render(request, 'reset_password.html')
+
+def change_password_page(request):
+    return render(request, 'change_password.html')
+
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -53,19 +62,18 @@ def user_list(request):
     return render(request, 'private/users/list.html')
 
 def user_create(request):
+    roles = Group.objects.all().order_by('name')
     context = {
         'mode': 'create',
-        'page_title': 'Create Donation Category'
+        'user': None,
+        'roles': roles,
+        'page_title': 'Create User'
     }
     return render(request, 'private/users/create.html', context)
 
 def user_edit(request, pk):
-    roles = Role.objects.filter(is_active=True)
-
-    try:
-        user = get_object_or_404(User, pk=pk)
-    except:
-        user = None
+    roles = Group.objects.all().order_by('name')
+    user = get_object_or_404(User, pk=pk)
 
     context = {
         'mode': 'edit',
@@ -84,6 +92,8 @@ def role_list(request):
 def role_create(request):
     context = {
         'mode': 'create',
+        'permissions': Permission.objects.all().order_by('code'),
+        'assigned_permissions': [],
     }
     return render(request, 'private/users/role/create.html', context)
 
@@ -94,9 +104,15 @@ def role_edit(request, pk):
     except:
         role = None
 
+    assigned_permissions = RolePermission.objects.filter(
+        group_id=pk
+    ).values_list('permission_id', flat=True)
+
     context = {
         'mode': 'edit',
         'role': role,
         'role_id': pk,
+        'permissions': Permission.objects.all().order_by('code'),
+        'assigned_permissions': assigned_permissions,
     }
     return render(request, 'private/users/role/create.html', context)

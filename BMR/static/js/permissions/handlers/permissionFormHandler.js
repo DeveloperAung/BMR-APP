@@ -60,7 +60,7 @@ export class permissionFormHandler {
             const id = this.form.dataset.permissionId; // For update
 
             if (id) {
-                await this.manager.updatePermission(categoryId, data);
+                await this.manager.updatePermission(id, data);
                 this.notificationService.showSuccess('Permission updated successfully!');
             } else {
                 await this.manager.createPermission(data);
@@ -69,7 +69,7 @@ export class permissionFormHandler {
 
             // redirect after success
             setTimeout(() => {
-                window.location.href = '/roles/list/';
+                window.location.href = '/i/roles/list/';
             }, 1500);
         } catch (error) {
             ApiErrorHandler.handle(error, this.notificationService, { form: this.form });

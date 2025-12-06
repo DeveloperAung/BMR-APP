@@ -1,15 +1,15 @@
 from rest_framework.routers import DefaultRouter
 from .views import (
-    DonationViewSet,
-    EventDonationOptionViewSet,
+    # DonationViewSet,
+    # EventDonationOptionViewSet,
     DonationCategoryViewSet,
     DonationSubCategoryViewSet,
 )
 from django.urls import path, include
 
 router = DefaultRouter()
-router.register(r"", DonationViewSet, basename="donation")
-router.register(r"options", EventDonationOptionViewSet, basename="event-donation-option")
+# router.register(r"", DonationViewSet, basename="donation")
+# router.register(r"options", EventDonationOptionViewSet, basename="event-donation-option")
 router.register(r"categories", DonationCategoryViewSet, basename="donation-category")
 router.register(r"subcategories", DonationSubCategoryViewSet, basename="donation-subcategory")
 

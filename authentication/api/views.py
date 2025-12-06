@@ -23,13 +23,19 @@ from authentication.api.serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
     GoogleAuthSerializer,
-    UserSerializer, GroupSerializer, RolePermissionSerializer, UserGroupAssignSerializer
+    ForgotPasswordSerializer,
+    ResetPasswordSerializer,
+    ChangePasswordSerializer,
+    UserSerializer, GroupSerializer, RolePermissionSerializer, UserGroupAssignSerializer,
+    StaffUserCreateSerializer
 )
-from authentication.models import RolePermission
+from authentication.models import RolePermission, Permission
 from authentication.utils.permissions import HasRolePermission
 from core.utils.handle_google_user import handle_google_user
 from core.utils.pagination import StandardResultsSetPagination
 from core.utils.responses import ok, fail
+from core.utils.emailer import send_otp_email
+from core.utils.otp import generate_otp, expiry
 
 User = get_user_model()
 
@@ -86,6 +92,97 @@ def login(request):
     return fail(
         error=serializer.errors,
         message="Login failed"
+    )
+
+
+@extend_schema(
+    tags=["Auth"],
+    request=ForgotPasswordSerializer,
+    responses={200: dict},
+    summary="Forgot Password",
+    description="Send a one-time code to the user's email to start the password reset process"
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def forgot_password(request):
+    serializer = ForgotPasswordSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.validated_data.get('user')
+
+        if user:
+            code = generate_otp()
+            user.otp_code = code
+            user.otp_expired_at = expiry()
+            user.save(update_fields=['otp_code', 'otp_expired_at'])
+
+            try:
+                send_otp_email(user.email, code)
+            except Exception as exc:
+                return fail(
+                    error=str(exc),
+                    message="Could not send reset code"
+                )
+
+        # Avoid leaking whether the email exists
+        return ok(message="If the account exists, a reset code has been sent.")
+
+    return fail(
+        error=serializer.errors,
+        message="Invalid data"
+    )
+
+
+@extend_schema(
+    tags=["Auth"],
+    request=ResetPasswordSerializer,
+    responses={200: dict},
+    summary="Reset Password",
+    description="Reset password using the OTP code sent to email"
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password(request):
+    serializer = ResetPasswordSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        user.set_password(serializer.validated_data['new_password'])
+        user.otp_code = None
+        user.otp_expired_at = None
+        user.save(update_fields=['password', 'otp_code', 'otp_expired_at'])
+
+        return ok(
+            message="Password reset successfully"
+        )
+
+    return fail(
+        error=serializer.errors,
+        message="Password reset failed"
+    )
+
+
+@extend_schema(
+    tags=["Auth"],
+    request=ChangePasswordSerializer,
+    responses={200: dict},
+    summary="Change Password",
+    description="Change password for the authenticated user"
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        user.set_password(serializer.validated_data['new_password'])
+        user.save(update_fields=['password'])
+
+        return ok(
+            message="Password changed successfully"
+        )
+
+    return fail(
+        error=serializer.errors,
+        message="Password change failed"
     )
 
 
@@ -528,6 +625,39 @@ def update_user(request, user_id):
 
 @extend_schema(
     tags=['Users'],
+    request=StaffUserCreateSerializer,
+    responses={201: UserSerializer},
+    summary="Create User",
+    description="Create a new user (admin only)"
+)
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def create_user(request):
+    serializer = StaffUserCreateSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+
+        # If password was not provided, send OTP email for the user to set a password
+        if not serializer.validated_data.get('password'):
+            code = generate_otp()
+            user.otp_code = code
+            user.otp_expired_at = expiry()
+            user.save(update_fields=['otp_code', 'otp_expired_at'])
+            try:
+                send_otp_email(user.email, code)
+            except Exception as exc:
+                return fail(error=str(exc), message="User created but failed to send password setup email")
+
+        return ok(
+            data=UserSerializer(user).data,
+            message="User created successfully",
+            status=status.HTTP_201_CREATED
+        )
+    return fail(error=serializer.errors, message="User creation failed")
+
+
+@extend_schema(
+    tags=['Users'],
     responses={200: dict},
     summary="Delete User",
     description="Delete a user account"
@@ -577,6 +707,28 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return ok(
+            data=serializer.data,
+            message="Role created successfully",
+            status=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return ok(
+            data=serializer.data,
+            message="Role updated successfully"
+        )
+
     @extend_schema(
         tags=['Users'],
         request={
@@ -613,6 +765,63 @@ class GroupViewSet(viewsets.ModelViewSet):
             )
 
         return ok(message = f'Permission \"{permission_code}\" added to group \"{group.name}\"', status=201)
+
+    @extend_schema(
+        tags=['Users'],
+        methods=['GET', 'POST'],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "permissions": {
+                        "type": "array",
+                        "items": {"type": "integer"},
+                        "example": [1, 2, 3]
+                    }
+                }
+            }
+        },
+        responses={200: dict},
+        description="Get or set permissions for a specific group"
+    )
+    @action(detail=True, methods=['get', 'post'], url_path='permissions')
+    def permissions(self, request, pk=None):
+        group = self.get_object()
+
+        if request.method.lower() == 'get':
+            perms = RolePermission.objects.filter(group=group).select_related('permission')
+            data = [
+                {
+                    'id': perm.permission.id,
+                    'code': perm.permission.code,
+                    'description': perm.permission.description
+                }
+                for perm in perms
+            ]
+            return ok(data=data, message="Permissions retrieved")
+
+        permission_ids = request.data.get('permissions', [])
+        if not isinstance(permission_ids, list):
+            return fail(error="permissions must be a list of IDs")
+
+        valid_permissions = Permission.objects.filter(id__in=permission_ids)
+        valid_ids = set(valid_permissions.values_list('id', flat=True))
+
+        RolePermission.objects.filter(group=group).exclude(permission_id__in=valid_ids).delete()
+        for pid in valid_ids:
+            RolePermission.objects.get_or_create(group=group, permission_id=pid)
+
+        perms = RolePermission.objects.filter(group=group).select_related('permission')
+        data = [
+            {
+                'id': perm.permission.id,
+                'code': perm.permission.code,
+                'description': perm.permission.description
+            }
+            for perm in perms
+        ]
+
+        return ok(data=data, message="Permissions updated")
 
 
 @extend_schema(

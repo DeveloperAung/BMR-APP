@@ -1,6 +1,6 @@
 import { RoleTableRenderer } from './renderers/roleTableRenderer.js';
 import { RoleFormHandler } from './handlers/roleFormHandler.js';
-import { NotificationService } from '../../shared/services/NotificationService.js';
+import { NotificationService } from '../shared/services/NotificationService.js';
 
 // Initialize role list page
 export const initRoleList = () => {

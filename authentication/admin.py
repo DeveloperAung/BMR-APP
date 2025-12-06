@@ -5,3 +5,6 @@ from .models import *
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Permission)
+admin.site.unregister(Group)
+admin.site.register(Group)
+admin.site.register(RolePermission)

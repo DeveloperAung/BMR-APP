@@ -7,7 +7,8 @@ export const API_ENDPOINTS = {
         LOGIN: `${BASE_API_URL}/auth/login/`,
         LOGOUT: `${BASE_API_URL}/auth/logout/`,
         REFRESH: `${BASE_API_URL}/auth/refresh/`,
-        USER_PROFILE: `${BASE_API_URL}/auth/profile/`
+        USER_PROFILE: `${BASE_API_URL}/auth/profile/`,
+        ROLES: `${BASE_API_URL}/auth/groups/`
     },
 
     // Events

@@ -1,5 +1,5 @@
 import { RoleRepository } from '../repositories/roleRepository.js';
-import { NotificationService } from '../../../shared/services/NotificationService.js';
+import { NotificationService } from '../../shared/services/NotificationService.js';
 
 export class RoleFormHandler {
     constructor(form, { authService, notificationService } = {}) {
@@ -100,7 +100,7 @@ export class RoleFormHandler {
             
             // Optional: Redirect or update UI as needed
             setTimeout(() => {
-                window.location.href = '/roles/';
+                window.location.href = '/i/roles/list/';
             }, 1500);
             
         } catch (error) {

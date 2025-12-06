@@ -1,5 +1,5 @@
 import { RoleRepository } from '../repositories/roleRepository.js';
-import { NotificationService } from '../../../shared/services/NotificationService.js';
+import { NotificationService } from '../../shared/services/NotificationService.js';
 
 export class RoleTableRenderer {
     constructor(container, { notificationService } = {}) {
@@ -8,6 +8,7 @@ export class RoleTableRenderer {
         }
 
         this.container = container;
+        this.currentPage = 1;
         this.notificationService = notificationService || new NotificationService();
         this.roleRepository = new RoleRepository({ notificationService: this.notificationService });
         
@@ -21,8 +22,8 @@ export class RoleTableRenderer {
     async loadRoles() {
         try {
             this.showLoading();
-            const roles = await this.roleRepository.getAll();
-            this.renderRoles(roles);
+            const { items, pagination } = await this.roleRepository.getList({ page: this.currentPage });
+            this.renderRoles(items, pagination);
         } catch (error) {
             console.error('Error loading roles:', error);
             this.notificationService.showError('Failed to load roles');
@@ -46,7 +47,7 @@ export class RoleTableRenderer {
         // Loading state is cleared when rendering roles
     }
 
-    renderRoles(roles) {
+    renderRoles(roles, pagination = null) {
         if (!roles || roles.length === 0) {
             this.container.innerHTML = `
                 <div class="alert alert-info">
@@ -72,6 +73,7 @@ export class RoleTableRenderer {
                     </tbody>
                 </table>
             </div>
+            ${this.renderPagination(pagination)}
         `;
 
         this.container.innerHTML = tableHtml;
@@ -79,7 +81,7 @@ export class RoleTableRenderer {
     }
 
     renderRoleRow(role) {
-        const createdAt = new Date(role.created_at).toLocaleString();
+        const createdAt = role.created_at ? new Date(role.created_at).toLocaleString() : '-';
         
         return `
             <tr data-role-id="${role.id}">
@@ -88,7 +90,7 @@ export class RoleTableRenderer {
                 <td>${createdAt}</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a href="/roles/${role.id}/edit/" class="btn btn-sm btn-outline-primary">
+                        <a href="/i/roles/${role.id}/edit/" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
                         <button type="button" class="btn btn-sm btn-outline-danger delete-role" data-role-id="${role.id}">
@@ -100,10 +102,41 @@ export class RoleTableRenderer {
         `;
     }
 
+    renderPagination(pagination) {
+        if (!pagination) return '';
+
+        const { current_page, total_pages, total_count } = pagination;
+        return `
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted small">
+                    Page ${current_page} of ${total_pages || 1} — ${total_count || 0} total
+                </div>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Pagination">
+                    <button class="btn btn-outline-secondary" data-page="${Math.max(1, (current_page || 2) - 1)}" ${current_page <= 1 ? 'disabled' : ''}>
+                        Prev
+                    </button>
+                    <button class="btn btn-outline-secondary" data-page="${(current_page || 1) + 1}" ${total_pages && current_page >= total_pages ? 'disabled' : ''}>
+                        Next
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
     attachEventListeners() {
         // Attach delete button handlers
         this.container.querySelectorAll('.delete-role').forEach(button => {
             button.addEventListener('click', this.handleDeleteClick.bind(this));
+        });
+
+        // Pagination buttons
+        this.container.querySelectorAll('[data-page]').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const targetPage = parseInt(e.currentTarget.dataset.page, 10);
+                if (!targetPage || targetPage === this.currentPage || targetPage < 1) return;
+                this.currentPage = targetPage;
+                await this.loadRoles();
+            });
         });
     }
 

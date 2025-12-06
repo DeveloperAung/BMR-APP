@@ -50,13 +50,13 @@ export class UserTableRenderer extends BaseTableRenderer {
                 </td>
                 <td><p class="f-light mb-0">${escapeHtml(user.email)}</p></td>
                 <td><p class="f-light mb-0">${escapeHtml(user.username)}</p></td>
-                <td>
-                    <span class="badge ${user.is_staff ? 'bg-success' : 'bg-primary'}">
-                        ${user.is_staff ? 'Staff' : 'User'}
-                    </span>
+                <td class="text-center">
+                    <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input staff-toggle" type="checkbox" data-user-id="${user.id}" ${user.is_staff ? 'checked' : ''}>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <span class="fa-solid ${user.is_email_verified ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
+                    <span class="fa-solid ${user.userRole ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}">
                     </span>
                 </td>
                 <td><p class="f-light mb-0">${formatDate(user.date_joined)}</p></td>

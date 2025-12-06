@@ -13,6 +13,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
+    path('password/forgot/', views.forgot_password, name='forgot_password'),
+    path('password/reset/', views.reset_password, name='reset_password'),
+    path('password/change/', views.change_password, name='change_password'),
     path('google/', views.google_auth, name='google_auth'),
     path('google-oauth/', views.google_oauth_exchange, name='google_oauth_exchange'),
     path('profile/', views.profile, name='profile'),
@@ -21,6 +24,7 @@ urlpatterns = [
 
     # User management endpoints (staff only)
     path('users/', views.users_list, name='users_list'),
+    path('users/create/', views.create_user, name='create_user'),
     path('users/<int:user_id>/', views.user_detail, name='user_detail'),
     path('users/<int:user_id>/update/', views.update_user, name='update_user'),
     path('users/<int:user_id>/delete/', views.delete_user, name='delete_user'),

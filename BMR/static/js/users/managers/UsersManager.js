@@ -46,6 +46,14 @@ export class UsersManager {
                 this.deleteUser(e.target.dataset.userId, e.target.dataset.username);
             }
         });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('staff-toggle')) {
+                const userId = e.target.dataset.userId;
+                const isStaff = e.target.checked;
+                this.toggleStaff(userId, isStaff, e.target);
+            }
+        });
     }
 
     async loadUsers() {
@@ -143,7 +151,19 @@ export class UsersManager {
     }
 
     async editUser(userId) {
-        console.log(`Edit user ${userId}`);
+        if (!userId) return;
+        window.location.href = `/i/users/${userId}/edit`;
+    }
+
+    async toggleStaff(userId, isStaff, checkboxEl) {
+        if (!userId) return;
+        try {
+            await this.userRepository.updateItem(userId, { is_staff: isStaff });
+            this.showNotification(`User staff status updated to ${isStaff ? 'staff' : 'user'}`, 'success');
+        } catch (error) {
+            this.showNotification('Failed to update staff status', 'error');
+            if (checkboxEl) checkboxEl.checked = !isStaff; // revert UI on failure
+        }
     }
 
     async deleteUser(userId, username) {

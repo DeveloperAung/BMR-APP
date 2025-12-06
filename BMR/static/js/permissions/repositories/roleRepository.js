@@ -1,6 +1,6 @@
-import { BaseRepository } from '../../../shared/repositories/BaseRepository.js';
-import { ApiErrorHandler } from '../../../shared/services/ApiErrorHandler.js';
-import { API_ENDPOINTS } from '../../../shared/config/apiConfig.js';
+import { BaseRepository } from '../../shared/repositories/BaseRepository.js';
+import { ApiErrorHandler } from '../../shared/services/ApiErrorHandler.js';
+import { API_ENDPOINTS } from '../../shared/config/apiConfig.js';
 
 export class RoleRepository extends BaseRepository {
     constructor({ notificationService } = {}) {
@@ -56,8 +56,9 @@ export class RoleRepository extends BaseRepository {
 
     async getRolePermissions(roleId) {
         try {
-            const response = await this.axiosInstance.get(`${this.endpoint}${roleId}/permissions/`);
-            return response.data;
+            const base = this.baseEndpoint.replace(/\/$/, '');
+            const response = await this.apiService.get(`${base}/${roleId}/permissions/`);
+            return response?.data || response;
         } catch (error) {
             ApiErrorHandler.handle(error, this.notificationService);
             throw error;
@@ -66,11 +67,11 @@ export class RoleRepository extends BaseRepository {
 
     async updateRolePermissions(roleId, permissionIds) {
         try {
-            const response = await this.axiosInstance.post(
-                `${this.endpoint}${roleId}/permissions/`,
-                { permissions: permissionIds }
-            );
-            return response.data;
+            const base = this.baseEndpoint.replace(/\/$/, '');
+            const response = await this.apiService.post(`${base}/${roleId}/permissions/`, {
+                permissions: permissionIds
+            });
+            return response?.data || response;
         } catch (error) {
             ApiErrorHandler.handle(error, this.notificationService);
             throw error;
