@@ -298,8 +298,8 @@ class Membership(AuditModel):
         """Check if membership can be edited"""
         if not self.workflow_status:
             return True
-        # Allow editing before approved (status code 13)
-        return int(self.workflow_status.status_code) < 13
+        # Allow editing before approved & revise (status code 13)
+        return int(self.workflow_status.status_code) <= 13
 
     def is_all_sections_completed(self):
         """Check if all required sections are completed"""
@@ -317,7 +317,7 @@ class Membership(AuditModel):
             old_status = self.workflow_status
 
             # Generate membership number when approved
-            if new_status.status_code == "13":  # Approved
+            if new_status.status_code == "14":  # Approved
                 self.generate_membership_number()
 
             self.workflow_status = new_status

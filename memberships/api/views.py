@@ -196,7 +196,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
             membership = self.get_or_create_membership()
             # Prevent modification if membership is not in editable statuses
             current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
-            if current_status not in ("10", "11", "12"):
+            if current_status not in ("10", "11", "12", "13"):
                 raise ValidationError({"detail": "Application cannot be modified at this stage."})
             serializer = MembershipPage1Serializer(
                 data=request.data,
@@ -241,7 +241,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         membership = self.get_or_create_membership()
         # Prevent modification if membership is not in editable statuses
         current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
-        if current_status not in ("10", "11", "12"):
+        if current_status not in ("10", "11", "12", "13"):
             raise ValidationError({"detail": "Application cannot be modified at this stage."})
 
         serializer = MembershipPage2Serializer(
@@ -320,7 +320,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         membership = self.get_or_create_membership()
         # Prevent adding offline payment if membership is not editable
         current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
-        if current_status not in ("10", "11", "12"):
+        if current_status not in ("10", "11", "12", "13"):
             raise ValidationError({"detail": "Cannot record payment at this stage."})
         serializer = CreateOfflinePaymentSerializer(data=request.data, context={"membership": membership})
         serializer.is_valid(raise_exception=True)

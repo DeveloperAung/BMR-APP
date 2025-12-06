@@ -285,6 +285,7 @@ GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 HITPAY_SALT = config('HITPAY_SALT', default='')
 HITPAY_API_KEY = config('HITPAY_API_KEY', default='')
 HITPAY_API_URL = config('HITPAY_API_URL', default='')
+HITPAY_WEBHOOK_URL = config('HITPAY_API_URL', default='')
 
 FERNET_KEY = config('FERNET_KEY', default='')
 

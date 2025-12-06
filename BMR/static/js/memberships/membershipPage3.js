@@ -8,15 +8,26 @@ const normalizeQrUrl = (value = '') => {
         return '';
     }
     const lowered = trimmed.toLowerCase();
-    if (
-        trimmed.startsWith('/') ||
-        trimmed.startsWith('http://') ||
-        trimmed.startsWith('https://') ||
-        lowered.startsWith('data:image')
-    ) {
+
+    // If already a data URI or a base64 string (likely QR image)
+    if (lowered.startsWith('data:image')) {
         return trimmed;
     }
-    return `data:image/png;base64,${trimmed}`;
+
+    // If looks like raw base64 (no protocol and not a path)
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
+        return `data:image/png;base64,${trimmed}`;
+    }
+
+    // If it's an http(s) URL, check if it points to an image. If not, generate a QR from the URL itself.
+    const isImageUrl = lowered.endsWith('.png') || lowered.endsWith('.jpg') || lowered.endsWith('.jpeg') || lowered.includes('data:image');
+    if (!isImageUrl) {
+        // Generate a QR code image from the URL using a public QR generator
+        const encoded = encodeURIComponent(trimmed);
+        return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encoded}`;
+    }
+
+    return trimmed;
 };
 
 const parsePaymentContext = () => {

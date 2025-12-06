@@ -1,6 +1,7 @@
 # memberships/api/serializers.py
 from datetime import date
 from decimal import Decimal
+from urllib.parse import quote
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -411,10 +412,13 @@ def _normalize_qr_code_value(raw_value):
         return None
 
     lowered = qr_code.lower()
-    if (
-        qr_code.startswith(("http://", "https://", "/"))
-        or lowered.startswith("data:image")
-    ):
+    if lowered.startswith("data:image"):
+        return qr_code
+
+    if qr_code.startswith(("http://", "https://", "/")):
+        # If it is not obviously an image URL, wrap it in a QR generator so <img> can render it
+        if not (lowered.endswith(".png") or lowered.endswith(".jpg") or lowered.endswith(".jpeg")):
+            return f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={quote(qr_code)}"
         return qr_code
 
     compact = ''.join(qr_code.split())
@@ -498,23 +502,9 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
         webhook_url = getattr(settings, 'HITPAY_WEBHOOK_URL', None)
         client = HitPayClient()
 
-        # Development mode
-        if not webhook_url or 'localhost' in webhook_url:
-            if getattr(settings, 'DEBUG', False):
-                return MembershipPayment.objects.create(
-                    membership=membership,
-                    method="hitpay",
-                    provider="hitpay",
-                    status="created",
-                    external_id=f"dev-{membership.reference_no}",
-                    description=description,
-                    amount=amount,
-                    currency=currency.upper(),
-                    period_year=period_year,
-                    qr_code="/static/assets/images/forms/qr-code.png",
-                    raw_response={"dev_mode": True}
-                )
-            raise serializers.ValidationError("Invalid webhook URL configured for production")
+        # Require a webhook for HitPay, but allow localhost in debug; still call HitPay to get a real QR.
+        if not webhook_url:
+            raise serializers.ValidationError("HITPAY_WEBHOOK_URL is not configured")
 
         # Create real payment
         try:
