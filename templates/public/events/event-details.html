@@ -1,0 +1,39 @@
+{% extends 'public/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="page-title mt-5">
+            <div class="row">
+                <div class="col-sm-6 col-12">
+                    <h2></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row container-fluid">
+        <div class="col-md-3">
+
+            <div class="list-group" id="list-tab" role="tablist">
+                {% for category in event_category_menus %}
+                <a class="list-group-item list-group-item-action {% if category.title_others in request.path %}bg-primary{% endif %}"
+                   href="{% url 'event_details' category.title_others %}"
+                   id="list-home-list"
+                   aria-controls="list-home"
+                   aria-selected="false" tabindex="-1">{{ category.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card border-primary">
+                <div class="card-header bg-primary p-4 d-flex justify-content-between">
+                    <h2 class="text-white">{{ category.title }}</h2>
+                </div>
+                <div class="card-body table-responsive">
+                    <p class="mt-2">{{ post.content|safe }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

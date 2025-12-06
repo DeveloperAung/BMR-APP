@@ -32,7 +32,7 @@
                     {% if event_category_menus %}
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
                         {% for category in event_category_menus %}
-                            <li><a class="dropdown-item" href="{% url 'association_post_details' 'about_us' %}">{{ category.title }}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'event_details' category.title_others %}">{{ category.title }}</a></li>
                         {% endfor %}
                     </ul>
                     {% else %}

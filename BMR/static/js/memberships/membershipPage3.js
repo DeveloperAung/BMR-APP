@@ -291,14 +291,14 @@ export const initMembershipPage3 = () => {
         if (pollTimer || !paynowRadio?.checked) return;
         pollTimer = setInterval(async () => {
             pollAttempts += 1;
-            const paid = await checkPaymentStatus();
-            if (paid || pollAttempts >= 20) {
-                clearInterval(pollTimer);
-                pollTimer = null;
-            }
+//            const paid = await checkPaymentStatus();
+//            if (paid || pollAttempts >= 20) {
+//                clearInterval(pollTimer);
+//                pollTimer = null;
+//            }
         }, 6000);
     };
-    startPaymentPolling();
+    // startPaymentPolling();
 
     const uploadPaymentSlip = async () => {
         if (!slipInput || !slipInput.files.length) {

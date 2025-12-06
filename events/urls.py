@@ -25,6 +25,7 @@ internal_urls = [
 
 public_urls = [
     path('dhamma_class/', views.event_medias, name='event_medias'),
+    path('dhamma_class/<str:title_others>/', views.event_details, name='event_details'),
 ]
 
 urlpatterns = [

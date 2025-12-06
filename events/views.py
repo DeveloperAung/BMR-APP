@@ -166,3 +166,14 @@ class EventMediaCreate(View):
             'page_title': f'Create Event Media'
         }
         return render(request, self.template_name, context)
+    
+
+def event_details(request, title_others):
+    event = Event.objects.filter(category__title_others=title_others, is_active=True)
+    # association_posts = AssociationPosts.objects.filter(is_active=True)
+
+    context = {
+        'event': event,
+        # 'association_posts': association_posts,
+    }
+    return render(request, 'public/events/event-details.html', context)

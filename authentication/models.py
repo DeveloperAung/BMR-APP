@@ -37,7 +37,7 @@ class User(AbstractUser):
     is_google_login = models.BooleanField(default=False)
     is_locked = models.BooleanField(default=False)
 
-    group = models.OneToOneField(Group, on_delete=models.CASCADE, blank=True, null=True, related_name='custom_role_users')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True, related_name='custom_role_users')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

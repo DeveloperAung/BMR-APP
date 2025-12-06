@@ -11,10 +11,10 @@ from events.models import EventCategory
 
 def home(request):
     slideshow_items = get_menu_items()
-    event_category_menus = EventCategory.objects.filter(is_active=True)
+    # event_category_menus = EventCategory.objects.filter(is_active=True)
     context = {
         'slideshow_items': slideshow_items,
-        'event_category_menus': event_category_menus,
+        # 'event_category_menus': event_category_menus,
     }
     return render(request, 'public/home.html', context)
 
