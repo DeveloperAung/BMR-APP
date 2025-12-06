@@ -28,6 +28,15 @@ class HitPayClient:
         resp.raise_for_status()
         return resp.json()
 
+    def get_payment_request(self, payment_id: str):
+        """
+        Fetch a payment request status by its HitPay ID.
+        """
+        url = f"{self.base_url}/payment-requests/{payment_id}"
+        resp = requests.get(url, headers=self.headers)
+        resp.raise_for_status()
+        return resp.json()
+
     def create_payment_request(self,
                                amount,
                                currency,
@@ -77,6 +86,7 @@ class HitPayClient:
             body["expiry_date"] = expiry_date
 
         resp = requests.post(url, json=body, headers=self.headers)
+        print("resp", resp)
         resp.raise_for_status()
 
         return resp.json()

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-35hf)n30^xp=8m^x67p4m#_t!((p3i7m#ww3kmymvskdap5qcg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -290,7 +290,7 @@ GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 HITPAY_SALT = config('HITPAY_SALT', default='')
 HITPAY_API_KEY = config('HITPAY_API_KEY', default='')
 HITPAY_API_URL = config('HITPAY_API_URL', default='')
-HITPAY_WEBHOOK_URL = config('HITPAY_API_URL', default='')
+HITPAY_WEBHOOK_URL = config('HITPAY_WEBHOOK_URL', default='')
 
 FERNET_KEY = config('FERNET_KEY', default='')
 

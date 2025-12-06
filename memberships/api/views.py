@@ -35,6 +35,7 @@ from .serializers import (
 from authentication.utils.permissions import IsManagementUser
 from ..services.payments import HitPayClient
 from memberships.utils.onesignal import send_payment_notification
+from core.models import Status
 
 LOOKUP_PERMISSION = AllowAny
 
@@ -335,7 +336,48 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         if not payment:
             return fail("Payment not found", status=404)
 
+        # If still not paid, try refreshing status from HitPay directly
+        try:
+            if payment.external_id and payment.status != "paid":
+                client = HitPayClient()
+                data = client.get_payment_request(payment.external_id)
+                status_val = (data.get("status") or "").lower()
+                status_mapping = {
+                    "succeeded": "paid",
+                    "completed": "paid",
+                    "pending": "created",
+                    "failed": "failed",
+                    "cancelled": "cancelled",
+                }
+                mapped_status = status_mapping.get(status_val, payment.status)
+                payment.status = mapped_status
+                payment.raw_response = data
+                if mapped_status == "paid" and not payment.paid_at:
+                    from django.utils import timezone
+                    payment.paid_at = timezone.now()
+                if mapped_status == "paid" and payment.membership:
+                    self._mark_membership_paid(payment)
+                payment.save(update_fields=["status", "raw_response", "paid_at", "modified_at"])
+        except Exception:
+            pass
+
         return ok(PaymentReadSerializer(payment).data, "Payment status")
+
+    def _mark_membership_paid(self, payment: MembershipPayment):
+        try:
+            membership = payment.membership
+            if not membership:
+                return
+            membership.is_payment_generated = True
+            # Transition to pending approval (12) if available
+            try:
+                membership.transition("12", reason="Payment completed via HitPay", actor=None, save_membership=True)
+            except Status.DoesNotExist:
+                membership.save(update_fields=["is_payment_generated", "modified_at"])
+            else:
+                membership.save(update_fields=["is_payment_generated", "workflow_status", "modified_at"])
+        except Exception:
+            pass
 
     @extend_schema(
         tags=["Payments"],
@@ -473,14 +515,7 @@ class HitPayWebhookView(APIView):
         from django.utils import timezone
         if new_status == "paid" and not payment.paid_at:
             payment.paid_at = timezone.now()
-            # Update membership flags
-            try:
-                membership = payment.membership
-                if membership:
-                    membership.is_payment_generated = True
-                    membership.save(update_fields=["is_payment_generated", "modified_at"])
-            except Exception:
-                pass
+            self._mark_membership_paid(payment)
 
         payment.save()
 
@@ -491,6 +526,22 @@ class HitPayWebhookView(APIView):
             pass
 
         return ok(PaymentReadSerializer(payment).data, "Webhook processed successfully")
+
+    def _mark_membership_paid(self, payment: MembershipPayment):
+        try:
+            membership = payment.membership
+            if not membership:
+                return
+            membership.is_payment_generated = True
+            # Transition to pending approval (12) if available
+            try:
+                membership.transition("12", reason="Payment completed via HitPay", actor=None, save_membership=True)
+            except Status.DoesNotExist:
+                membership.save(update_fields=["is_payment_generated", "modified_at"])
+            else:
+                membership.save(update_fields=["is_payment_generated", "workflow_status", "modified_at"])
+        except Exception:
+            pass
 
 
 from drf_spectacular.utils import (

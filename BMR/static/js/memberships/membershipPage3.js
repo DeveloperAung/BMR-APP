@@ -19,14 +19,6 @@ const normalizeQrUrl = (value = '') => {
         return `data:image/png;base64,${trimmed}`;
     }
 
-    // If it's an http(s) URL, check if it points to an image. If not, generate a QR from the URL itself.
-    const isImageUrl = lowered.endsWith('.png') || lowered.endsWith('.jpg') || lowered.endsWith('.jpeg') || lowered.includes('data:image');
-    if (!isImageUrl) {
-        // Generate a QR code image from the URL using a public QR generator
-        const encoded = encodeURIComponent(trimmed);
-        return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encoded}`;
-    }
-
     return trimmed;
 };
 
@@ -268,8 +260,10 @@ export const initMembershipPage3 = () => {
             if (resp.ok && data.success && data.data) {
                 const status = data.data.status || data.data.new_status || '';
                 if (status.toLowerCase() === 'paid') {
-                    showFeedback('Payment confirmed! Redirecting...', 'success');
-                    window.location.href = '/memberships/details/';
+                    showFeedback('Payment confirmed! Redirecting to your dashboard...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 800);
                     return true;
                 }
                 showFeedback(`Payment status: ${status || 'unknown'}. If you already paid, please wait a few seconds and click Continue again.`, 'info');
@@ -291,11 +285,11 @@ export const initMembershipPage3 = () => {
         if (pollTimer || !paynowRadio?.checked) return;
         pollTimer = setInterval(async () => {
             pollAttempts += 1;
-//            const paid = await checkPaymentStatus();
-//            if (paid || pollAttempts >= 20) {
-//                clearInterval(pollTimer);
-//                pollTimer = null;
-//            }
+           const paid = await checkPaymentStatus();
+           if (paid || pollAttempts >= 20) {
+               clearInterval(pollTimer);
+               pollTimer = null;
+           }
         }, 6000);
     };
     // startPaymentPolling();

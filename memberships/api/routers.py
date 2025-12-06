@@ -24,6 +24,10 @@ urlpatterns = [
 
     # Webhooks
     path("payments/webhooks/hitpay/", HitPayWebhookView.as_view(), name="hitpay-webhook"),
+    path(
+        "payments/webhooks/hitpay",
+        HitPayWebhookView.as_view(),
+    ),
 ]
 
 urlpatterns += router.urls

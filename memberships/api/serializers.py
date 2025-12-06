@@ -415,10 +415,15 @@ def _normalize_qr_code_value(raw_value):
     if lowered.startswith("data:image"):
         return qr_code
 
-    if qr_code.startswith(("http://", "https://", "/")):
-        # If it is not obviously an image URL, wrap it in a QR generator so <img> can render it
-        if not (lowered.endswith(".png") or lowered.endswith(".jpg") or lowered.endswith(".jpeg")):
-            return f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={quote(qr_code)}"
+    # For http/https links: if not already an image, wrap into a QR image once.
+    if qr_code.startswith(("http://", "https://")):
+        if lowered.endswith((".png", ".jpg", ".jpeg")):
+            return qr_code
+        encoded = quote(qr_code, safe="")
+        return f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={encoded}"
+
+    # For absolute/relative paths, return as-is
+    if qr_code.startswith("/"):
         return qr_code
 
     compact = ''.join(qr_code.split())
