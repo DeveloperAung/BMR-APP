@@ -543,6 +543,22 @@ class HitPayWebhookView(APIView):
         except Exception:
             pass
 
+@extend_schema(tags=["Payments"], summary="HitPay payment status check")
+class PaymentStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, external_id):
+        try:
+            payment = MembershipPayment.objects.get(external_id=external_id, method="hitpay")
+        except MembershipPayment.DoesNotExist:
+            return fail("Payment not found.", status=404)
+
+        return ok({
+            "status": payment.status,
+            "paid_at": payment.paid_at,
+            "membership_reference": payment.membership.reference_no if payment.membership else None,
+        })
+    
 
 from drf_spectacular.utils import (
     extend_schema, OpenApiExample, OpenApiResponse

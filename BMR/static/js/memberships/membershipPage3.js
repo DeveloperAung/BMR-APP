@@ -241,29 +241,33 @@ export const initMembershipPage3 = () => {
     toggleSections();
 
     const checkPaymentStatus = async () => {
-        const params = new URLSearchParams();
-        if (paymentExternalId) params.append('external_id', paymentExternalId);
-        else if (paymentUuid) params.append('payment_uuid', paymentUuid);
-        else {
-            showFeedback('No payment identifier found. Please go back to Step 2 and regenerate payment.', 'danger');
-            return;
-        }
-
         try {
-            const resp = await fetch(`/api/memberships/payment-status/?${params.toString()}`, {
+            let url = '';
+            if (paymentExternalId) {
+                url = `/api/membership/payments/${encodeURIComponent(paymentExternalId)}/status/`;
+            } else if (paymentUuid) {
+                url = `/api/memberships/payment-status/?payment_uuid=${encodeURIComponent(paymentUuid)}`;
+            } else {
+                showFeedback('No payment identifier found. Please go back to Step 2 and regenerate payment.', 'danger');
+                return false;
+            }
+
+            const headers = { 'Content-Type': 'application/json' };
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const resp = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers
             });
             const data = await resp.json();
             if (resp.ok && data.success && data.data) {
-                const status = data.data.status || data.data.new_status || '';
-                if (status.toLowerCase() === 'paid') {
-                    showFeedback('Payment confirmed! Redirecting to your dashboard...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/';
-                    }, 800);
+                const status = (data.data.status || data.data.new_status || '').toLowerCase();
+                if (status === 'paid') {
+                    showFeedback('Complete Payment. Redirecting to your dashboard...', 'success');
+                    setTimeout(() => { window.location.href = '/e/dashboard/'; }, 800);
                     return true;
                 }
                 showFeedback(`Payment status: ${status || 'unknown'}. If you already paid, please wait a few seconds and click Continue again.`, 'info');
@@ -285,14 +289,14 @@ export const initMembershipPage3 = () => {
         if (pollTimer || !paynowRadio?.checked) return;
         pollTimer = setInterval(async () => {
             pollAttempts += 1;
-           const paid = await checkPaymentStatus();
-           if (paid || pollAttempts >= 20) {
-               clearInterval(pollTimer);
-               pollTimer = null;
-           }
+            const paid = await checkPaymentStatus();
+            if (paid || pollAttempts >= 20) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
         }, 6000);
     };
-    // startPaymentPolling();
+    startPaymentPolling();
 
     const uploadPaymentSlip = async () => {
         if (!slipInput || !slipInput.files.length) {

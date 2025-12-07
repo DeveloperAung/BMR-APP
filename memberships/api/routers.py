@@ -8,7 +8,8 @@ from .views import (
     MembershipTypeListAPIView,
     HitPayWebhookView,
     MembershipMetaView,
-    ManagementMembershipViewSet
+    ManagementMembershipViewSet,
+    PaymentStatusView,
 )
 
 router = DefaultRouter()
@@ -24,10 +25,7 @@ urlpatterns = [
 
     # Webhooks
     path("payments/webhooks/hitpay/", HitPayWebhookView.as_view(), name="hitpay-webhook"),
-    path(
-        "payments/webhooks/hitpay",
-        HitPayWebhookView.as_view(),
-    ),
+    path("payments/<str:external_id>/status/", PaymentStatusView.as_view(), name="payment-status"),
 ]
 
 urlpatterns += router.urls
