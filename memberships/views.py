@@ -1,8 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from .models import *
 from .api.serializers import PaymentReadSerializer
+
+User = get_user_model()
 
 
 def membership_list(request):
@@ -175,3 +179,49 @@ def membership_details(request):
     if request.user.is_authenticated:
         membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
     return render(request, 'public/users/membership/details.html', {'membership': membership})
+
+
+def profile(request):
+    """Profile page for the logged-in user.
+
+    This mirrors the membership details lookup and renders the profile template
+    so profile-related pages live under the `memberships` app (consistent
+    with other member pages like events/donations).
+    
+    Works with both Django sessions and JWT tokens (from localStorage).
+    """
+    membership = None
+    user = None
+    
+    # Check Django session authentication first
+    if request.user.is_authenticated and not request.user.is_anonymous:
+        user = request.user
+        membership = Membership.objects.filter(user=user).order_by('-created_at').first()
+    else:
+        # If not authenticated via Django session, try to get user from JWT token
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from rest_framework.request import Request as DRFRequest
+        
+        try:
+            jwt_auth = JWTAuthentication()
+            drf_request = DRFRequest(request)
+            auth_result = jwt_auth.authenticate(drf_request)
+            if auth_result:
+                user, token = auth_result
+                membership = Membership.objects.filter(user=user).order_by('-created_at').first()
+        except:
+            # Check for Authorization header manually
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                token_str = auth_header[7:]
+                try:
+                    from rest_framework_simplejwt.tokens import AccessToken
+                    token = AccessToken(token_str)
+                    user_id = token.get('user_id')
+                    if user_id:
+                        user = User.objects.get(id=user_id)
+                        membership = Membership.objects.filter(user=user).order_by('-created_at').first()
+                except:
+                    pass
+    
+    return render(request, 'public/users/profile/details.html', {'membership': membership})

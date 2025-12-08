@@ -1,0 +1,316 @@
+{% extends 'public/base.html' %} {% load static %} {% block title %}My Profile - BMR{% endblock %} {% block content %}
+<div class="container-xl my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'public/users/partials/_sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="col-xl-9 col-md-8 box-col-8">
+            <div class="card border-primary">
+                <div class="card-header bg-primary">
+                    <h5 class="text-white mb-0">My Profile & Membership Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if not membership %}
+                    <div class="alert alert-info" role="alert">
+                        <h6 class="alert-heading">No Membership Found</h6>
+                        <p>You haven't applied for membership yet.
+                            <a href="{% url 'member_reg_step_1' %}" class="alert-link">Apply for membership</a>
+                        </p>
+                    </div>
+                    {% else %}
+
+                    <!-- Left list (like events) + Tab Content -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="list-group" id="list-tab" role="tablist">
+                                <a class="list-group-item list-group-item-action active" id="list-personal-list" data-bs-toggle="list" href="#personal" role="tab" aria-controls="personal">
+                                    <i data-feather="user" class="me-2"></i>Personal Info
+                                </a>
+                                <a class="list-group-item list-group-item-action" id="list-contact-list" data-bs-toggle="list" href="#contact" role="tab" aria-controls="contact">
+                                    <i data-feather="phone" class="me-2"></i>Contact Info
+                                </a>
+                                <a class="list-group-item list-group-item-action" id="list-education-list" data-bs-toggle="list" href="#education" role="tab" aria-controls="education">
+                                    <i data-feather="book" class="me-2"></i>Education Info
+                                </a>
+                                <a class="list-group-item list-group-item-action" id="list-work-list" data-bs-toggle="list" href="#work" role="tab" aria-controls="work">
+                                    <i data-feather="briefcase" class="me-2"></i>Work Info
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="tab-content" id="membershipTabContent">
+
+                                <!-- Personal Info Tab -->
+                                <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="list-personal-list">
+                                    <div class="pt-4">
+                                        {% if membership.profile_info %}
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Full Name</h6>
+                                                <p class="h6">{{ membership.profile_info.full_name }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Date of Birth</h6>
+                                                <p class="h6">{{ membership.profile_info.date_of_birth|date:"d M Y" }}
+                                                    <span class="badge bg-secondary">Age: {{ membership.profile_info.get_age }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Gender</h6>
+                                                <p class="h6">
+                                                    {% if membership.profile_info.gender == 'M' %} Male {% elif membership.profile_info.gender == 'F' %} Female {% else %} Other {% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Country of Birth</h6>
+                                                <p class="h6">{{ membership.profile_info.country_of_birth }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">City of Birth</h6>
+                                                <p class="h6">{{ membership.profile_info.city_of_birth|default:"N/A" }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Citizenship</h6>
+                                                <p class="h6">{{ membership.profile_info.citizenship }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Membership Type</h6>
+                                                <p class="h6">
+                                                    <span class="badge bg-primary">{{ membership.membership_type.name }}</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Membership Number</h6>
+                                                <p class="h6">{{ membership.membership_number|default:"Pending" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Reference Number</h6>
+                                                <p class="h6">{{ membership.reference_no }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Applied Date</h6>
+                                                <p class="h6">{{ membership.applied_date|date:"d M Y" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Status</h6>
+                                                <p class="h6">
+                                                    {% if membership.workflow_status %}
+                                                    <span class="badge bg-success">{{ membership.workflow_status.status_name }}</span> {% else %}
+                                                    <span class="badge bg-warning">Pending</span> {% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="alert alert-warning">Personal information not yet submitted.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Contact Info Tab -->
+                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="list-contact-list">
+                                    <div class="pt-4">
+                                        {% if membership.contact_info %}
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">NRIC / FIN</h6>
+                                                <p class="h6">{{ membership.contact_info.nric_fin_masked }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Residential Status</h6>
+                                                <p class="h6">{{ membership.contact_info.get_residential_status_display|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Primary Contact</h6>
+                                                <p class="h6">{{ membership.contact_info.primary_contact_masked }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Secondary Contact</h6>
+                                                <p class="h6">{{ membership.contact_info.secondary_contact_masked|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <h6 class="text-muted">Address</h6>
+                                                <p class="h6">{{ membership.contact_info.address|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Postal Code</h6>
+                                                <p class="h6">{{ membership.contact_info.postal_code|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="alert alert-warning">Contact information not yet submitted.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Education Info Tab -->
+                                <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="list-education-list">
+                                    <div class="pt-4">
+                                        {% if membership.education_info %}
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Education Level</h6>
+                                                <p class="h6">{{ membership.education_info.education.name|default:"N/A" }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Institution</h6>
+                                                <p class="h6">{{ membership.education_info.institution.name|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <h6 class="text-muted">Other Societies / Associations</h6>
+                                                <p class="h6">{{ membership.education_info.other_societies|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="alert alert-warning">Education information not yet submitted.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Work Info Tab -->
+                                <div class="tab-pane fade" id="work" role="tabpanel" aria-labelledby="list-work-list">
+                                    <div class="pt-4">
+                                        {% if membership.work_info %}
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Occupation</h6>
+                                                <p class="h6">{{ membership.work_info.occupation|default:"N/A" }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Company Name</h6>
+                                                <p class="h6">{{ membership.work_info.company_name|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <h6 class="text-muted">Company Address</h6>
+                                                <p class="h6">{{ membership.work_info.company_address|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Company Postal Code</h6>
+                                                <p class="h6">{{ membership.work_info.company_postal_code|default:"N/A" }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-muted">Company Contact</h6>
+                                                <p class="h6">{{ membership.work_info.company_contact_masked|default:"N/A" }}</p>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="alert alert-warning">Work information not yet submitted.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                            {% endif %}
+
+                            <!-- Actions -->
+                            <div class="mt-4 pt-3 border-top">
+                                {% if membership %}
+                                <a href="{% url 'member_reg_step_1' %}" class="btn btn-primary btn-sm">
+                                    <i data-feather="edit-2" class="me-1"></i>Edit Membership
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'public_dashboard' %}" class="btn btn-secondary btn-sm">
+                                    <i data-feather="arrow-left" class="me-1"></i>Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .nav-tabs .nav-link {
+                color: #495057;
+                border-bottom: 2px solid transparent;
+                transition: all 0.3s;
+            }
+            
+            .nav-tabs .nav-link:hover {
+                color: #0062cc;
+                border-bottom-color: #0062cc;
+            }
+            
+            .nav-tabs .nav-link.active {
+                color: #0062cc;
+                border-bottom-color: #0062cc;
+                background-color: #f8f9fa;
+            }
+            
+            .tab-pane {
+                animation: fadeIn 0.3s ease-in;
+            }
+            
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            
+            .badge {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.65rem;
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+        <script>
+            feather.replace();
+
+            // Initialize Bootstrap list-group tabs manually
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get all tab trigger elements
+                const tabElements = document.querySelectorAll('[data-bs-toggle="list"]');
+
+                tabElements.forEach(element => {
+                    element.addEventListener('click', function(e) {
+                        e.preventDefault();
+
+                        // Get the target pane ID from href
+                        const targetId = this.getAttribute('href');
+                        if (!targetId) return;
+
+                        // Remove active class from all items and panes
+                        document.querySelectorAll('[data-bs-toggle="list"]').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        document.querySelectorAll('.tab-pane').forEach(pane => {
+                            pane.classList.remove('show', 'active');
+                        });
+
+                        // Add active class to clicked item and target pane
+                        this.classList.add('active');
+                        const targetPane = document.querySelector(targetId);
+                        if (targetPane) {
+                            targetPane.classList.add('show', 'active');
+                        }
+                    });
+                });
+            });
+        </script>
+        {% endblock %}

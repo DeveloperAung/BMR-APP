@@ -7,19 +7,15 @@
                 <div class="user-profile-section">
                     <div class="user-avatar text-center">
                         {% if user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" alt="Profile" class="img-90 rounded-circle">
-                        {% else %}
-                        <img src="{% static 'assets/images/avtar/4.jpg' %}" alt="Profile" class="img-90 rounded-circle text-center">
-                        {% endif %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Profile" class="img-90 rounded-circle"> {% else %}
+                        <img src="{% static 'assets/images/avtar/4.jpg' %}" alt="Profile" class="img-90 rounded-circle text-center"> {% endif %}
                     </div>
                     <div class="user-info text-center">
                         <h6>{{ user.profile.first_name|default:user.username }}</h6>
                         <p class="text-muted mt-2">{{ user.email }} support@bmr.sg</p>
                         {% if user.membership %}
-                        <span class="badge rounded-pill badge-primary">{{ user.membership.type.name }}</span>
-                        {% else %}
-                        <span class="badge rounded-pill badge-primary">No Membership</span>
-                        {% endif %}
+                        <span class="badge rounded-pill badge-primary">{{ user.membership.type.name }}</span> {% else %}
+                        <span class="badge rounded-pill badge-primary">No Membership</span> {% endif %}
                     </div>
                 </div>
 
@@ -28,28 +24,16 @@
                 <!-- Navigation Menu -->
                 <div class="">
                     <div class="list-group" id="list-tab" role="tablist">
-                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list"
-                           aria-controls="list-home"
-                           aria-selected="false" tabindex="-1">Menu
+                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list" aria-controls="list-home" aria-selected="false" tabindex="-1">Menu
                         </a>
-                        <a class="list-group-item list-group-item-action  list-hover-primary" id="list-home-profile"
-                           href="#list-home" aria-controls="list-home"
-                           aria-selected="false" tabindex="-1">Profile
+                        <a class="list-group-item list-group-item-action  list-hover-primary {% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}active{% endif %}" id="list-home-profile" href="{% url 'membership_profile' %}"
+                            aria-controls="list-home" aria-selected="{% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}true{% else %}false{% endif %}" tabindex="-1">Profile
                         </a>
-                        <a
-                            class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path %}active{% endif %}"
-                            id="list-profile-list" href="{% url 'member_reg_step_1' %}"
-                            aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership
+                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path %}active{% endif %}" id="list-profile-list" href="{% url 'member_reg_step_1' %}" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership
                         </a>
-                        <a
-                            class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}"
-                            id="list-settings-list" href="{% url 'member_donation' %}"
-                            aria-controls="list-settings" aria-selected="true">Donation
+                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_donation' %}" aria-controls="list-settings" aria-selected="true">Donation
                         </a>
-                        <a
-                            class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}"
-                            id="list-settings-list" href="{% url 'member_event' %}"
-                            aria-controls="list-settings" aria-selected="true">Event
+                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_event' %}" aria-controls="list-settings" aria-selected="true">Event
                         </a>
                     </div>
                 </div>
@@ -61,8 +45,7 @@
                     <h6 class="section-title mb-2 text-primary">Quick Actions</h6>
                     <div class="action-buttons">
                         {% if not user.membership %}
-                        <a href="{% url 'member_reg_step_1' %}"
-                           class="btn btn-primary btn-sm w-100 mb-2 text-end">
+                        <a href="{% url 'member_reg_step_1' %}" class="btn btn-primary btn-sm w-100 mb-2 text-end">
                             <i data-feather="plus-circle" class="me-1"></i>Apply Membership
                         </a>
                         {% endif %}
