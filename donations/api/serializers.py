@@ -18,6 +18,17 @@ class DonationSubCategorySerializer(serializers.ModelSerializer):
         fields = ("id", "title", "donation_category")
 
 
+class MemberDonationSerializer(serializers.ModelSerializer):
+    donation_category_title = serializers.CharField(source='donation_category.title', read_only=True)
+    donation_sub_category_title = serializers.CharField(source='donation_sub_category.title', read_only=True)
+    
+    class Meta:
+        model = __import__('donations.models', fromlist=['MemberDonation']).MemberDonation
+        fields = ("id", "member", "donation_category", "donation_sub_category", 
+                  "donation_category_title", "donation_sub_category_title",
+                  "amount", "donation_date", "notes", "status", "created_at")
+
+
 # class EventDonationOptionSerializer(serializers.ModelSerializer):
 #     donation_category = DonationCategorySerializer(read_only=True)
 #

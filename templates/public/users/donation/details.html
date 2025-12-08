@@ -1,0 +1,358 @@
+{% extends 'public/base.html' %} {% load static %} {% block title %}Donations - BMR{% endblock %} {% block content %}
+<div class="container-xl my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'public/users/partials/_sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="col-xl-9 col-md-8 box-col-8">
+            <div class=" card border-primary">
+                <div class="card-header bg-primary">
+                    <h5 class="text-white mb-0">Donations</h5>
+                </div>
+                <div class="card-body">
+                    {% if membership %}
+                    <div class="row">
+                        <!-- Left Navigation -->
+                        <div class="col-md-3">
+                            <div class="list-group" id="list-tab" role="tablist">
+                                <a class="list-group-item list-group-item-action active" id="list-make-list" data-bs-toggle="list" href="#make" role="tab" aria-controls="make" aria-selected="true">
+                                    <i data-feather="plus-circle" class="me-2"></i>Make Donation
+                                </a>
+                                <a class="list-group-item list-group-item-action" id="list-history-list" data-bs-toggle="list" href="#history" role="tab" aria-controls="history" aria-selected="false">
+                                    <i data-feather="history" class="me-2"></i>Donation History
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Content -->
+                        <div class="col-md-9">
+                            <div class="tab-content" id="membershipTabContent">
+                                <!-- Make Donation Tab -->
+                                <div class="tab-pane fade show active" id="make" role="tabpanel" aria-labelledby="list-make-list">
+                                    <h4 class="mb-4">Make a Donation</h4>
+                                    <form id="donationForm" method="POST">
+                                        {% csrf_token %}
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="donation_category">Donation Category <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="donation_category" name="donation_category" required>
+                                                    <option value="">-- Select Category --</option>
+                                                    {% for category in categories %}
+                                                    <option value="{{ category.id }}">{{ category.title }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="donation_sub_category">Donation Sub-Category <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="donation_sub_category" name="donation_sub_category" required>
+                                                    <option value="">-- Select Sub-Category --</option>
+                                                </select>
+                                            <small class="text-muted">Sub-categories will appear after selecting a category.</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="amount">Amount (SGD) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="amount" name="amount" placeholder="Enter donation amount" step="0.01" min="0" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="donation_date">Donation Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="donation_date" name="donation_date" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="notes">Notes (Optional)</label>
+                                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes..."></textarea>
+                                        </div>
+
+                                        <div class="form-footer">
+                                            <button type="submit" class="btn btn-primary">
+                                                    <i data-feather="check" class="me-2"></i>Submit Donation
+                                                </button>
+                                            <a href="{% url 'member_event' %}" class="btn btn-outline-secondary">
+                                                    Back to Dashboard
+                                                </a>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Donation History Tab -->
+                                <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="list-history-list">
+                                    <h4 class="mb-4">
+                                        <i data-feather="gift" class="me-2"></i>Donation History
+                                    </h4>
+                                    {% if donations %}
+                                    <div class="row">
+                                        {% for donation in donations %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-0 border-info shadow-sm h-100 donation-card" style="transition: transform 0.2s, box-shadow 0.2s;">
+                                                <div class="card-body">
+                                                    <!-- Header with Date and Status -->
+                                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                                        <div>
+                                                            <h6 class="card-title mb-1">
+                                                                {% if donation.donation_category %} {{ donation.donation_category.title }} {% else %}
+                                                                <span class="text-muted">N/A</span> {% endif %}
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                <i data-feather="calendar" style="width: 14px; height: 14px;"></i>
+                                                                {{ donation.donation_date|date:"d M Y" }}
+                                                            </small>
+                                                        </div>
+                                                        <div>
+                                                            {% if donation.status == 'completed' %}
+                                                            <span class="badge bg-success-lt text-success">
+                                                                    <i data-feather="check-circle" style="width: 12px; height: 12px;"></i>
+                                                                    Completed
+                                                                </span> {% elif donation.status == 'pending' %}
+                                                            <span class="badge bg-warning-lt text-warning">
+                                                                    <i data-feather="clock" style="width: 12px; height: 12px;"></i>
+                                                                    Pending
+                                                                </span> {% elif donation.status == 'cancelled' %}
+                                                            <span class="badge bg-danger-lt text-danger">
+                                                                    <i data-feather="x-circle" style="width: 12px; height: 12px;"></i>
+                                                                    Cancelled
+                                                                </span> {% endif %}
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Sub-Category and Amount -->
+                                                    <div class="mb-3">
+                                                        <p class="text-muted small mb-1">Sub-Category</p>
+                                                        <p class="mb-2">
+                                                            {% if donation.donation_sub_category %}
+                                                            <strong>{{ donation.donation_sub_category.title }}</strong> {% else %}
+                                                            <span class="text-muted">N/A</span> {% endif %}
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Amount Display -->
+                                                    <div class="mb-3 pb-3 border-bottom">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="text-muted">Donation Amount</span>
+                                                            <h5 class="mb-0 text-primary fw-bold">${{ donation.amount }}</h5>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Notes (if any) -->
+                                                    {% if donation.notes %}
+                                                    <div class="mb-3">
+                                                        <p class="text-muted small mb-1">Notes</p>
+                                                        <p class="small mb-0" style="color: #666;">{{ donation.notes }}</p>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    <!-- Action Buttons -->
+                                                    <div class="d-flex gap-2 pt-2">
+                                                        <button type="button" class="btn btn-sm btn-primary btn-icon" title="View Details" data-donation-id="{{ donation.id }}" onclick="viewDonationDetail({{ donation.id }})">
+                                                            <i data-feather="eye"></i>
+                                                            <span class="d-none d-md-inline ms-1">Details</span>
+                                                        </button> {% if donation.status == 'completed' %}
+                                                        <button type="button" class="btn btn-sm btn-outline-success btn-icon" title="Download Certificate" data-donation-id="{{ donation.id }}" onclick="downloadCertificate({{ donation.id }})">
+                                                            <i data-feather="download"></i>
+                                                            <span class="d-none d-md-inline ms-1">Certificate</span>
+                                                        </button> {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Summary Stats -->
+                                    <div class="row mt-4 pt-3 border-top">
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <p class="text-muted small mb-1">Total Donations</p>
+                                                <h6 class="fw-bold">{{ total_donations }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <p class="text-muted small mb-1">Completed</p>
+                                                <h6 class="fw-bold text-success">{{ completed_count }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <p class="text-muted small mb-1">Total Amount</p>
+                                                <h6 class="fw-bold text-primary">${{ total_amount|floatformat:2 }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <p class="text-muted small mb-1">Pending</p>
+                                                <h6 class="fw-bold text-warning">{{ pending_count }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-5">
+                                        <div style="font-size: 48px; color: #d0d0d0; margin-bottom: 16px;">
+                                            <i data-feather="inbox" style="width: 48px; height: 48px;"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">No Donations Yet</h6>
+                                        <p class="text-muted small mb-3">You haven't made any donations. Start making an impact today!</p>
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="switchTab('make')">
+                                            <i data-feather="plus-circle" class="me-1" style="width: 16px; height: 16px;"></i>
+                                            Make a Donation
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i data-feather="alert-circle" class="me-2"></i> No membership found. Please register a membership first.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'lib/feather-icons/dist/feather.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Initialize feather icons
+    feather.replace();
+
+    // Set donation date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('donation_date');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+
+        // Handle tab switching using Bootstrap's Tab API
+        const tabElements = document.querySelectorAll('[data-bs-toggle="list"]');
+        tabElements.forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId) {
+                    // Manual tab switching for list-group
+                    document.querySelectorAll('[data-bs-toggle="list"]').forEach(el => {
+                        el.classList.remove('active');
+                        el.setAttribute('aria-selected', 'false');
+                    });
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+
+                    const targetPane = document.querySelector(targetId);
+                    if (targetPane) {
+                        targetPane.classList.add('show', 'active');
+                    }
+                }
+            });
+        });
+
+        // Handle category change to load subcategories
+        const categorySelect = document.getElementById('donation_category');
+        const subCategorySelect = document.getElementById('donation_sub_category');
+
+        if (categorySelect && subCategorySelect) {
+            categorySelect.addEventListener('change', function() {
+                const categoryId = this.value;
+                console.log('Category selected:', categoryId);
+
+                if (!categoryId) {
+                    subCategorySelect.innerHTML = '<option value="">-- Select Sub-Category --</option>';
+                    return;
+                }
+
+                // Fetch subcategories via AJAX
+                const apiUrl = `/api/donations/subcategories/?category=${categoryId}`;
+                console.log('Fetching from:', apiUrl);
+
+                fetch(apiUrl)
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Received data:', data);
+                        subCategorySelect.innerHTML = '<option value="">-- Select Sub-Category --</option>';
+
+                        if (data.results && Array.isArray(data.results)) {
+                            data.results.forEach(sub => {
+                                const option = document.createElement('option');
+                                option.value = sub.id;
+                                option.textContent = sub.title;
+                                subCategorySelect.appendChild(option);
+                            });
+                            console.log('Loaded', data.results.length, 'subcategories');
+                        } else if (Array.isArray(data)) {
+                            // Handle if API returns array directly
+                            data.forEach(sub => {
+                                const option = document.createElement('option');
+                                option.value = sub.id;
+                                option.textContent = sub.title;
+                                subCategorySelect.appendChild(option);
+                            });
+                            console.log('Loaded', data.length, 'subcategories');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading subcategories:', error);
+                        alert('Error loading subcategories. Check console for details.');
+                    });
+            });
+        }
+
+        // Handle form submission
+        const donationForm = document.getElementById('donationForm');
+        if (donationForm) {
+            donationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted (currently preview mode)');
+                alert('Donation form submission not yet implemented');
+            });
+        }
+
+        // Add hover effects to donation cards
+        document.querySelectorAll('.donation-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '';
+            });
+        });
+    });
+
+    // Function to switch tabs
+    function switchTab(tabId) {
+        const tabElement = document.querySelector(`[href="#${tabId}"]`);
+        if (tabElement) {
+            tabElement.click();
+        }
+    }
+
+    // Function to view donation details (placeholder)
+    function viewDonationDetail(donationId) {
+        console.log('Viewing donation details for ID:', donationId);
+        alert(`View donation details for ID: ${donationId}\n\nFeature coming soon!`);
+        // TODO: Implement detail view modal or page
+    }
+
+    // Function to download certificate (placeholder)
+    function downloadCertificate(donationId) {
+        console.log('Downloading certificate for donation ID:', donationId);
+        alert(`Downloading certificate for donation ID: ${donationId}\n\nFeature coming soon!`);
+        // TODO: Implement certificate generation and download
+    }
+</script>
+{% endblock %}

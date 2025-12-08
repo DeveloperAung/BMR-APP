@@ -232,3 +232,91 @@ def profile(request):
                     pass
     
     return render(request, 'public/users/profile/details.html', {'membership': membership})
+
+
+def member_donation(request):
+    """Show donation page with make donation form and history."""
+    from donations.models import MemberDonation, DonationCategory
+    
+    donations = None
+    categories = None
+    membership = None
+    
+    # Check Django session authentication
+    if request.user.is_authenticated and not request.user.is_anonymous:
+        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
+        if membership:
+            donations = MemberDonation.objects.filter(member=membership).order_by('-donation_date')
+            categories = DonationCategory.objects.filter(is_active=True)
+    else:
+        # Try JWT token authentication as fallback
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from rest_framework.request import Request as DRFRequest
+        
+        try:
+            jwt_auth = JWTAuthentication()
+            drf_request = DRFRequest(request)
+            auth_result = jwt_auth.authenticate(drf_request)
+            if auth_result:
+                user, token = auth_result
+                membership = Membership.objects.filter(user=user).order_by('-created_at').first()
+                if membership:
+                    donations = MemberDonation.objects.filter(member=membership).order_by('-donation_date')
+                    categories = DonationCategory.objects.filter(is_active=True)
+        except:
+            # Try Authorization header manually
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                token_str = auth_header[7:]
+                try:
+                    from rest_framework_simplejwt.tokens import AccessToken
+                    token = AccessToken(token_str)
+                    user_id = token.get('user_id')
+                    if user_id:
+                        user = User.objects.get(id=user_id)
+                        membership = Membership.objects.filter(user=user).order_by('-created_at').first()
+                        if membership:
+                            donations = MemberDonation.objects.filter(member=membership).order_by('-donation_date')
+                            categories = DonationCategory.objects.filter(is_active=True)
+                except:
+                    pass
+    
+    # Compute summary statistics for the template
+    total_amount = 0
+    total_donations = 0
+    completed_count = 0
+    pending_count = 0
+
+    if donations is not None:
+        try:
+            from django.db.models import Sum, Q
+            agg = donations.aggregate(total=Sum('amount'))
+            total_amount = agg.get('total') or 0
+        except Exception:
+            # Fallback: sum in Python in case of any issues
+            try:
+                total_amount = sum([d.amount for d in donations])
+            except Exception:
+                total_amount = 0
+
+        try:
+            total_donations = donations.count()
+            completed_count = donations.filter(status='completed').count()
+            pending_count = donations.filter(status='pending').count()
+        except Exception:
+            # Best-effort fallbacks
+            total_donations = len(donations) if hasattr(donations, '__len__') else 0
+            completed_count = 0
+            pending_count = 0
+
+    return render(request, 'public/users/donation/details.html', {
+        'donations': donations,
+        'categories': categories,
+        'membership': membership,
+        'total_amount': total_amount,
+        'total_donations': total_donations,
+        'completed_count': completed_count,
+        'pending_count': pending_count,
+    })
+
+

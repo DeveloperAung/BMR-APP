@@ -114,3 +114,30 @@ class DonationSubCategory(AuditModel):
 
 #     def __str__(self):
 #         return f"Donation for Event: {self.event.name} - Amount: {self.donation.amount}"
+
+
+class MemberDonation(AuditModel):
+    """Track donations made by a member to the organization."""
+    member = models.ForeignKey('memberships.Membership', on_delete=models.CASCADE, related_name='donations')
+    donation_category = models.ForeignKey(DonationCategory, on_delete=models.SET_NULL, blank=True, null=True)
+    donation_sub_category = models.ForeignKey(DonationSubCategory, on_delete=models.SET_NULL, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    donation_date = models.DateField()
+    notes = models.TextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        default='pending',
+        choices=[
+            ('pending', 'Pending'),
+            ('completed', 'Completed'),
+            ('cancelled', 'Cancelled'),
+        ]
+    )
+
+    class Meta:
+        ordering = ['-donation_date']
+        verbose_name = 'Member Donation'
+        verbose_name_plural = 'Member Donations'
+
+    def __str__(self):
+        return f"{self.member} - {self.donation_category} - ${self.amount}"
