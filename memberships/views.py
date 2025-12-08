@@ -156,6 +156,13 @@ def member_reg_step_3(request):
     return render(request, 'public/users/membership/submit-page3.html', ctx)
 
 
+def member_reg_step_4(request):
+    reference_no = request.GET.get('ref', '')
+    return render(request, 'public/users/membership/submit-page4.html', {
+        'reference_no': reference_no
+    })
+
+
 def membership_approval(request, reference_no):
 
     member = get_object_or_404(Membership, reference_no=reference_no)

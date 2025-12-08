@@ -111,9 +111,6 @@ export const initMembershipPage3 = () => {
     const previewImage = document.getElementById('payment-preview-image');
     const continueBtn = document.getElementById('step2-next');
     const feedback = document.getElementById('payment-feedback');
-    const successBlock = document.getElementById('registration-success');
-    const wizardStep = document.getElementById('step-2');
-    const referenceField = document.getElementById('success-reference-no');
 
     const serverPayment = parsePaymentContext();
     const storedQrUrl = sessionStorage.getItem('membership_qr_code');
@@ -240,6 +237,16 @@ export const initMembershipPage3 = () => {
         .forEach((radio) => radio.addEventListener('change', toggleSections));
     toggleSections();
 
+    const routeToSuccess = (reference = '') => {
+        if (reference) {
+            sessionStorage.setItem('membership_success_reference', reference);
+        }
+        const target = reference
+            ? `/memberships/registration/step-4/?ref=${encodeURIComponent(reference)}`
+            : '/memberships/registration/step-4/';
+        window.location.href = target;
+    };
+
     const checkPaymentStatus = async () => {
         try {
             let url = '';
@@ -266,8 +273,14 @@ export const initMembershipPage3 = () => {
             if (resp.ok && data.success && data.data) {
                 const status = (data.data.status || data.data.new_status || '').toLowerCase();
                 if (status === 'paid') {
-                    showFeedback('Complete Payment. Redirecting to your dashboard...', 'success');
-                    setTimeout(() => { window.location.href = '/e/dashboard/'; }, 800);
+                    const reference = data.data.reference_no
+                        || data.data.external_id
+                        || paymentExternalId
+                        || paymentUuid
+                        || data.data.uuid;
+                    showFeedback('Payment received. Finalizing...', 'success');
+                    clearInterval(pollTimer);
+                    routeToSuccess(reference);
                     return true;
                 }
                 showFeedback(`Payment status: ${status || 'unknown'}. If you already paid, please wait a few seconds and click Continue again.`, 'info');
@@ -324,13 +337,8 @@ export const initMembershipPage3 = () => {
             const payment = await manager.createOfflinePayment(formData);
 
             showFeedback('Payment slip uploaded successfully. We will review and confirm shortly.', 'success');
-            if (wizardStep && successBlock) {
-                wizardStep.classList.add('d-none');
-                successBlock.classList.remove('d-none');
-            }
-            if (referenceField && payment) {
-                referenceField.textContent = payment.reference_no || payment.uuid || '';
-            }
+            const reference = payment?.reference_no || payment?.uuid || paymentExternalId || '';
+            setTimeout(() => routeToSuccess(reference), 600);
         } catch (error) {
             console.error('Upload slip error', error);
             showFeedback(extractErrorMessage(error), 'danger');

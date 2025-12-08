@@ -33,25 +33,25 @@
                         <div class="card-header basic-wizard text-center bg-primary">
                             <h3>Membership Registration</h3>
                             <div class="stepper-horizontal mt-4 mb-0" id="stepper1">
-                                <div class="stepper-one stepper step {% if 'step-1' in request.path %}editing{% endif %}">
+                                <div class="stepper-one stepper step {% if 'step-1' in request.path %}editing{% endif %} {% if 'step-2' in request.path or 'step-3' in request.path or 'step-4' in request.path %}done{% endif %}">
                                     <div class="step-circle"><span>1</span></div>
                                     <div class="step-title">Profile & Contact</div>
                                     <div class="step-bar-left"></div>
                                     <div class="step-bar-right"></div>
                                 </div>
-                                <div class="stepper-two step {% if 'step-2' in request.path %}editing active{% endif %}">
+                                <div class="stepper-two step {% if 'step-2' in request.path %}editing active{% endif %} {% if 'step-3' in request.path or 'step-4' in request.path %}done{% endif %}">
                                     <div class="step-circle"><span>2</span></div>
                                     <div class="step-title">Education & Work</div>
                                     <div class="step-bar-left"></div>
                                     <div class="step-bar-right"></div>
                                 </div>
-                                <div class="stepper-three step {% if 'step-3' in request.path %}editing active{% endif %}">
+                                <div class="stepper-three step {% if 'step-3' in request.path %}editing active{% endif %} {% if 'step-4' in request.path %}done{% endif %}">
                                     <div class="step-circle"><span>3</span></div>
                                     <div class="step-title">Payment</div>
                                     <div class="step-bar-left"></div>
                                     <div class="step-bar-right"></div>
                                 </div>
-                                <div class="stepper-four step">
+                                <div class="stepper-four step {% if 'step-4' in request.path %}editing active{% endif %} done">
                                     <div class="step-circle"><span>4</span></div>
                                     <div class="step-title">Finish</div>
                                     <div class="step-bar-left"></div>

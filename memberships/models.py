@@ -397,7 +397,10 @@ class MembershipPayment(AuditModel):
         return f"{prefix}{year_receipts:03d}"
 
     def __str__(self):
-        return f"{self.receipt_no} - {self.membership.reference_no} - {self.amount}"
+        reference_no = ''
+        if self.membership:
+            reference_no = self.membership.reference_no
+        return f"{self.receipt_no} - {reference_no} - {self.amount}"
 
 
 class PaymentLog(AuditModel):

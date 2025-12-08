@@ -272,7 +272,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
             "payment_uuid": payment_data.get("uuid") if payment_data else None,
             "payment_external_id": payment_data.get("external_id") if payment_data else None,
         }
-        print("payment", response_data)
+        
         return ok(
             response_data,
             "Application submitted successfully! Please scan the QR code to complete payment."

@@ -6,7 +6,7 @@
 
     <div class="wizard-step" id="step-2">
 
-        <div id="payment-feedback"></div>
+        <div id="payment-feedback" hidden></div>
 
         <!-- Payment Method Section -->
         <div class="mt-4">
@@ -55,14 +55,6 @@
             </div>
         </div>
 
-        <!-- Success Message -->
-        <div class="d-none mt-4 text-center" id="registration-success">
-            <img src="/static/assets/images/gif/success/successful.gif" alt="Success" style="max-width:120px;">
-            <h4 class="mt-3">Registration Successful!</h4>
-            <p>Your reference number: <span id="success-reference-no"></span></p>
-            <a href="/" class="btn btn-primary mt-2">Go to Home</a>
-        </div>
-
         <!-- Buttons -->
         <div class="d-flex justify-content-between mt-4">
             <a href="{% url 'member_reg_step_2' %}" type="button" class="btn btn-secondary" id="step2-prev">Previous</a>
@@ -76,72 +68,5 @@
 {{ payment_context.payment_external_id|default_if_none:""|json_script:"payment-external-id" }}
 {% block extra_js %}
 <script type="module" src="{% static 'js/memberships/membershipPage3.js' %}"></script>
-
-<script>
-    const paymentExternalId = "{{ payment.payment_external_id }}";  // from template
-    alert("Starting payment status polling for: " + paymentExternalId);
-    const pollIntervalMs = 5000;  // 5 seconds
-    const maxAttempts = 120;      // ~10 minutes
-  
-    let attempts = 0;
-    let pollTimer = null;
-  
-    function showSuccessNotification() {
-      // You can replace with your own toast component / Bootstrap alert
-      alert("Payment received successfully! Redirecting to your summary page...");
-    }
-  
-    function redirectToSuccessPage() {
-      // Adjust URL to your real success page
-      window.location.href = "{% url 'membership_details' %}";
-    }
-  
-    async function checkPaymentStatus() {
-      try {
-        const response = await fetch(
-          `/api/membership/payments/${paymentExternalId}status/`,
-          {
-            headers: {
-              "Accept": "application/json",
-            },
-            credentials: "include",  // if using session auth
-          }
-        );
-  
-        if (!response.ok) {
-          console.error("Failed to fetch status", response.status);
-          return;
-        }
-  
-        const data = await response.json();   // { success, message, data: { status, ... } }
-        if (!data.success) {
-          console.error("API error:", data.message);
-          return;
-        }
-  
-        const status = (data.data.status || "").toLowerCase();
-        console.log("Payment status:", status);
-  
-        if (status === "paid") {
-          clearInterval(pollTimer);
-          showSuccessNotification();
-          redirectToSuccessPage();
-        }
-      } catch (err) {
-        console.error("Error checking payment status:", err);
-      } finally {
-        attempts += 1;
-        if (attempts >= maxAttempts) {
-          clearInterval(pollTimer);
-          console.warn("Stopped polling after max attempts");
-        }
-      }
-    }
-  
-    // Start polling when page loads
-    document.addEventListener("DOMContentLoaded", () => {
-      pollTimer = setInterval(checkPaymentStatus, pollIntervalMs);
-    });
-  </script>
 {% endblock %}
 {% endblock %}

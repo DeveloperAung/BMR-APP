@@ -24399,7 +24399,7 @@ input::-webkit-inner-spin-button {
   display: none;
 }
 .basic-wizard .stepper-horizontal .step.done .step-title {
-  color: var(--timline-dot-line);
+  color: var(--white);
 }
 .basic-wizard .stepper-horizontal .step.editing .step-circle {
   background: var(--white);
@@ -24446,8 +24446,8 @@ input::-webkit-inner-spin-button {
   transition: width 500ms ease-in-out;
 }
 .basic-wizard .stepper-horizontal .step.done .step-bar-right {
-  background-color: var(--theme-default);
-  border-color: var(--theme-default);
+  background-color: var(--white);
+  border-color: var(--white);
   z-index: 3;
   width: calc(100% - 32px);
 }
