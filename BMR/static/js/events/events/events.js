@@ -34,6 +34,8 @@ class EventApp {
                 this.eventManager.viewEvent(e.target.dataset.eventId);
             } else if (e.target.matches('[data-action="edit-event"]')) {
                 this.eventManager.editEvent(e.target.dataset.eventId);
+            } else if (e.target.matches('[data-action="media-event"]')) {
+                this.eventManager.mediaEvent(e.target.dataset.eventId);
             } else if (e.target.matches('[data-action="delete-event"]')) {
                 this.eventManager.toggleStatus(e.target.dataset.eventId, false, 'Are you sure you want to deactivate event "' + e.target.dataset.title + '" ?');
             }

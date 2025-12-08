@@ -21,6 +21,13 @@ export class BaseManager {
         this.repository = repository;
         this.tableRenderer = tableRenderer;
         this.filterHandler = filterHandler;
+        // Allow filter handlers to call back into the manager
+        if (this.filterHandler) {
+            if (!this.filterHandler.onFiltersChange) {
+                this.filterHandler.onFiltersChange = this.handleFiltersChange.bind(this);
+            }
+            this.filterHandler.managerRef = this;
+        }
 
         this.getItemsFn = getItemsFn;
         this.extractItemsFn = extractItemsFn;

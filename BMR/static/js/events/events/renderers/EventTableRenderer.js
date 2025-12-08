@@ -55,6 +55,7 @@ export class EventTableRenderer extends BaseTableRenderer {
                     <div class="product-action">
                         <button class="btn btn-sm btn-outline-primary" data-action="view-event" data-event-id="${event.id}" title="View Event">👁️</button>
                         <button class="btn btn-sm btn-outline-warning" data-action="edit-event" data-event-id="${event.id}" title="Edit Event">✏️</button>
+                        <button class="btn btn-sm btn-outline-info" data-action="media-event" data-event-id="${event.id}" title="Manage Event Media">🎬</button>
                         <button class="btn btn-sm btn-outline-danger" data-action="delete-event" data-event-id="${event.id}" data-title="${escapeHtml(event.title)}" title="Delete Event">🗑️</button>
                     </div>
                 </td>
