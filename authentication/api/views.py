@@ -78,6 +78,10 @@ def login(request):
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
         user_serializer = UserSerializer(user)
+        
+        # Set Django session so regular page views recognize the user
+        from django.contrib.auth import login as auth_login
+        auth_login(request, user)
 
         return ok(
             data={
