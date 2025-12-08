@@ -28,10 +28,75 @@
         <div class="col-md-9">
             <div class="card border-primary">
                 <div class="card-header bg-primary p-4 d-flex justify-content-between">
-                    <h2 class="text-white">{{ category.title }}</h2>
+                    <h4 class="text-white">{{ category.title }}</h4>
                 </div>
-                <div class="card-body table-responsive">
-                    <p class="mt-2">{{ post.content|safe }}</p>
+                <div class="card-body">
+                    {% if events %}
+                        <div class="accordion" id="eventsAccordion">
+                            {% for event in events %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading-{{ forloop.counter }}">
+                                        <button class="accordion-button collapsed accordion-light-primary text-primary" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapse-{{ forloop.counter }}" aria-expanded="false"
+                                                aria-controls="collapse-{{ forloop.counter }}">
+                                            {{ event.title }}
+                                            <i class="iconly-Arrow-Down-2 icli ms-auto icon"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-{{ forloop.counter }}" class="accordion-collapse collapse"
+                                         aria-labelledby="heading-{{ forloop.counter }}"
+                                         data-bs-parent="#eventsAccordion">
+                                        <div class="accordion-body">
+                                            <p class="mt-2 mb-0">{{ event.content|safe }}</p>
+                                            {% if event.event_media_info.all %}
+                                                <div class="">
+                                                    <h6 class="fw-bold mb-3">Related Media</h6>
+                                                    {% for info in event.event_media_info.all %}
+                                                        {% if info.event_media_info.all %}
+                                                            <div class="border rounded p-4 mb-2">
+                                                                {% if info.sub_category %}<p class="mb-1 text-muted small">{{ info.sub_category.title }}</p>{% endif %}
+                                                                <ul class="list-unstyled mb-0">
+                                                                    {% for media in info.event_media_info.all %}
+                                                                        <li class="mb-2 d-flex align-items-center justify-content-between">
+                                                                            <div class="d-flex align-items-center">
+                                                                                {% if media.media_type == 'url' %}
+                                                                                    <i class="fa fa-link text-primary me-2"></i>
+                                                                                    <a href="{{ media.embed_url }}" target="_blank">{{ media.title }} <span class="text-muted small">(Web Address)</span></a>
+                                                                                {% elif media.media_type == 'file' and media.media_file %}
+                                                                                    {% if media.file_type == 'mp3' %}
+                                                                                        <i class="fa fa-music text-success me-2"></i>
+                                                                                    {% elif media.file_type == 'mp4' or media.file_type == 'video' %}
+                                                                                        <i class="fa fa-video text-warning me-2"></i>
+                                                                                    {% elif media.file_type == 'pdf' %}
+                                                                                        <i class="fa fa-file-pdf text-danger me-2"></i>
+                                                                                    {% else %}
+                                                                                        <i class="fa fa-file text-primary me-2"></i>
+                                                                                    {% endif %}
+                                                                                    <a href="{{ media.media_file.url }}" target="_blank">{{ media.title }}</a>
+                                                                                {% else %}
+                                                                                    <i class="fa fa-file text-secondary me-2"></i>
+                                                                                    <span>{{ media.title }}</span>
+                                                                                {% endif %}
+                                                                            </div>
+                                                                            <span class="badge bg-primary text-dark">
+                                                                                <i class="fa fa-download me-1"></i>{{ media.downloaded_count|default:0 }} access
+                                                                            </span>
+                                                                        </li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No events available.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

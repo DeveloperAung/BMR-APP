@@ -29,8 +29,6 @@ export class EventManager extends BaseManager {
                 ordering: '-published_at'
             }
         });
-
-        this.filterHandler = new EventFilterHandler(this.handleFiltersChange.bind(this));
     }
 
     async createEvent(data) {
@@ -50,6 +48,11 @@ export class EventManager extends BaseManager {
     async viewEvent(Id) {
         console.log(`Viewing category ${Id}`);
         window.location.href = `/events/i/media/create/`;
+    }
+
+    async mediaEvent(id) {
+        if (!id) return;
+        window.location.href = `/events/i/media/create/?event_id=${id}`;
     }
 
     async editEvent(Id) {

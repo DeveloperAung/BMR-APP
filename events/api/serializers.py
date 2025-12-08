@@ -160,9 +160,11 @@ class EventMediaUploadSerializer(serializers.Serializer):
     media_location = serializers.CharField(max_length=1500, required=False, allow_blank=True)
     media_files = serializers.ListField(
         child=serializers.FileField(),
-        allow_empty=False,
+        allow_empty=True,
+        required=False,
         write_only=True
     )
+    embed_url = serializers.URLField(required=False, allow_blank=True)
 
     def create(self, validated_data):
         """
@@ -181,10 +183,16 @@ class EventMediaUploadSerializer(serializers.Serializer):
         media_title = validated_data['media_title']
         media_date = validated_data.get('media_date')
         media_location = validated_data.get('media_location', '')
-        files = validated_data['media_files']
+        files = validated_data.get('media_files') or []
+        embed_url = validated_data.get('embed_url')
+
+        if not files and not embed_url:
+            raise serializers.ValidationError({"media_files": "Provide files or a web address."})
 
         media_objs = []
         for file in files:
+            if not file:
+                continue
             media_objs.append(EventMedia(
                 media_info=media_info,
                 media_type='file',
@@ -193,6 +201,17 @@ class EventMediaUploadSerializer(serializers.Serializer):
                 filename=file.name,
                 media_date=media_date,
                 media_file=file
+            ))
+
+        if embed_url:
+            media_objs.append(EventMedia(
+                media_info=media_info,
+                media_type='url',
+                title=media_title,
+                media_location=media_location,
+                filename='',
+                media_date=media_date,
+                embed_url=embed_url
             ))
 
         # Step 3: bulk insert

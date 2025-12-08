@@ -169,11 +169,14 @@ class EventMediaCreate(View):
     
 
 def event_details(request, title_others):
-    event = Event.objects.filter(category__title_others=title_others, is_active=True)
+    category = get_object_or_404(EventCategory, title_others=title_others, is_active=True)
+    events = Event.objects.filter(category=category, is_active=True).prefetch_related("event_media_info__event_media_info")
+
     # association_posts = AssociationPosts.objects.filter(is_active=True)
 
     context = {
-        'event': event,
+        'events': events,
+        'category': category,
         # 'association_posts': association_posts,
     }
     return render(request, 'public/events/event-details.html', context)

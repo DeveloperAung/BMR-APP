@@ -13,6 +13,7 @@ export class EventMediaUploadRepository extends BaseRepository {
         try {
             return await super.createItem(data);
         } catch (error) {
+            console.error('Error uploading event media:', error);
             ApiErrorHandler.handle(error, this.notificationService);
             throw error;
         }

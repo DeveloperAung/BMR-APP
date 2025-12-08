@@ -63,7 +63,7 @@ class HitPayClient:
             "payment_methods": payment_methods,
             "generate_qr": "true",
         }
-        print("body", body)
+        # print("body", body)
         if generate_qr:
             body["generate_qr"] = True
         if name:
@@ -86,7 +86,7 @@ class HitPayClient:
             body["expiry_date"] = expiry_date
 
         resp = requests.post(url, json=body, headers=self.headers)
-        print("resp", resp)
+        # print("resp", resp)
         resp.raise_for_status()
 
         return resp.json()
