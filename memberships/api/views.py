@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from django.utils import timezone
 
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from django.views import View
@@ -149,6 +150,44 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         except Status.DoesNotExist:
             # Pending approval status not configured; skip silently to avoid blocking payment capture.
             pass
+
+    def _set_pending_payment_confirmation_status(self, membership):
+        """
+        Move membership to status code 17 (Pending Payment Confirmation) when offline payment is submitted.
+        """
+        if not membership:
+            return
+        current_status = getattr(getattr(membership, "workflow_status", None), "status_code", None)
+        if current_status == "17":
+            return
+        try:
+            membership.transition(
+                "17",
+                reason="Offline payment submitted; awaiting confirmation.",
+                actor=getattr(self.request, "user", None),
+                save_membership=True,
+            )
+        except Status.DoesNotExist:
+            try:
+                pending_status = Status.objects.get(status_code="17")
+                membership.workflow_status = pending_status
+                membership.save(update_fields=["workflow_status", "modified_at"])
+            except Status.DoesNotExist:
+                pass
+
+    def _mark_offline_payments_paid(self, membership):
+        """
+        Mark any pending/offline membership payments as paid when staff confirms payment.
+        """
+        if not membership:
+            return
+        pending_payments = membership.payments.filter(status__in=["pending", "created"])
+        now = timezone.now()
+        for p in pending_payments:
+            p.status = "paid"
+            if not p.paid_at:
+                p.paid_at = now
+            p.save(update_fields=["status", "paid_at", "modified_at"])
 
     @extend_schema(
         tags=["Memberships"],
@@ -395,7 +434,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         serializer = CreateOfflinePaymentSerializer(data=request.data, context={"membership": membership})
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
-        self._set_pending_approval_status(membership)
+        self._set_pending_payment_confirmation_status(membership)
         return ok(PaymentReadSerializer(payment).data, "Offline payment recorded (pending).", status=201)
 
     @extend_schema(
@@ -419,7 +458,7 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         serializer = CreateOfflinePaymentSerializer(data=data, context={"membership": membership})
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
-        self._set_pending_approval_status(membership)
+        self._set_pending_payment_confirmation_status(membership)
         return ok(PaymentReadSerializer(payment).data, "Payment slip uploaded.", status=201)
 
     @extend_schema(
@@ -636,7 +675,21 @@ class ManagementMembershipViewSet(viewsets.GenericViewSet):
         )
         membership.refresh_from_db()
 
+        if getattr(target_status, "status_code", None) == "12":
+            self._mark_offline_payments_paid(membership)
+
         return Response(
             MembershipReadSerializer(membership, context={'request': request}).data,
             status=status.HTTP_200_OK
         )
+
+    def _mark_offline_payments_paid(self, membership):
+        if not membership:
+            return
+        pending_payments = membership.payments.filter(status__in=["pending", "created"])
+        now = timezone.now()
+        for p in pending_payments:
+            p.status = "paid"
+            if not p.paid_at:
+                p.paid_at = now
+            p.save(update_fields=["status", "paid_at", "modified_at"])

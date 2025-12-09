@@ -16,6 +16,7 @@ export class MembershipFormHandler {
         this.authService = authService;
         this.notificationService = notificationService;
         this.pageNumber = pageNumber;
+        this.submitButton = this.form.querySelector('button[type="submit"]');
 
         // Manager handles API + repository
         this.manager = new MembershipManager({
@@ -217,6 +218,7 @@ export class MembershipFormHandler {
             this.notificationService.showWarning('Please correct the errors in the form.');
             return;
         }
+        this.setSubmitting(true);
 
         try {
             const data = this.getFormData();
@@ -230,20 +232,22 @@ export class MembershipFormHandler {
         } catch (error) {
             console.error('Form submission error:', error);
             ApiErrorHandler.handle(error, this.notificationService, { form: this.form });
+        } finally {
+            this.setSubmitting(false);
         }
     }
 
     async submitPage1(data) {
-        this.notificationService.showInfo('Submitting profile information...');
+        
+        this.notificationService.showLoading('Submitting application...');
         
         const response = await this.manager.submitPage1(data);
         
         this.notificationService.showSuccess('Profile information saved successfully!');
-        
-        // Redirect to page 2 after short delay
+
         setTimeout(() => {
             window.location.href = '/memberships/registration/step-2/';
-        }, 1500);
+        }, 1000);
     }
 
     async submitPage2(data) {
@@ -263,7 +267,7 @@ export class MembershipFormHandler {
         // Redirect to payment page
         setTimeout(() => {
             window.location.href = '/memberships/registration/step-3/';
-        }, 1500);
+        }, 1000);
     }
 
     /** Clear inline field errors */
@@ -272,5 +276,24 @@ export class MembershipFormHandler {
             el.classList.remove('is-invalid');
         });
         this.form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    }
+
+    setSubmitting(isSubmitting) {
+        if (this.submitButton) {
+            this.submitButton.disabled = isSubmitting;
+            let spinner = this.submitButton.querySelector('.spinner-border');
+            // Create a spinner if the template doesn't include one
+            if (!spinner) {
+                spinner = document.createElement('span');
+                spinner.className = 'spinner-border spinner-border-sm me-2';
+                spinner.setAttribute('role', 'status');
+                spinner.setAttribute('aria-hidden', 'true');
+                spinner.style.display = 'none';
+                this.submitButton.prepend(spinner);
+            }
+            if (spinner) {
+                spinner.style.display = isSubmitting ? 'inline-block' : 'none';
+            }
+        }
     }
 }

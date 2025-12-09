@@ -5,7 +5,8 @@ import { MembershipManager } from './managers/MembershipManager.js';
 const actionLabels = {
     approve: 'approved',
     reject: 'rejected',
-    revise: 'sent for revision'
+    revise: 'sent for revision',
+    'confirm-payment': 'moved to pending approval'
 };
 
 const extractErrorMessage = (error) => {
@@ -61,26 +62,27 @@ const initMembershipApprovalPage = () => {
         });
     };
 
-    const handleDecision = async (action) => {
+    const handleDecision = async (action, statusCode = null) => {
         if (!memberUuid) {
             showMessage('danger', 'Missing membership reference. Please reload and try again.');
             return;
         }
 
         const comment = (remarksInput?.value || '').trim();
-        if ((action === 'reject' || action === 'revise') && !comment) {
-            showMessage('danger', 'Remarks are required when rejecting or requesting a revision.');
-            return;
+        if (!statusCode) {
+            if ((action === 'reject' || action === 'revise') && !comment) {
+                showMessage('danger', 'Remarks are required when rejecting or requesting a revision.');
+                return;
+            }
         }
 
         toggleButtons(true);
         showMessage('info', 'Submitting decision...');
 
         try {
-            const payload = {
-                action,
-                comment
-            };
+            const payload = statusCode
+                ? { status_code: statusCode, comment }
+                : { action, comment };
             const membership = await manager.workflowDecision(memberUuid, payload);
 
             if (statusBadge && membership?.workflow_status?.external_status) {
@@ -104,7 +106,7 @@ const initMembershipApprovalPage = () => {
     };
 
     actionButtons.forEach((button) => {
-        button.addEventListener('click', () => handleDecision(button.dataset.action));
+        button.addEventListener('click', () => handleDecision(button.dataset.action, button.dataset.statusCode));
     });
 };
 

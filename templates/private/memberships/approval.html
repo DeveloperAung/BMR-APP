@@ -223,7 +223,11 @@
                                                             <div class="mt-2 small">
                                                                 <div><strong>{{ p.receipt_no }}</strong></div>
                                                                 <div class="text-muted">{{ p.amount }} {{ p.currency }}</div>
-                                                                <div class="text-muted">{{ p.get_status_display }}</div>
+                                                                <div>
+                                                                    <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                                        {{ p.get_status_display }}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     {% endif %}
@@ -238,8 +242,14 @@
                                 {% endwith %}
                             </div>
 
-                            {% if member.workflow_status.status_code == "12" %} true {% endif %}
-                            {% if member.workflow_status.status_code == "12" %}
+                            {% if member.workflow_status.status_code == "17" %}
+                            <hr class="p-2">
+                            <div class="text-end mt-3" id="workflow-actions" data-member-uuid="{{ member.uuid }}">
+                                <button class="btn btn-info btn-air-light" type="button" data-action="confirm-payment" data-status-code="12">
+                                    Confirm Payment
+                                </button>
+                            </div>
+                            {% elif member.workflow_status.status_code == "12" %}
                             <hr class="p-2">
                             <div class="col-md-12">
                                 <label for="remarks" class="form-label">Remarks</label>

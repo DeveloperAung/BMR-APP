@@ -39,7 +39,7 @@ export class MembershipManager extends BaseManager {
     }
 
     async submitPage1(pageData) {
-        this.notificationService?.showLoading?.('Creating membership step 1...');
+        this.notificationService?.showLoading?.('Submitting application...');
         try {
             const response = await this.repository.submitPage1(pageData, true);
             return response;
