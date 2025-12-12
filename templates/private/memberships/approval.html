@@ -242,26 +242,26 @@
                                 {% endwith %}
                             </div>
 
-                            {% if member.workflow_status.status_code == "17" %}
-                            <hr class="p-2">
-                            <div class="text-end mt-3" id="workflow-actions" data-member-uuid="{{ member.uuid }}">
-                                <button class="btn btn-info btn-air-light" type="button" data-action="confirm-payment" data-status-code="12">
-                                    Confirm Payment
-                                </button>
-                            </div>
-                            {% elif member.workflow_status.status_code == "12" %}
-                            <hr class="p-2">
-                            <div class="col-md-12">
-                                <label for="remarks" class="form-label">Remarks</label>
-                                    <textarea class="form-control" id="remarks" name="remarks"
-                                              rows="2" placeholder="Leave a note for the applicant">{{ member.reason }}</textarea>
-                                    <div class="form-text">Remarks are required when rejecting or requesting revisions.</div>
-                            </div>
-                            <div class="text-end mt-3" id="workflow-actions" data-member-uuid="{{ member.uuid }}">
-                                <button class="btn btn-danger btn-air-light me-2" type="button" data-action="reject">Reject</button>
-                                <button class="btn btn-warning btn-air-light me-2" type="button" data-action="revise">Revise</button>
-                                <button class="btn btn-success btn-air-light me-2" type="button" data-action="approve">Approve</button>
-                            </div>
+                            {% if member.workflow_status.status_code == "17" or member.workflow_status.status_code == "12" %}
+                                <hr class="p-2">
+                                <div class="col-md-12">
+                                    <label for="remarks" class="form-label">Remarks</label>
+                                        <textarea class="form-control" id="remarks" name="remarks"
+                                                  rows="2" placeholder="Leave a note for the applicant">{{ member.reason }}</textarea>
+                                        <div class="form-text">Remarks are required when rejecting or requesting revisions.</div>
+                                </div>
+                                <div class="text-end mt-3" id="workflow-actions" data-member-uuid="{{ member.uuid }}">
+                                    {% if member.workflow_status.status_code == "17" %}
+                                        <button class="btn btn-info btn-air-light me-2" type="button" data-action="confirm-payment" data-status-code="12">
+                                            Confirm Payment
+                                        </button>
+                                        <button class="btn btn-warning btn-air-light me-2" type="button" data-action="revise">Revise</button>
+                                    {% elif member.workflow_status.status_code == "12" %}
+                                        <button class="btn btn-danger btn-air-light me-2" type="button" data-action="reject">Reject</button>
+                                        <button class="btn btn-warning btn-air-light me-2" type="button" data-action="revise">Revise</button>
+                                        <button class="btn btn-success btn-air-light me-2" type="button" data-action="approve">Approve</button>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                         </div>
                 </div>

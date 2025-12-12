@@ -181,142 +181,33 @@ def member_donation(request):
     return render(request, 'public/users/events/donations.html')
 
 
-def membership_details(request):
-    membership = None
-    if request.user.is_authenticated:
-        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
-    return render(request, 'public/users/membership/details.html', {'membership': membership})
-
-
-def profile(request):
-    """Profile page for the logged-in user.
-
-    This mirrors the membership details lookup and renders the profile template
-    so profile-related pages live under the `memberships` app (consistent
-    with other member pages like events/donations).
-    
-    Works with both Django sessions and JWT tokens (from localStorage).
+def membership_details(request, reference_no=None):
     """
+    Membership details can be fetched either by reference_no query param (?ref=...)
+    or the URL kwarg, else fall back to the current user.
+    """
+    ref = request.GET.get('ref') or reference_no
     membership = None
-    user = None
-    
-    # Check Django session authentication first
-    if request.user.is_authenticated and not request.user.is_anonymous:
-        user = request.user
-        membership = Membership.objects.filter(user=user).order_by('-created_at').first()
+
+    if ref:
+        membership = Membership.objects.filter(reference_no=ref).order_by('-created_at').first()
+        if not membership:
+            raise Http404("Membership not found")
     else:
-        # If not authenticated via Django session, try to get user from JWT token
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework.request import Request as DRFRequest
-        
-        try:
-            jwt_auth = JWTAuthentication()
-            drf_request = DRFRequest(request)
-            auth_result = jwt_auth.authenticate(drf_request)
-            if auth_result:
-                user, token = auth_result
-                membership = Membership.objects.filter(user=user).order_by('-created_at').first()
-        except:
-            # Check for Authorization header manually
-            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-            if auth_header.startswith('Bearer '):
-                token_str = auth_header[7:]
-                try:
-                    from rest_framework_simplejwt.tokens import AccessToken
-                    token = AccessToken(token_str)
-                    user_id = token.get('user_id')
-                    if user_id:
-                        user = User.objects.get(id=user_id)
-                        membership = Membership.objects.filter(user=user).order_by('-created_at').first()
-                except:
-                    pass
-    
-    return render(request, 'public/users/profile/details.html', {'membership': membership})
+        user = _get_current_user(request)
+        if user:
+            membership = Membership.objects.filter(user=user).order_by('-created_at').first()
 
+    workflow_logs = []
+    if membership:
+        workflow_logs = membership.workflowlog_set.select_related('old_status', 'new_status', 'action_by').order_by('-action_time')
 
-def member_donation(request):
-    """Show donation page with make donation form and history."""
-    from donations.models import MemberDonation, DonationCategory
-    
-    donations = None
-    categories = None
-    membership = None
-    
-    # Check Django session authentication
-    if request.user.is_authenticated and not request.user.is_anonymous:
-        membership = Membership.objects.filter(user=request.user).order_by('-created_at').first()
-        if membership:
-            donations = MemberDonation.objects.filter(member=membership).order_by('-donation_date')
-            categories = DonationCategory.objects.filter(is_active=True)
-    else:
-        # Try JWT token authentication as fallback
-        from rest_framework_simplejwt.authentication import JWTAuthentication
-        from rest_framework.request import Request as DRFRequest
-        
-        try:
-            jwt_auth = JWTAuthentication()
-            drf_request = DRFRequest(request)
-            auth_result = jwt_auth.authenticate(drf_request)
-            if auth_result:
-                user, token = auth_result
-                membership = Membership.objects.filter(user=user).order_by('-created_at').first()
-                if membership:
-                    donations = MemberDonation.objects.filter(member=membership).order_by('-donation_date')
-                    categories = DonationCategory.objects.filter(is_active=True)
-        except:
-            # Try Authorization header manually
-            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-            if auth_header.startswith('Bearer '):
-                token_str = auth_header[7:]
-                try:
-                    from rest_framework_simplejwt.tokens import AccessToken
-                    token = AccessToken(token_str)
-                    user_id = token.get('user_id')
-                    if user_id:
-                        user = User.objects.get(id=user_id)
-                        membership = Membership.objects.filter(user=user).order_by('-created_at').first()
-                        if membership:
-                            donations = MemberDonation.objects.filter(member=membership).order_by('-donation_date')
-                            categories = DonationCategory.objects.filter(is_active=True)
-                except:
-                    pass
-    
-    # Compute summary statistics for the template
-    total_amount = 0
-    total_donations = 0
-    completed_count = 0
-    pending_count = 0
-
-    if donations is not None:
-        try:
-            from django.db.models import Sum, Q
-            agg = donations.aggregate(total=Sum('amount'))
-            total_amount = agg.get('total') or 0
-        except Exception:
-            # Fallback: sum in Python in case of any issues
-            try:
-                total_amount = sum([d.amount for d in donations])
-            except Exception:
-                total_amount = 0
-
-        try:
-            total_donations = donations.count()
-            completed_count = donations.filter(status='completed').count()
-            pending_count = donations.filter(status='pending').count()
-        except Exception:
-            # Best-effort fallbacks
-            total_donations = len(donations) if hasattr(donations, '__len__') else 0
-            completed_count = 0
-            pending_count = 0
-
-    return render(request, 'public/users/donation/details.html', {
-        'donations': donations,
-        'categories': categories,
+    return render(request, 'public/users/dashboard.html', {
         'membership': membership,
-        'total_amount': total_amount,
-        'total_donations': total_donations,
-        'completed_count': completed_count,
-        'pending_count': pending_count,
+        'workflow_logs': workflow_logs,
     })
 
 
+def profile(request):
+    membership = None
+    return render(request, 'public/users/profile/details.html', {'membership': membership})

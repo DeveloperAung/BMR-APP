@@ -61,7 +61,14 @@ export const initMembershipPage2 = async () => {
                     if (paymentExternalId) {
                         sessionStorage.setItem('membership_payment_external_id', paymentExternalId);
                     }
-
+                    
+                    const payments = Array.isArray(membershipData.payments) ? membershipData.payments : [];
+                    const latestPayment = payments.length ? payments[0] : (membershipData.payment || null);
+                    if (latestPayment && (latestPayment.status || '').toLowerCase() === 'paid') {
+                        window.location.href = '/memberships/registration/step-4/';
+                        return;
+                    }
+                
                     // Redirect to Page3
                     window.location.href = '/memberships/registration/step-3/';
                 }

@@ -4,18 +4,23 @@
         <div class="card border-primary">
             <div class="card-body">
                 <!-- User Profile Section -->
-                <div class="user-profile-section">
-                    <div class="user-avatar text-center">
-                        {% if user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" alt="Profile" class="img-90 rounded-circle"> {% else %}
-                        <img src="{% static 'assets/images/avtar/4.jpg' %}" alt="Profile" class="img-90 rounded-circle text-center"> {% endif %}
+                <div id="sidebar-profile-card"
+                     class="user-profile-section text-center"
+                     data-fallback-avatar="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'assets/images/avtar/4.jpg' %}{% endif %}"
+                     data-fallback-name="{{ user.profile.first_name|default:user.username }}"
+                     data-fallback-username="{{ user.username }}"
+                     data-fallback-email="{{ user.email }}"
+                     data-fallback-membership="{% if user.membership %}{{ user.membership.type.name|default:'None' }}{% endif %}"
+                     data-reference="{{ user.membership.reference_no|default_if_none:'' }}">
+                    <div class="user-avatar mb-3">
+                        <img data-sidebar-avatar src="{% static 'assets/images/avtar/4.jpg' %}" alt="Profile" class="img-90 rounded-circle border border-2 border-primary-subtle">
                     </div>
-                    <div class="user-info text-center">
-                        <h6>{{ user.profile.first_name|default:user.username }}</h6>
-                        <p class="text-muted mt-2">{{ user.email }} support@bmr.sg</p>
-                        {% if user.membership %}
-                        <span class="badge rounded-pill badge-primary">{{ user.membership.type.name }}</span> {% else %}
-                        <span class="badge rounded-pill badge-primary">No Membership</span> {% endif %}
+                    <div class="user-info">
+                        <h6 class="mb-1" data-sidebar-name>Loading...</h6>
+                        <p class="text-muted small mb-1" data-sidebar-email></p>
+                        <div class="text-muted small" data-sidebar-username></div>
+                        <span class="badge rounded-pill bg-secondary mt-2" data-sidebar-membership>Membership</span>
+                        <div class="small text-muted mt-1">Ref: <span data-sidebar-ref>{{ user.membership.reference_no|default_if_none:"-" }}</span></div>
                     </div>
                 </div>
 
@@ -29,8 +34,11 @@
                         <a class="list-group-item list-group-item-action  list-hover-primary {% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}active{% endif %}" id="list-home-profile" href="{% url 'membership_profile' %}"
                             aria-controls="list-home" aria-selected="{% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}true{% else %}false{% endif %}" tabindex="-1">Profile
                         </a>
-                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path %}active{% endif %}" id="list-profile-list" href="{% url 'member_reg_step_1' %}" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership
-                        </a>
+                        {% if user.membership and user.membership.membership_number %}
+                            <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="{% url 'membership_details' user.membership.reference_no %}" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
+                        {% else %}
+                            <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="{% url 'member_reg_step_1' %}" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
+                        {% endif %}
                         <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_donation' %}" aria-controls="list-settings" aria-selected="true">Donation
                         </a>
                         <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_event' %}" aria-controls="list-settings" aria-selected="true">Event
@@ -71,3 +79,4 @@
         </div>
     </div>
 </div>
+<script type="module" src="{% static 'js/users/sidebarProfile.js' %}"></script>

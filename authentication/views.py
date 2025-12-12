@@ -50,7 +50,11 @@ def dashboard(request):
         return redirect('public_dashboard')
 
 def public_dashboard(request):
-    return render(request, 'public/users/dashboard.html')
+    
+    context = {
+
+    }
+    return render(request, 'public/users/dashboard.html', context)
 
 def private_dashboard(request):
     return render(request, 'private/users/list.html')

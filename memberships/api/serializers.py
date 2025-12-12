@@ -151,6 +151,7 @@ class MembershipReadSerializer(serializers.ModelSerializer):
     work_info = WorkInfoReadSerializer(read_only=True)
     workflow_status = StatusSerializer(read_only=True)
     can_edit = serializers.SerializerMethodField()
+    payments = serializers.SerializerMethodField()
 
     class Meta:
         model = Membership
@@ -159,13 +160,19 @@ class MembershipReadSerializer(serializers.ModelSerializer):
             "membership_type", "membership_type_name", "membership_number", "profile_info", "contact_info",
             "education_info", "work_info", "workflow_status", "workflow_status_name", "reason",
             "is_profile_completed", "is_contact_completed", "is_education_completed",
-            "is_work_completed", "is_payment_generated", "submitted_at", "can_edit"
+            "is_work_completed", "is_payment_generated", "submitted_at", "can_edit",
+            "payments"
         )
 
         read_only_fields = ("uuid", "reference_no", "user", "membership_type_name")
 
     def get_can_edit(self, obj):
         return obj.can_edit()
+
+    def get_payments(self, obj):
+        payments_qs = obj.payments.filter(is_active=True).order_by('-created_at')
+        from .serializers import PaymentReadSerializer  # avoid circular import at top
+        return PaymentReadSerializer(payments_qs, many=True, context=self.context).data
 
 
 # Write serializers for creating/updating
@@ -224,7 +231,6 @@ class ContactInfoCreateSerializer(serializers.ModelSerializer):
         instance.address = validated_data.get('address', instance.address)
         instance.save()
         return instance
-
 
 
 class WorkInfoCreateSerializer(serializers.ModelSerializer):
@@ -334,6 +340,8 @@ class MembershipPage2Serializer(serializers.Serializer):
         if not (membership.is_profile_completed and membership.is_contact_completed):
             raise serializers.ValidationError("Please complete Page 1 (Profile & Contact Info) first")
 
+        # If there's already a pending/created payment, skip creating another
+        attrs['skip_payment'] = membership.payments.filter(status__in=["pending", "created"]).exists()
         return attrs
 
     def save(self):
@@ -378,7 +386,7 @@ class MembershipPage2Serializer(serializers.Serializer):
         membership.save()
 
         # Generate HitPay payment if not already generated
-        if not membership.is_payment_generated:
+        if not membership.is_payment_generated and not self.validated_data.get('skip_payment'):
             amount = membership.calculate_membership_fee()
             payment_serializer = CreateOnlinePaymentSerializer(
                 data={"amount": amount, "currency": "SGD"},
@@ -391,6 +399,16 @@ class MembershipPage2Serializer(serializers.Serializer):
             membership.save()
 
             self.context['payment'] = payment
+        elif self.validated_data.get('skip_payment'):
+            # If skipping payment creation and already at status 13, bump to 12 (approved/pending confirmation)
+            current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
+            if current_status == "13":
+                approved_status, _ = Status.objects.get_or_create(
+                    status_code="12",
+                    defaults={"internal_status": "Pending Approval", "external_status": "Pending Approval"}
+                )
+                membership.workflow_status = approved_status
+                membership.save(update_fields=["workflow_status", "modified_at"])
 
         return membership
 

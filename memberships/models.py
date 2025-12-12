@@ -29,6 +29,7 @@ class Institution(AuditModel):
 
 class MembershipType(AuditModel):
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True, null=True, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=10)
     description = models.TextField(blank=True, null=True)
 
@@ -268,16 +269,14 @@ class Membership(AuditModel):
         if self.membership_number:
             return self.membership_number
 
-        year = timezone.now().year
-        membership_type_code = self.membership_type.name[:2].upper() if self.membership_type else "OR"
+        # Determine prefix from membership type code; fallback to generic
+        type_code = getattr(self.membership_type, "code", None) or getattr(self.membership_type, "name", "")[:2].upper() or "GEN"
+        prefix = f"{type_code}"
 
-        # Count existing approved memberships for this year and type
-        count = Membership.objects.filter(
-            membership_number__isnull=False,
-            membership_number__startswith=f"{membership_type_code}{year}"
-        ).count() + 1
-
-        self.membership_number = f"{membership_type_code}{year}{count:04d}"
+        # Find next sequence for this type
+        existing = Membership.objects.filter(membership_number__startswith=prefix).count()
+        next_seq = existing + 1
+        self.membership_number = f"{prefix}-{next_seq:04d}"
         return self.membership_number
 
     def calculate_membership_fee(self):
@@ -316,8 +315,8 @@ class Membership(AuditModel):
         with transaction.atomic():
             old_status = self.workflow_status
 
-            # Generate membership number when approved
-            if new_status.status_code == "14":  # Approved
+            # Generate membership number when approved (status code 12)
+            if new_status.status_code == "16" and not self.membership_number:
                 self.generate_membership_number()
 
             self.workflow_status = new_status

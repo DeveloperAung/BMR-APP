@@ -237,8 +237,8 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
             membership = self.get_or_create_membership()
             # Prevent modification if membership is not in editable statuses
             current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
-            if current_status not in ("10", "11", "12", "13"):
-                raise ValidationError({"detail": "Application cannot be modified at this stage."})
+            # if current_status is None: #not in ("10", "11", "12", "13"):
+            #     raise ValidationError({"detail": "Application cannot be modified at this stage."})
             serializer = MembershipPage1Serializer(
                 data=request.data,
                 context={'membership': membership}
@@ -282,8 +282,8 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         membership = self.get_or_create_membership()
         # Prevent modification if membership is not in editable statuses
         current_status = getattr(getattr(membership, 'workflow_status', None), 'status_code', None)
-        if current_status not in ("10", "11", "12", "13"):
-            raise ValidationError({"detail": "Application cannot be modified at this stage."})
+        # if current_status is None: # not in ("10", "11", "12", "13"):
+        #     raise ValidationError({"detail": "Application cannot be modified at this stage."})
 
         serializer = MembershipPage2Serializer(
             data=request.data,
@@ -293,13 +293,18 @@ class MembershipViewSet(mixins.RetrieveModelMixin,
         # membership.workflow_status = ""
         membership = serializer.save()
 
-        # Get the generated payment with QR
-        payment_serializer = CreateOnlinePaymentSerializer(
-            data={},  # empty data — defaults are handled inside
-            context={'membership': membership}
-        )
-        payment_serializer.is_valid(raise_exception=True)
-        payment = payment_serializer.save()
+        # Use existing pending/created payment if present, otherwise create
+        payment = membership.payments.filter(status__in=["pending", "created"]).order_by('-created_at').first()
+        if not payment:
+            payment_serializer = CreateOnlinePaymentSerializer(
+                data={},  # empty data — defaults are handled inside
+                context={'membership': membership}
+            )
+            payment_serializer.is_valid(raise_exception=True)
+            payment = payment_serializer.save()
+            membership.is_payment_generated = True
+            membership.save(update_fields=["is_payment_generated", "modified_at"])
+
         payment_data = PaymentReadSerializer(payment).data if payment else None
 
         response_data = {

@@ -75,7 +75,7 @@
                     <div class="mb-3">
                         <label for="date_of_birth" class="form-label">Date of Birth <span
                                 class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
+                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" max="{{ today|date:'Y-m-d' }}" required>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
@@ -205,4 +205,18 @@
 
 {% block extra_js %}
 <script type="module" src="{% static 'js/memberships/membershipPage1.js' %}"></script>
-{% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dob = document.getElementById('date_of_birth');
+    if (dob) {
+        const today = new Date().toISOString().split('T')[0];
+        dob.setAttribute('max', today);
+        dob.addEventListener('change', () => {
+            if (dob.value && dob.value > today) {
+                dob.value = today;
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 
