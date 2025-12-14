@@ -175,12 +175,15 @@ def membership_approval(request, reference_no):
     return render(request, 'private/memberships/approval.html', context)
 
 
-def member_event(request):
-    return render(request, 'public/users/events/events.html')
-
-
-def member_donation(request):
-    return render(request, 'public/users/events/donations.html')
+def member_event_donations(request):
+    upcoming_events = (
+        Event.objects.filter(is_active=True, is_published=True)
+        .order_by('published_at', 'created_at')[:3]
+    )
+    context = {
+        'upcoming_events': upcoming_events,
+    }
+    return render(request, 'public/users/events/events.html', context)
 
 
 def membership_details(request, reference_no=None):
@@ -217,4 +220,18 @@ def my_dashboard(request):
     )
     return render(request, 'public/users/dashboard/my-dashboard.html', {
         'upcoming_events': upcoming_events,
+    })
+
+
+def certificate_info(request):
+    return render(request, 'public/users/certificates/certificate-info.html')
+
+
+def view_membership_certificate(request, reference_no):
+    membership = Membership.objects.filter(reference_no=reference_no).order_by('-created_at').first()
+    if not membership:
+        raise Http404("Membership not found")
+
+    return render(request, 'public/users/certificates/certificates.html', {
+        'membership': membership,
     })

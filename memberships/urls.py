@@ -16,8 +16,8 @@ public_urls = [
     path('details/', membership_details, name='membership_details'),
     path('my-dashboard/', my_dashboard, name='my_dashboard'),
 
-    path('event/', member_event, name='member_event'),
-    path('donations/', member_donation, name='member_donation'),
+    path('event/', member_event_donations, name='member_event'),
+    path('certificates/', certificate_info, name='certificate_info'),
 ]
 
 urlpatterns = [

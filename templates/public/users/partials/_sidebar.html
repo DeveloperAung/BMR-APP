@@ -38,9 +38,7 @@
                         {% else %}
                             <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
                         {% endif %}
-                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_donation' %}" aria-controls="list-settings" aria-selected="true">Donation
-                        </a>
-                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_event' %}" aria-controls="list-settings" aria-selected="true">Event
+                        <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_event' %}" aria-controls="list-settings" aria-selected="true">Events & Donations
                         </a>
                     </div>
                 </div>
@@ -56,8 +54,8 @@
                             <i data-feather="plus-circle" class="me-1"></i>Apply Membership
                         </a>
                         {% endif %}
-                        <a href="#" class="btn btn-outline-primary btn-sm w-100 mb-2">
-                            <i data-feather="download" class="me-1"></i>Download Certificate
+                        <a href="{% url 'certificate_info' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                            <i data-feather="download" class="me-1"></i>Certificate Gallery
                         </a>
                         <a href="#" class="btn btn-outline-secondary btn-sm w-100">
                             <i data-feather="help-circle" class="me-1"></i>Get Support

@@ -26,53 +26,304 @@
 
         <!-- Main Content -->
         <div class="col-xl-9 col-md-8 box-col-8">
-                <div class="card border-primary" style="min-height: 700px">
+                <div class="card border-primary">
                   <div class="card-header card-no-border bg-primary">
-                    <h3>Events </h3>
+                    <h3>Events & Donations</h3>
                   </div>
                   <div class="card-body">
+                    <div class="card mb-0">
+                      <div class="card-header bg-transparent ">
+                          <div class="d-flex justify-content-between">
+                              <h4 class="card-text text-primary">Upcoming Event(s)</h4>
+                              <span class="badge badge-sm rounded-circle badge-primary">{{ upcoming_events|length|default:0 }}</span>
+                          </div>
+                      </div>
+                      <div class="card-body">
+                          {% if upcoming_events %}
+                              {% for event in upcoming_events %}
+                                  <div class="event-item mb-3">
+                                      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+                                          <div class="me-md-3">
+                                              <a href="{% if event.category %}{% url 'event_details' event.category.title_others %}{% else %}#{% endif %}" class="d-block text-decoration-none">
+                                                  <div class="h5 text-primary mb-1">{{ event.title }}</div>
+                                                  {% if event.short_description %}
+                                                      <div class="text-muted small mt-1">{{ event.short_description }}</div>
+                                                  {% endif %}
+                                              </a>
+                                              <div class="d-flex align-items-center gap-2 mb-2">
+                                                  <span class="event-date-pill mt-2">
+                                                      {% if event.category %}
+                                                          <span class="text-primary ">{{ event.category.title }}</span>
+                                                      {% endif %}
+                                                      {% if event.event_dates %}
+                                                          {% with start=event.event_dates|first end=event.event_dates|last %}
+                                                              {{ start|default:"Date TBC" }}{% if end and end != start %} - {{ end }}{% endif %}
+                                                          {% endwith %}
+                                                      {% else %}
+                                                          Date TBC
+                                                      {% endif %}
+                                                  </span>
+                                                  
+                                              </div>
+                                          </div>
+                                          <div class="d-grid gap-2 mt-3 mt-md-0" style="min-width:180px;">
+                                              <a href="{% if event.category %}{% url 'event_details' event.category.title_others %}{% else %}#{% endif %}" class="btn btn-primary">
+                                                  <i class="fa fa-regular fa-calendar me-1"></i> Register
+                                              </a>
+                                              <a href="" class="btn btn-outline-secondary">
+                                                  <i class="fa fa-donate me-1"></i> Donate
+                                              </a>
+                                          </div>
+                                      </div>
+                                  </div>
+                              {% endfor %}
+                          {% else %}
+                              <div class="text-muted">No upcoming events available.</div>
+                          {% endif %}
+                      </div>
+                  </div>  
+                  <hr>
                     <ul class="nav nav-tabs border-tab mb-0" id="bottom-tab" role="tablist">
-                      <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info active" id="bottom-inbox-tab" data-bs-toggle="tab" href="#bottom-inbox" role="tab" aria-controls="bottom-inbox" aria-selected="true"><i class="fa-solid fa-inbox">  </i>Upcoming</a></li>
-                      <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-contact-tab" data-bs-toggle="tab" href="#bottom-contact" role="tab" aria-controls="bottom-contact" aria-selected="false" tabindex="-1"><i class="fa-solid fa-phone"></i>Joined</a></li>
+                      <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info active" id="bottom-event-tab" data-bs-toggle="tab" href="#bottom-event" role="tab" aria-controls="bottom-inbox" aria-selected="true"><i class="fa-solid fa-calendar">  </i>Events</a></li>
+                      <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-donation-tab" data-bs-toggle="tab" href="#bottom-donation" role="tab" aria-controls="bottom-donation" aria-selected="false" tabindex="-1"><i class="fa-solid fa-donate"></i>Donations</a></li>
                     </ul>
                     <div class="tab-content" id="bottom-tabContent">
-                      <div class="tab-pane fade show active" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
-                        <div class="card-body pb-0">
-                          <div class="main-inbox">
-                            <div class="header-inbox">
-                              <div class="header-left-inbox">
-                                <div class="inbox-img"><img src="../assets/images/user/6.jpg" alt="profile"></div>
-                                <div class="inbox-content">
-                                  <h6>Dalbult Caslin</h6>
-                                  <p class="text-muted">stroman.rogers@gmail.com</p>
+                      <div class="tab-pane fade show active" id="bottom-event" role="tabpanel" aria-labelledby="bottom-event-tab">
+                        <div class="card-body px-0 pb-0">
+                          <style>
+                            .joined-card { border-radius: 14px; border: 1px solid #eef1f6; padding: 16px; background: #fff; box-shadow: 0 8px 24px rgba(33,37,41,0.06); }
+                            .date-chip { display: inline-block; padding: 6px 10px; border-radius: 8px; background: #eef5ff; color: #1d4ed8; font-size: 12px; font-weight: 600; }
+                            .date-list li { margin-bottom: 4px; }
+                          </style>
+                          {% with sample_events=joined_events|default:None %}
+                            {% if sample_events %}
+                              <div class="row row-cols-1 row-cols-md-2 g-3">
+                                {% for ev in sample_events %}
+                                  <div class="col">
+                                    <div class="joined-card h-100 d-flex flex-column">
+                                      <div class="d-flex align-items-start justify-content-between mb-2">
+                                        <div>
+                                          <div class="badge bg-light text-primary border mb-2">{{ ev.category.title|default:"Event" }}</div>
+                                          <h5 class="mb-1">{{ ev.title|default:"Event Title" }}</h5>
+                                          <div class="text-muted small">Joined on {{ ev.joined_on|date:"d M Y"|default:"05 Jan 2025" }}</div>
+                                        </div>
+                                        <div class="text-end">
+                                          <span class="badge bg-primary bg-opacity-10 text-primary">{{ ev.event_dates|length|default:1 }} date{{ ev.event_dates|length|pluralize }}</span>
+                                        </div>
+                                      </div>
+                                      {% if ev.event_dates %}
+                                        <ul class="list-unstyled text-muted small date-list">
+                                          {% for d in ev.event_dates %}
+                                            <li><i class="fa fa-calendar text-primary me-1"></i>{{ d }}</li>
+                                          {% endfor %}
+                                        </ul>
+                                      {% else %}
+                                        <div class="date-chip mb-2">12 Jan 2025 - 14 Jan 2025</div>
+                                      {% endif %}
+                                      <p class="text-muted small mt-2 mb-3">{{ ev.short_description|default:"A short retreat focused on mindfulness and breathing exercises." }}</p>
+                                      <div class="mt-auto d-flex gap-2">
+                                        <a href="{% if ev.title_others %}{% url 'event_details' ev.title_others %}{% else %}#{% endif %}" class="btn btn-sm btn-outline-primary">Details</a>
+                                        <a href="{% url 'member_donation' %}" class="btn btn-sm btn-primary">Donate</a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                            {% else %}
+                              <div class="row row-cols-1 row-cols-md-2 g-3">
+                                <div class="col">
+                                  <div class="joined-card h-100 d-flex flex-column border-success">
+                                    <div class="d-flex align-items-start justify-content-between mb-2">
+                                      <div>
+                                        <div class="badge bg-primary mb-2">Meditation</div>
+                                        <h5 class="mb-1">Weekend Mindfulness Retreat</h5>
+                                        <div class="text-muted small">Joined on 05 Jan 2025</div>
+                                      </div>
+                                      <span class="badge text-primary">2 Days</span>
+                                    </div>
+                                    <ul class="list-unstyled text-muted small date-list">
+                                      <li><i class="fa fa-calendar text-primary me-1"></i>12 Jan 2025</li>
+                                      <li><i class="fa fa-calendar text-primary me-1"></i>14 Jan 2025</li>
+                                    </ul>
+                                    <p class="text-muted small mt-2 mb-3">A short retreat focused on mindfulness and breathing exercises.</p>
+                                    <div class="mt-auto d-flex gap-2">
+                                      <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                                      
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col">
+                                  <div class="joined-card h-100 d-flex flex-column border-success">
+                                    <div class="d-flex align-items-start justify-content-between mb-2">
+                                      <div>
+                                        <div class="badge badge-primary border-success mb-2">Dhamma Talk</div>
+                                        <h5 class="mb-1">Evening Dhamma Sharing</h5>
+                                        <div class="text-muted small">Joined on 15 Feb 2025</div>
+                                      </div>
+                                      <span class="badge text-primary">3 Days</span>
+                                    </div>
+                                    <ul class="list-unstyled text-muted small date-list">
+                                      <li><i class="fa fa-calendar text-primary me-1"></i>20 Feb 2025</li>
+                                      <li><i class="fa fa-calendar text-primary me-1"></i>22 Feb 2025</li>
+                                      <li><i class="fa fa-calendar text-primary me-1"></i>24 Feb 2025</li>
+                                    </ul>
+                                    <p class="text-muted small mt-2 mb-3">Guided discussion on applying dhamma in daily life.</p>
+                                    <div class="mt-auto d-flex gap-2">
+                                      <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                                      
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                              <ul class="header-right-inbox">
-                                <li>
-                                  <p>8 JAN 11:30PM</p>
-                                </li>
-                                <li class="text-danger"><i class="iconly-Delete icli"></i></li>
-                              </ul>
-                            </div>
-                            <div class="body-inbox mt-2">
-                              <div class="body-h-wrapper"><i class="iconly-Star icbo"></i><em>Compare Prices Find the Best Computer Assessors Fronted Issue.</em></div>
-                              <p class="pt-2">Site speed and design are two of the most important ranking factors Google takes into consideration, as they have the biggest effect of customer staying on site as the website respond faster.                                          </p>
-                            </div>
-                          </div>
+                            {% endif %}
+                          {% endwith %}
                         </div>
                       </div>
-                      <div class="tab-pane fade" id="bottom-contact" role="tabpanel" aria-labelledby="bottom-contact-tab">
+                      <div class="tab-pane fade" id="bottom-donation" role="tabpanel" aria-labelledby="bottom-donation-tab">
                         <div class="card-body px-0 pb-0">
-                          <div class="form">
-                            <div class="mb-3">
-                              <label class="form-label" for="exampleFormControltwo">Email address</label>
-                              <input class="form-control" id="exampleFormControltwo" type="email" placeholder="youremail@gmail.com">
-                            </div>
-                            <div class="mb-0">
-                              <label class="form-label" for="exampleFormControlTextarea1">Example textarea</label>
-                              <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                            </div>
-                          </div>
+                          <style>
+                            .donation-table th { background: #f7f9fc; text-transform: uppercase; font-size: 12px; letter-spacing: .3px; }
+                          </style>
+                          {% with groups=donation_records|default:None %}
+                            {% if groups %}
+                              {% for g in groups %}
+                                <div class="mb-3">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                      <div class="fw-semibold text-primary">{{ g.event_title }}</div>
+                                      <div class="text-muted small">Event date: {{ g.event_date|date:"d M Y" }}</div>
+                                    </div>
+                                  </div>
+                                  <div class="table-responsive">
+                                    <table class="table table-sm donation-table mb-0 align-middle">
+                                      <thead>
+                                        <tr>
+                                          <th class="border-0">Donate Date</th>
+                                          <th class="border-0">Category</th>
+                                          <th class="border-0 text-end">Amount</th>
+                                          <th class="border-0 text-end">Actions</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {% for item in g.items %}
+                                          <tr>
+                                            <td class="small text-muted">{{ item.date|date:"d M Y" }}</td>
+                                            <td>{{ item.category }}</td>
+                                            <td class="text-end fw-semibold">{{ item.quantity }} x {{ item.amount }}</td>
+                                            <td class="text-end">
+                                              <a href="{% if item.add_url %}{{ item.add_url }}{% else %}#{% endif %}" class="btn btn-xs btn-outline-primary me-1" title="Add"><i class="fa fa-plus"></i></a>
+                                              <a href="{% if item.view_url %}{{ item.view_url }}{% else %}#{% endif %}" class="btn btn-xs btn-outline-secondary me-1" title="View"><i class="fa fa-eye"></i></a>
+                                              <a href="{% if item.download_url %}{{ item.download_url }}{% else %}#{% endif %}" class="btn btn-xs btn-outline-success" title="Download"><i class="fa fa-download"></i></a>
+                                            </td>
+                                          </tr>
+                                        {% endfor %}
+                                        <tr class="table-light">
+                                          <td colspan="2" class="text-end fw-semibold">Total</td>
+                                          <td class="text-end fw-bold">{{ g.total_amount|default:"—" }}</td>
+                                          <td></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              {% endfor %}
+                            {% else %}
+                              <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                  <div>
+                                    <div class="fw-semibold text-primary">Weekend Mindfulness Retreat</div>
+                                    <div class="text-muted small">Event date: 12 Jan 2025</div>
+                                  </div>
+                                </div>
+                                <div class="table-responsive">
+                                  <table class="table table-sm donation-table mb-0 align-middle">
+                                    <thead>
+                                      <tr>
+                                        <th class="border-0">Donate Date</th>
+                                        <th class="border-0">Category</th>
+                                        <th class="border-0 text-end">Amount</th>
+                                        <th class="border-0 text-end">Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td class="small text-muted">12 Jan 2025</td>
+                                        <td>General Donation</td>
+                                        <td class="text-end fw-semibold">1 x 100</td>
+                                        <td class="text-end">
+                                          <a href="#" class="btn btn-xs btn-outline-primary me-1"><i class="fa fa-plus"></i></a>
+                                          <a href="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" class="btn btn-xs btn-outline-secondary me-1"><i class="fa fa-eye"></i></a>
+                                          <a href="#" class="btn btn-xs btn-outline-success"><i class="fa fa-download"></i></a>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td class="small text-muted">13 Jan 2025</td>
+                                        <td>Meal Support</td>
+                                        <td class="text-end fw-semibold">2 x 50</td>
+                                        <td class="text-end">
+                                          <a href="#" class="btn btn-xs btn-outline-primary me-1"><i class="fa fa-plus"></i></a>
+                                          <a href="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" class="btn btn-xs btn-outline-secondary me-1"><i class="fa fa-eye"></i></a>
+                                          <a href="#" class="btn btn-xs btn-outline-success"><i class="fa fa-download"></i></a>
+                                        </td>
+                                      </tr>
+                                      <tr class="table-light">
+                                        <td colspan="2" class="text-end fw-semibold">Total</td>
+                                        <td class="text-end fw-bold">200</td>
+                                        <td></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                              <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                  <div>
+                                    <div class="fw-semibold text-primary">Evening Dhamma Sharing</div>
+                                    <div class="text-muted small">Event date: 20 Feb 2025</div>
+                                  </div>
+                                </div>
+                                <div class="table-responsive">
+                                  <table class="table table-sm donation-table mb-0 align-middle">
+                                    <thead>
+                                      <tr>
+                                        <th class="border-0">Donate Date</th>
+                                        <th class="border-0">Category</th>
+                                        <th class="border-0 text-end">Amount</th>
+                                        <th class="border-0 text-end">Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td class="small text-muted">20 Feb 2025</td>
+                                        <td>Hall Support</td>
+                                        <td class="text-end fw-semibold">1 x 80</td>
+                                        <td class="text-end">
+                                          <a href="#" class="btn btn-xs btn-outline-primary me-1"><i class="fa fa-plus"></i></a>
+                                          <a href="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" class="btn btn-xs btn-outline-secondary me-1"><i class="fa fa-eye"></i></a>
+                                          <a href="#" class="btn btn-xs btn-outline-success"><i class="fa fa-download"></i></a>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td class="small text-muted">21 Feb 2025</td>
+                                        <td>General Donation</td>
+                                        <td class="text-end fw-semibold">3 x 30</td>
+                                        <td class="text-end">
+                                          <a href="#" class="btn btn-xs btn-outline-primary me-1"><i class="fa fa-plus"></i></a>
+                                          <a href="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" class="btn btn-xs btn-outline-secondary me-1"><i class="fa fa-eye"></i></a>
+                                          <a href="#" class="btn btn-xs btn-outline-success"><i class="fa fa-download"></i></a>
+                                        </td>
+                                      </tr>
+                                      <tr class="table-light">
+                                        <td colspan="2" class="text-end fw-semibold">Total</td>
+                                        <td class="text-end fw-bold">170</td>
+                                        <td></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            {% endif %}
+                          {% endwith %}
                         </div>
                       </div>
                     </div>

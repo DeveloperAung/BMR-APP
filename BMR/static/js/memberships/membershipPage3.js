@@ -273,7 +273,11 @@ export const initMembershipPage3 = () => {
             if (resp.ok && data.success && data.data) {
                 const status = (data.data.status || data.data.new_status || '').toLowerCase();
                 if (status === 'paid') {
-                    const reference = data.data.reference_no;
+                    const reference = data.data.reference_no
+                        || data.data.external_id
+                        || paymentExternalId
+                        || paymentUuid
+                        || data.data.uuid;
                     showFeedback('Payment received. Finalizing...', 'success');
                     clearInterval(pollTimer);
                     routeToSuccess(reference);

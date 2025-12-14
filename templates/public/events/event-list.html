@@ -12,45 +12,87 @@
         </div>
     </div>
     <div class="container-fluid">
-      
+        
         <div class="row">
           <div class="col-md-3">
             <div class="list-group" id="list-tab" role="tablist">
               <a class="list-group-item list-group-item-action bg-primary" id="list-home-list" aria-controls="list-home" aria-selected="false" tabindex="-1"><span class="fa fa-solid fa-bars"></span></a>
-              <a class="list-group-item list-group-item-action  list-hover-primary {% if 'memberships/my-dashboard/' in request.path or '/my-dashboard/' in request.path or request.path == '/all' %}active{% endif %}" id="list-home-profile" href="{% url 'my_dashboard' %}"
-                  aria-controls="list-home" aria-selected="{% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}true{% else %}false{% endif %}" tabindex="-1">All
+              <a class="list-group-item list-group-item-action list-hover-primary {% if filter_key == 'all' %}active{% endif %}" id="list-home-profile" href="?filter=all"
+                  aria-controls="list-home" aria-selected="" tabindex="-1">All
               </a>
-              <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}" id="list-settings-list" href="" aria-controls="list-settings" aria-selected="true">Upcoming
+              <a class="list-group-item list-group-item-action list-hover-primary {% if filter_key == 'upcoming' %}active{% endif %}" id="list-settings-list" href="?filter=upcoming" aria-controls="list-settings" aria-selected="true">Upcoming
               </a>
-              <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/event/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_event' %}" aria-controls="list-settings" aria-selected="true">Completed
+              <a class="list-group-item list-group-item-action list-hover-primary {% if filter_key == 'completed' %}active{% endif %}" id="list-settings-list" href="?filter=completed" aria-controls="list-settings" aria-selected="true">Completed
               </a>
             </div>
           </div>
           <div class="col-md-9">
             {% for event in page_obj %}
-                <div class="card border-primary">
-                    <div class="blog-box blog-list p-2 row">
-                        <div class="col-sm-5"><img class="img-fluid sm-100-w"
-                                                    src="{{ event.cover_image.url }}"
-                                                    alt=""></div>
+                <div class="card border-primary mb-3 event-card">
+                    <div class="blog-box blog-list p-2 row h-100">
+                        <div class="col-sm-5">
+                            <img class="img-fluid w-100 rounded" src="{% if event.cover_image %}{{ event.cover_image.url }}{% else %}{% static 'assets/images/landing/blog/1.jpg' %}{% endif %}" alt="{{ event.title }}">
+                        </div>
                         <div class="col-sm-7">
-                            <a href="{% url 'event_details' event.title_others %}">
-                                <div class="">
-                                    <div class="blog-date"><span>05</span> January 2024</div>
-                                    <h5 class="fw-bold">{{ event.title }} </h5>
-                                    <div class="blog-bottom-content">
-                                        <hr>
-                                        <p class="mt-0 fw-medium">{{ event.short_description }}</p>
+                            <a href="{% url 'event_details' event.title_others %}" class="text-decoration-none text-dark w-100">
+                                <div class="h-100" style="height: fit-content;">
+                                    <div class="blog-date mb-2">
+                                        {% if event.first_event_date %}
+                                            {{ event.first_event_date|date:"d M Y" }}
+                                            {% if event.last_event_date and event.last_event_date != event.first_event_date %}
+                                                <small class="text-muted">- {{ event.last_event_date|date:"d M Y" }}</small>
+                                            {% endif %}
+                                        {% else %}
+                                            {{ event.published_at|default:event.created_at|date:"d M Y" }}
+                                        {% endif %}
                                     </div>
+                                    <h5 class="fw-bold">{{ event.short_description }}</h5>
+                                    <hr>
+                                    <a href="{% url 'event_details' event.title_others %}" class="btn btn-sm btn-primary">
+                                      <i class="fa fa-calendar me-1"></i> Register
+                                    </a>
+                                    <a href="{% url 'member_donation' %}" class="btn btn-sm btn-outline-secondary">
+                                      <i class="fa fa-donate me-1"></i> Donate
+                                    </a>
                                 </div>
                             </a>
                         </div>
                     </div>
                 </div>
             {% endfor %}
+            <nav aria-label="Events pagination">
+              <ul class="pagination justify-content-center mt-4">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_key %}&filter={{ filter_key }}{% endif %}" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if filter_key %}&filter={{ filter_key }}{% endif %}">{{ num }}</a></li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_key %}&filter={{ filter_key }}{% endif %}" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+              </ul>
+            </nav>
           </div>
         </div>
     </div>
 {% endblock %}
-
 

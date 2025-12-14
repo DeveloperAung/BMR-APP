@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.http import JsonResponse
+from datetime import date
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.views import View
@@ -183,9 +184,38 @@ def event_details(request, title_others):
 
 
 def public_event_list(request):
-    events = Event.objects.filter(is_active=True).order_by('-published_at', '-created_at')
-    paginator = Paginator(events, 10)  # Show 10 events per page
+    filter_key = request.GET.get('filter', 'all').lower()
+    today = date.today()
+
+    base_qs = Event.objects.filter(is_active=True, is_published=True).order_by('-published_at', '-created_at')
+
+    filtered = []
+    for ev in base_qs:
+        parsed_dates = []
+        for d in ev.event_dates or []:
+            try:
+                parsed_dates.append(date.fromisoformat(str(d)))
+            except (ValueError, TypeError):
+                continue
+
+        ev.first_event_date = min(parsed_dates) if parsed_dates else None
+        ev.last_event_date = max(parsed_dates) if parsed_dates else None
+        ev._parsed_dates = parsed_dates 
+
+        if filter_key == 'upcoming':
+            if parsed_dates and any(d >= today for d in parsed_dates):
+                filtered.append(ev)
+        elif filter_key == 'completed':
+            if parsed_dates and all(d < today for d in parsed_dates):
+                filtered.append(ev)
+        else:
+            filtered.append(ev)
+
+    paginator = Paginator(filtered, 10)  # Show 10 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'public/events/event-list.html', {'page_obj': page_obj})
+    return render(request, 'public/events/event-list.html', {
+        'page_obj': page_obj,
+        'filter_key': filter_key,
+    })

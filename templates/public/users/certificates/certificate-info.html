@@ -1,0 +1,109 @@
+{% extends 'public/base.html' %}
+{% load static %}
+{% block content %}
+<!-- Membership Registration Wizard -->
+<div class="container-fluid">
+  <div class="page-title mt-3">
+    <div class="row">
+      <div class="col-sm-6 col-12">
+        <h2>Certificates</h2>
+      </div>
+      <div class="col-sm-6 col-12">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="iconly-Home icli svg-color"></i></a></li>
+          <li class="breadcrumb-item">Certificates</li>
+          <li class="breadcrumb-item active">User</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    {% include 'public/users/partials/_sidebar.html' %}
+    <div class="col-xl-9 col-md-8 box-col-8">
+      <div class="card border-primary">
+        <div class="card-header card-no-border bg-primary border-primary">
+          <h3>Certificates</h3>
+        </div>
+        <div class="gallery my-gallery card-body row" itemscope="" data-pswp-uid="1">
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 1</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/02.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 2</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/03.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 3</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/04.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489681792_1081988923955640_5111659950610226654_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=f727a1&_nc_ohc=k0injxc6P3UQ7kNvwHNx50J&_nc_oc=AdlBHBqiU9FTA4YGCeM4eDjqcB4Vt-NlveSxyQryWv5riSs0K2uxcX37HaNUOBWyfO8&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=vY9XvSHcWSIzeDjQ4XZgwQ&oh=00_AfnlC6awLO0GS3kuqCO1oboaMrHA4x0BFxL1GH2wojizaA&oe=69446D8C" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 4</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/05.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489825063_1081988927288973_2294385394117042525_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=f727a1&_nc_ohc=XCV3XE7ZSwAQ7kNvwHFXGa_&_nc_oc=Adl9agfmzyqMRrggE1H_rczbQdRtK-0BS-S18Gz-IIQy-dcd1DNlLGCa6PW6CAn5FMA&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=ouFdTDPzcg_5jsCxY1SVbA&oh=00_AfmCYAdrFlR-3by_atTPKgejDJgOD9lZxGOGsaWhHXCxMw&oe=69446C5F" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 5</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/06.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489825063_1081988927288973_2294385394117042525_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=f727a1&_nc_ohc=XCV3XE7ZSwAQ7kNvwHFXGa_&_nc_oc=Adl9agfmzyqMRrggE1H_rczbQdRtK-0BS-S18Gz-IIQy-dcd1DNlLGCa6PW6CAn5FMA&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=ouFdTDPzcg_5jsCxY1SVbA&oh=00_AfmCYAdrFlR-3by_atTPKgejDJgOD9lZxGOGsaWhHXCxMw&oe=69446C5F" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 8</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/07.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489825063_1081988927288973_2294385394117042525_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=f727a1&_nc_ohc=XCV3XE7ZSwAQ7kNvwHFXGa_&_nc_oc=Adl9agfmzyqMRrggE1H_rczbQdRtK-0BS-S18Gz-IIQy-dcd1DNlLGCa6PW6CAn5FMA&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=ouFdTDPzcg_5jsCxY1SVbA&oh=00_AfmCYAdrFlR-3by_atTPKgejDJgOD9lZxGOGsaWhHXCxMw&oe=69446C5F" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 9</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/08.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489822647_1081988937288972_2722589031704146536_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=f727a1&_nc_ohc=rcZ5ZPIJfVUQ7kNvwFCqCum&_nc_oc=AdnWV8T8Ky3sWGt_fFSuTB_Rzgq7fQ-BafW8pQNJo8qM-VtGYAjTjy1-1u5noUj0fCQ&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=batSpobcWCUh7AY-CF1PlA&oh=00_AfmeSJzlbfG4w-84zZy4ln-rahtN7ijTk6LiGKfwAQXErQ&oe=694467DB" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 10</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/09.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489822647_1081988937288972_2722589031704146536_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=f727a1&_nc_ohc=rcZ5ZPIJfVUQ7kNvwFCqCum&_nc_oc=AdnWV8T8Ky3sWGt_fFSuTB_Rzgq7fQ-BafW8pQNJo8qM-VtGYAjTjy1-1u5noUj0fCQ&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=batSpobcWCUh7AY-CF1PlA&oh=00_AfmeSJzlbfG4w-84zZy4ln-rahtN7ijTk6LiGKfwAQXErQ&oe=694467DB" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 11</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/010.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489822647_1081988937288972_2722589031704146536_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=f727a1&_nc_ohc=rcZ5ZPIJfVUQ7kNvwFCqCum&_nc_oc=AdnWV8T8Ky3sWGt_fFSuTB_Rzgq7fQ-BafW8pQNJo8qM-VtGYAjTjy1-1u5noUj0fCQ&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=batSpobcWCUh7AY-CF1PlA&oh=00_AfmeSJzlbfG4w-84zZy4ln-rahtN7ijTk6LiGKfwAQXErQ&oe=694467DB" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 12</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/011.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489822647_1081988937288972_2722589031704146536_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=f727a1&_nc_ohc=rcZ5ZPIJfVUQ7kNvwFCqCum&_nc_oc=AdnWV8T8Ky3sWGt_fFSuTB_Rzgq7fQ-BafW8pQNJo8qM-VtGYAjTjy1-1u5noUj0fCQ&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=batSpobcWCUh7AY-CF1PlA&oh=00_AfmeSJzlbfG4w-84zZy4ln-rahtN7ijTk6LiGKfwAQXErQ&oe=694467DB" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 11</figcaption>
+          </figure>
+          <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope=""><a
+              href="../assets/images/big-lightgallry/012.jpg" itemprop="contentUrl" data-size="1600x950"><img
+                class="img-thumbnail" src="https://scontent.fsin4-1.fna.fbcdn.net/v/t39.30808-6/489822647_1081988937288972_2722589031704146536_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=f727a1&_nc_ohc=rcZ5ZPIJfVUQ7kNvwFCqCum&_nc_oc=AdnWV8T8Ky3sWGt_fFSuTB_Rzgq7fQ-BafW8pQNJo8qM-VtGYAjTjy1-1u5noUj0fCQ&_nc_zt=23&_nc_ht=scontent.fsin4-1.fna&_nc_gid=batSpobcWCUh7AY-CF1PlA&oh=00_AfmeSJzlbfG4w-84zZy4ln-rahtN7ijTk6LiGKfwAQXErQ&oe=694467DB" itemprop="thumbnail"
+                alt="Image description"></a>
+            <figcaption itemprop="caption description">Image caption 12</figcaption>
+          </figure>
+        </div>
+        <!-- Root element of PhotoSwipe. Must have class pswp.-->
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
