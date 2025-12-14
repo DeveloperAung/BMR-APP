@@ -180,3 +180,12 @@ def event_details(request, title_others):
         # 'association_posts': association_posts,
     }
     return render(request, 'public/events/event-details.html', context)
+
+
+def public_event_list(request):
+    events = Event.objects.filter(is_active=True).order_by('-published_at', '-created_at')
+    paginator = Paginator(events, 10)  # Show 10 events per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'public/events/event-list.html', {'page_obj': page_obj})

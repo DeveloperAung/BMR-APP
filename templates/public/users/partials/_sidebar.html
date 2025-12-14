@@ -29,15 +29,14 @@
                 <!-- Navigation Menu -->
                 <div class="">
                     <div class="list-group" id="list-tab" role="tablist">
-                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list" aria-controls="list-home" aria-selected="false" tabindex="-1">Menu
-                        </a>
-                        <a class="list-group-item list-group-item-action  list-hover-primary {% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}active{% endif %}" id="list-home-profile" href="{% url 'membership_profile' %}"
-                            aria-controls="list-home" aria-selected="{% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}true{% else %}false{% endif %}" tabindex="-1">Profile
+                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list" aria-controls="list-home" aria-selected="false" tabindex="-1"><span class="fa fa-solid fa-bars"></span></a>
+                        <a class="list-group-item list-group-item-action  list-hover-primary {% if 'memberships/my-dashboard/' in request.path or '/my-dashboard/' in request.path or request.path == '/profile' %}active{% endif %}" id="list-home-profile" href="{% url 'my_dashboard' %}"
+                            aria-controls="list-home" aria-selected="{% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}true{% else %}false{% endif %}" tabindex="-1">Dashboard
                         </a>
                         {% if user.membership and user.membership.membership_number %}
-                            <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="{% url 'membership_details' user.membership.reference_no %}" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
+                            <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
                         {% else %}
-                            <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="{% url 'member_reg_step_1' %}" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
+                            <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/registration/' in request.path or 'memberships/details' in request.path %}active{% endif %}" id="list-profile-list" href="" aria-controls="list-profile" aria-selected="false" tabindex="-1">Membership</a>
                         {% endif %}
                         <a class="list-group-item list-group-item-action list-hover-primary {% if 'memberships/donations/' in request.path %}active{% endif %}" id="list-settings-list" href="{% url 'member_donation' %}" aria-controls="list-settings" aria-selected="true">Donation
                         </a>

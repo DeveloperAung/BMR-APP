@@ -511,7 +511,7 @@ class CreateOnlinePaymentSerializer(serializers.Serializer):
         if "period_year" not in attrs or not attrs["period_year"]:
             attrs["period_year"] = date.today().year
         if "description" not in attrs or not attrs["description"]:
-            attrs["description"] = f"Membership application payment - {membership.reference_no}"
+            attrs["description"] = f"{membership.reference_no}"
         return attrs
 
     def save(self):

@@ -11,7 +11,7 @@
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="iconly-Home icli svg-color"></i></a></li>
             <li class="breadcrumb-item">Membership Details</li>
-            <li class="breadcrumb-item active">Dashboard</li>
+            <li class="breadcrumb-item active">Membership</li>
           </ol>
         </div>
       </div>
@@ -197,7 +197,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="tab-pane fade" id="bottom-contact" role="tabpanel" aria-labelledby="bottom-contact-tab">
-                                        {% with payments=membership.payments.all|dictsortreversed:"period_year" %}
+                                        {% with payments=payments|default:membership.payments.all %}
                                         {% if payments %}
                                             {% regroup payments by period_year as payments_by_year %}
                                             <div class="row g-3">
@@ -210,14 +210,15 @@
                                                         </h2>
                                                         <div class="accordion-collapse collapse" id="c{{forloop.counter0}}" aria-labelledby="h{{ forloop.counter0 }}" data-bs-parent="#simpleaccordion">   
                                                           <div class="accordion-body">
-                                                            {% for p in group.list %}
+                                                                {% for p in group.list %}
                                                                 <li class="list-group-item px-0">
                                                                     <div class="d-flex justify-content-between">
                                                                         <div>
                                                                             <div class="fw-bold">{{ p.amount }} {{ p.currency }}</div>
                                                                             <div class="text-muted small">Method: {{ p.get_method_display }}</div>
-                                                                            <div class="text-muted small">Ref: {{ p.reference_no|default:p.receipt_no }}</div>
-                                                                            {% if p.paid_at %}<div class="text-success small">Paid at {{ p.paid_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                            <div class="text-muted small">Ref: {{ p.reference_no|default:p.receipt_no }}</div>{% if p.created_at %}<div class="text-success small">Paid at: {{ p.created_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                            {% if p.paid_at %}<div class="text-success small">Approved at {{ p.paid_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                            {% if p.status == 'failed' or p.status == 'cancelled' %} <div class="text-danger"> {{ p.description }} </div>{% endif %}
                                                                         </div>
                                                                         <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
                                                                             {{ p.get_status_display }}

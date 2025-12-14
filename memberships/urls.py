@@ -14,7 +14,7 @@ public_urls = [
     path('registration/step-3/', member_reg_step_3, name='member_reg_step_3'),
     path('registration/step-4/', member_reg_step_4, name='member_reg_step_4'),
     path('details/', membership_details, name='membership_details'),
-    path('profile/', profile, name='membership_profile'),
+    path('my-dashboard/', my_dashboard, name='my_dashboard'),
 
     path('event/', member_event, name='member_event'),
     path('donations/', member_donation, name='member_donation'),

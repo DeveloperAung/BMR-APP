@@ -10,7 +10,8 @@
 
     </div>
   </div>
-  <div class="card border-primary">
+  <div class="p-2">
+    <div class="card border-primary bg-light-primary">
       <div class="row p-4 mt-3">
         <div class="col-12 col-md-7 col-lg-8 border-light">
           <div id="sportVideoCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
@@ -20,8 +21,8 @@
                   <div class="single-feature-post video-post bg-img"
                        style="background-image:url('{{ item.image }}');height:400px; background-size:cover;">
                     <div class="post-content p-4">
-                      <a href="{{ item.url }}" class="post-cata text-primary bg-white">{{ item.model_name }}</a>
-                      <a href="{{ item.url }}" class="post-title h5 d-block mt-2 text-primary bg-white">{{ item.title }}</a>
+                      <!-- <a href="{{ item.url }}" class="post-cata text-primary bg-white">{{ item.model_name }}</a> -->
+                      <a href="{{ item.url }}" class="post-title btn btn-outline-primary">{{ item.title }}</a>
                     </div>
                   </div>
                 </div>
@@ -149,6 +150,8 @@
           </div>
       </div>
   </div>
+  </div>
+  
 
 {% block js %}
 <script src="{% static 'assets/js/vendors/swiper/swiper-bundle.min.js' %}"></script>

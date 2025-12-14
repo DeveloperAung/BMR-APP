@@ -66,8 +66,11 @@ const renderProfile = (profile, membership) => {
     // Update Membership link based on reference
     const membershipLink = document.getElementById('list-profile-list');
     if (membershipLink) {
-        const ref = membership?.reference_no || card.dataset.reference || '';
-        if (ref) {
+        const ref = membership?.reference_no || card.dataset.reference_no || '';
+        // const ref = membership?.reference_no || card.dataset.reference || '';
+        const statusCode = membership?.workflow_status?.status_code || membership?.workflow_status || '';
+        const isDraft = ['10', '11', '12'].includes(statusCode);
+        if (ref && !isDraft) {
             membershipLink.href = `/memberships/details/?ref=${encodeURIComponent(ref)}`;
         } else {
             membershipLink.href = `/memberships/registration/step-1/`;

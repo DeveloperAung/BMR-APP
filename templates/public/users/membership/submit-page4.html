@@ -15,7 +15,7 @@
                     Reference number:
                     <span class="fw-semibold" id="success-reference-no">{{ reference_no|default_if_none:"" }}</span>
                 </p>
-                <a href="/" class="btn btn-primary mt-2">Go to Dashboard</a>
+                <a href="{% url 'my_dashboard' %}" class="btn btn-primary mt-2">Go to Dashboard</a>
             </div>
         </div>
 

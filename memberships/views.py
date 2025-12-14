@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.conf import settings
@@ -5,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from .models import *
 from .api.serializers import PaymentReadSerializer
+from events.models import Event
 
 User = get_user_model()
 
@@ -202,12 +204,17 @@ def membership_details(request, reference_no=None):
     if membership:
         workflow_logs = membership.workflowlog_set.select_related('old_status', 'new_status', 'action_by').order_by('-action_time')
 
-    return render(request, 'public/users/dashboard.html', {
+    return render(request, 'public/users/membership/details-view.html', {
         'membership': membership,
         'workflow_logs': workflow_logs,
     })
 
 
-def profile(request):
-    membership = None
-    return render(request, 'public/users/profile/details.html', {'membership': membership})
+def my_dashboard(request):
+    upcoming_events = (
+        Event.objects.filter(is_active=True, is_published=True)
+        .order_by('published_at', 'created_at')[:3]
+    )
+    return render(request, 'public/users/dashboard/my-dashboard.html', {
+        'upcoming_events': upcoming_events,
+    })

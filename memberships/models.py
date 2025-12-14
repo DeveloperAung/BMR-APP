@@ -328,13 +328,13 @@ class Membership(AuditModel):
             if actor and not getattr(actor, "is_authenticated", False):
                 actor = None
 
-            WorkflowLog.objects.create(
-                membership=self,
-                old_status=old_status,
-                new_status=new_status,
-                action_by=actor,
-                reason=reason,
-            )
+            # WorkflowLog.objects.create(
+            #     membership=self,
+            #     old_status=old_status,
+            #     new_status=new_status,
+            #     action_by=actor,
+            #     reason=reason,
+            # )
         return self
 
     def __str__(self):

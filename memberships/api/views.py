@@ -682,6 +682,9 @@ class ManagementMembershipViewSet(viewsets.GenericViewSet):
 
         if getattr(target_status, "status_code", None) == "12":
             self._mark_offline_payments_paid(membership)
+        elif getattr(target_status, "status_code", None) == "13":
+            # If revised while in pending payment confirmation (17), mark payments failed and store reason
+            self._mark_offline_payments_failed(membership, comment)
 
         return Response(
             MembershipReadSerializer(membership, context={'request': request}).data,
@@ -698,3 +701,12 @@ class ManagementMembershipViewSet(viewsets.GenericViewSet):
             if not p.paid_at:
                 p.paid_at = now
             p.save(update_fields=["status", "paid_at", "modified_at"])
+
+    def _mark_offline_payments_failed(self, membership, reason=""):
+        if not membership:
+            return
+        for p in membership.payments.filter(status__in=["pending", "created"]):
+            p.status = "failed"
+            if reason:
+                p.description = (p.description or '') + f" | Reason: {reason}"
+            p.save(update_fields=["status", "description", "modified_at"])
