@@ -1,0 +1,38 @@
+{% load static %}
+<style>
+    .id-card-modern { position: relative; overflow: hidden; border-radius: 16px; background: #f5f7fb; }
+    /* .id-card-modern .shape-left,
+    .id-card-modern .shape-right { position: absolute; top: 18%; width: 40%; height: 70%; background: #0d8a7d; opacity: 0.85; clip-path: polygon(0 0, 100% 30%, 100% 70%, 0 100%); } */
+    .id-card-modern .shape-left { left: -5%; transform: scaleX(-1); }
+    .id-card-modern .shape-right { right: -5%; }
+    .id-card-modern .photo-frame { width: 120px; height: 120px; border-radius: 50%; border: 6px solid #0d8a7d; background: #fff; overflow: hidden; margin: 0 auto; position: relative; z-index: 1; }
+    .id-card-modern .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+</style>
+<div class="card mb-4 border-primary bg-light-primary shadow-sm id-card-modern" style="max-width:320px;">
+    <div class="shape-left"></div>
+    <div class="shape-right"></div>
+    <div class="card-body text-center position-relative" style="padding: 24px 24px 18px;">
+        <div class="d-flex justify-content-center align-items-center mb-2" style="gap:10px; z-index:1; position:relative;">
+            <img src="https://bmr.sg/assets/img/core-img/BMR_logo.png" alt="BMR Logo" style="height:42px; width:auto;">
+            <div class="fw-semibold">Buddhist Meditation Retreat</div>
+        </div>
+        <div class="h4 text-primary">BMR</div>
+        <div class="text-muted" style="z-index:1; position:relative;">Membership Card</div>
+        <div class="photo-frame mt-2 mb-3">
+            {% if membership.profile_picture %}
+                <img src="{{ membership.profile_picture.url }}" alt="Profile">
+            {% else %}
+                <img src="https://bmr.sg/assets/img/core-img/BMR_logo.png" alt="Profile Placeholder">
+            {% endif %}
+        </div>
+        <div class="fw-bold fs-5" style="color:#0d3749;">{{ membership.profile_info.full_name|default:"John Doe" }}</div>
+        <div class="text-muted small mb-3">{{ membership.membership_type.name|default:"Associate Member" }}</div>
+        <div class="row text-start justify-content-center" style="z-index:1; position:relative;">
+            <div class="col-10 col-md-8 table">
+                <div class="d-flex justify-content-between border-bottom py-1 small"><span class="text-muted">Membership No.</span><span class="fw-semibold">{{ membership.membership_number|default:"BMR-AM-0001" }}</span></div>
+                <div class="d-flex justify-content-between border-bottom py-1 small"><span class="text-muted">Contact</span><span class="fw-semibold">{{ membership.contact_info.primary_contact_masked|default:"000-000-0000" }}</span></div>
+                <div class="d-flex justify-content-between border-bottom py-1 small"><span class="text-muted">Membership Year</span><span class="fw-semibold">{{ membership.created_at|date:"Y"|default:"2025" }}</span></div>
+            </div>
+        </div>
+    </div>
+</div>

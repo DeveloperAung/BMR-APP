@@ -210,24 +210,31 @@
                                                         </h2>
                                                         <div class="accordion-collapse collapse" id="c{{forloop.counter0}}" aria-labelledby="h{{ forloop.counter0 }}" data-bs-parent="#simpleaccordion">   
                                                           <div class="accordion-body">
-                                                                {% for p in group.list %}
-                                                                <li class="list-group-item px-0">
-                                                                    <div class="d-flex justify-content-between">
-                                                                        <div>
-                                                                            <div class="fw-bold">{{ p.amount }} {{ p.currency }}</div>
-                                                                            <div class="text-muted small">Method: {{ p.get_method_display }}</div>
-                                                                            <div class="text-muted small">Ref: {{ p.reference_no|default:p.receipt_no }}</div>{% if p.created_at %}<div class="text-success small">Paid at: {{ p.created_at|date:"Y-m-d H:i" }}</div>{% endif %}
-                                                                            {% if p.paid_at %}<div class="text-success small">Approved at {{ p.paid_at|date:"Y-m-d H:i" }}</div>{% endif %}
-                                                                            {% if p.status == 'failed' or p.status == 'cancelled' %} <div class="text-danger"> {{ p.description }} </div>{% endif %}
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    {% include 'public/users/partials/_membership-card.html' %}
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                {% for p in group.list reversed %}
+                                                                    <li class="list-group-item px-0">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <div>
+                                                                                <div class="fw-bold">{{ p.amount }} {{ p.currency }}</div>
+                                                                                <div class="text-muted small">Method: {{ p.get_method_display }}</div>
+                                                                                <div class="text-muted small">Ref: {{ p.reference_no|default:p.receipt_no }}</div>{% if p.created_at %}<div class="text-success small">Paid at: {{ p.created_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                                {% if p.paid_at %}<div class="text-success small">Approved at {{ p.paid_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                                {% if p.status == 'failed' or p.status == 'cancelled' %} <div class="text-danger"> {{ p.description }} </div>{% endif %}
+                                                                            </div>
+                                                                            <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                                                {{ p.get_status_display }}
+                                                                            </span>
                                                                         </div>
-                                                                        <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                                                            {{ p.get_status_display }}
-                                                                        </span>
-                                                                    </div>
-                                                                </li>
-                                                            {% empty %}
-                                                                <li class="list-group-item text-muted">No payment records.</li>
-                                                            {% endfor %}
+                                                                    </li>
+                                                                {% empty %}
+                                                                    <li class="list-group-item text-muted">No payment records.</li>
+                                                                {% endfor %}
+                                                                </div>
+                                                            </div>
                                                           </div>
                                                         </div>
                                                       </div>
@@ -257,138 +264,6 @@
                                 </div>
                             {% endif %}
 
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile Tab -->
-                <div class="tab-content" id="profile-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5>Profile Information</h5>
-                                <a href="" class="btn btn-primary btn-sm">
-                                    <i data-feather="edit-2" class="me-1"></i>Edit Profile
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4 text-center">
-                                    {% if user.profile.avatar %}
-                                        <img src="{{ user.profile.avatar.url }}" alt="Profile" class="profile-image mb-3">
-                                    {% else %}
-                                        <img src="{% static 'assets/images/profile.png' %}" alt="Profile" class="profile-image mb-3">
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="profile-details">
-                                        <div class="detail-item">
-                                            <label>Full Name</label>
-                                            <p>{{ user.profile.first_name|default:"Not provided" }}</p>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Email</label>
-                                            <p>{{ user.email }}</p>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Primary Mobile</label>
-                                            <p>{{ user.profile.decrypted_mobile|default:"Not provided" }}</p>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Secondary Mobile</label>
-                                            <p>{{ user.profile.decrypted_mobile_secondary|default:"Not provided" }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membership Tab -->
-                <div class="tab-content" id="membership-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Membership Details</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if user.membership %}
-                                <div class="membership-status">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="membership-info">
-                                                <h6>Current Membership</h6>
-                                                <div class="membership-card">
-                                                    <h4>{{ user.membership.type.name }}</h4>
-                                                    <p class="text-muted">Status: <span class="badge bg-{{ user.membership.status|lower }}">{{ user.membership.status }}</span></p>
-                                                    <p class="text-muted">Applied: {{ user.membership.created_at|date:"M d, Y" }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="membership-progress">
-                                                <h6>Application Progress</h6>
-                                                <div class="progress-steps">
-                                                    <div class="step completed">
-                                                        <i data-feather="check"></i>
-                                                        <span>Application Submitted</span>
-                                                    </div>
-                                                    <div class="step {% if user.membership.document_status == 'VERIFIED' %}completed{% endif %}">
-                                                        <i data-feather="file-text"></i>
-                                                        <span>Document Verification</span>
-                                                    </div>
-                                                    <div class="step {% if user.membership.payment_status == 'COMPLETED' %}completed{% endif %}">
-                                                        <i data-feather="credit-card"></i>
-                                                        <span>Payment</span>
-                                                    </div>
-                                                    <div class="step {% if user.membership.status == 'APPROVED' %}completed{% endif %}">
-                                                        <i data-feather="award"></i>
-                                                        <span>Approval</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="no-membership">
-                                    <div class="text-center py-5">
-                                        <i data-feather="credit-card" class="mb-3" style="width: 64px; height: 64px; color: #6c757d;"></i>
-                                        <h4 class="text-muted">No Active Membership</h4>
-                                        <p class="text-muted mb-4">Join our community by applying for membership</p>
-                                        <a href="{% url 'member_reg_step_1' %}" class="btn btn-primary">
-                                            <i data-feather="plus-circle" class="me-1"></i>Apply for Membership
-                                        </a>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Donations Tab -->
-                <div class="tab-content" id="donations-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5>Donation History</h5>
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i data-feather="heart" class="me-1"></i>Make Donation
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="no-donations">
-                                <div class="text-center py-5">
-                                    <i data-feather="heart" class="mb-3" style="width: 64px; height: 64px; color: #6c757d;"></i>
-                                    <h4 class="text-muted">No Donations Yet</h4>
-                                    <p class="text-muted mb-4">Support our community with your generous donations</p>
-                                    <a href="#" class="btn btn-primary">
-                                        <i data-feather="heart" class="me-1"></i>Make Your First Donation
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
