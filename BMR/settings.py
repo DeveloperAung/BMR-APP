@@ -114,16 +114,7 @@ DATABASES = {
 #     }
 # }
 
-# DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'BMR',
-#             'USER': 'postgres',
-#             'PASSWORD': 'Sn0wfl@ke12',
-#             'HOST': 'localhost',  # Set to 'localhost' if using a local database
-#             'PORT': 5434,
-#         }
-# }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -237,6 +228,9 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://srv1182669.hstgr.cloud",
+    "http://72.60.211.179",
+    "https://bmr.sg",
 ]
 
 # LOGGING START

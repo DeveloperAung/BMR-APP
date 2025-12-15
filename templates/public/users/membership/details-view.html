@@ -41,214 +41,210 @@
                                     {% if membership %}
                                         {% if membership.membership_number %} Member ID:{{ membership.membership_number|default:"-" }} {% else %} Reference No: {{ membership.reference_no }} {% endif %} | {{ membership.membership_type.name|default:"-" }}</span>
                                     
-                                        <a href="{% url 'member_reg_step_1' %}" class="btn btn-secondary" id="membership-edit-btn">Edit</a>
+                                        <a href="{% url 'member_reg_step_1' %}" class="btn btn-secondary" id="membership-edit-btn">Edit Info</a>
                                     {% endif %}
                                 </div>
-                                
                             </div>
-                            
                         </div>
                         <div class="card-body">
                             {% if membership %}
-                                <ul class="nav nav-tabs border-tab mb-0" id="bottom-tab" role="tablist">
-                                    <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info active" id="bottom-home-tab" data-bs-toggle="tab" href="#bottom-home" role="tab" aria-controls="bottom-home" aria-selected="true"><i class="fa-solid fa-house">     </i>Membership Details</a></li>
-                                    <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-inbox-tab" data-bs-toggle="tab" href="#bottom-inbox" role="tab" aria-controls="bottom-inbox" aria-selected="false"><i class="fa-solid fa-inbox">  </i>History</a></li>
-                                    <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-contact-tab" data-bs-toggle="tab" href="#bottom-contact" role="tab" aria-controls="bottom-contact" aria-selected="false" tabindex="-1"><i class="fa-solid fa-credit-card"></i>Payments</a></li>
-                                </ul>
-                                <div class="tab-content" id="bottom-tabContent">
-                                    <div class="tab-pane fade show active pt-3" id="bottom-home" role="tabpanel" aria-labelledby="bottom-home-tab">
-                                        <div class="row g-3">
-                                            {% if membership.profile_info and membership.contact_info %}
-                                            <div class="col-12">
-                                                <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Profile Info</span></h5>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        {% include 'public/users/partials/_membership-card.html' %}
+                                    </div>
+                                    <div class="col-md-7 mt-2 pl-0">
+                                        <ul class="nav nav-tabs border-tab mb-0" id="bottom-tab" role="tablist">
+                                            <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info active" id="bottom-home-tab" data-bs-toggle="tab" href="#bottom-home" role="tab" aria-controls="bottom-home" aria-selected="true"><i class="fa-solid fa-circle-info">     </i>Info</a></li>
+                                            <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-inbox-tab" data-bs-toggle="tab" href="#bottom-inbox" role="tab" aria-controls="bottom-inbox" aria-selected="false"><i class="fa-solid fa-clock-rotate-left">  </i>History</a></li>
+                                            <li class="nav-item" role="presentation"><a class="nav-link nav-border text-info tab-info" id="bottom-contact-tab" data-bs-toggle="tab" href="#bottom-contact" role="tab" aria-controls="bottom-contact" aria-selected="false" tabindex="-1"><i class="fa-solid fa-credit-card"></i>Payments</a></li>
+                                        </ul>
+                                        <div class="tab-content" id="bottom-tabContent">
+                                            <div class="tab-pane fade show active pt-3" id="bottom-home" role="tabpanel" aria-labelledby="bottom-home-tab">
+                                                <div class="row">
+                                                            {% if membership.profile_info and membership.contact_info %}
+                                                            <div class="col-12">
+                                                                <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Profile Info</span></h5>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Full Name:</span> {{ membership.profile_info.full_name|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Gender:</span> {{ membership.profile_info.get_gender_display|default:membership.profile_info.gender|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Date of Birth:</span> {{ membership.profile_info.date_of_birth|date:"Y-m-d"|default:"-" }}</div>
+                                                                
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">City of Birth:</span> {{ membership.profile_info.city_of_birth|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Country of Birth:</span> {{ membership.profile_info.get_country_of_birth_display|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Citizenship:</span> {{ membership.profile_info.get_citizenship_display|default:"-" }}</div>
+                                                            </div>
+                
+                                                            <div class="col-12">
+                                                                <hr>
+                                                                <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Contact Info</span></h5>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Primary Contact:</span> {{ membership.contact_info.primary_contact_masked|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Secondary Contact:</span> {{ membership.contact_info.secondary_contact_masked|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">NRIC/FIN:</span> {{ membership.contact_info.nric_fin_masked|default:"-" }}</div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Residential Status:</span> {{ membership.contact_info.get_residential_status_display|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Postal Code:</span> {{ membership.contact_info.postal_code|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Address:</span> {{ membership.contact_info.address|default:"-" }}</div>
+                                                            </div>
+                                                            {% endif %}
+                                                            {% if membership.education_info and membership.work_info %}
+                                                            <div class="col-12">
+                                                                <hr>
+                                                                <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Education Info</span></h5>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Education Level:</span> {{ membership.education_info.education.name|default:membership.education_info.education|default:"-" }}</div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Institution:</span> {{ membership.education_info.institution.name|default:membership.education_info.institution|default:"-" }}</div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <div class="mb-2"><span class="text-muted">Other Societies:</span> {{ membership.education_info.other_societies|default:"-" }}</div>
+                                                            </div>
+                
+                                                            <div class="col-12">
+                                                                <hr class="my-3">
+                                                                <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Work Info</span></h5>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Occupation:</span> {{ membership.work_info.occupation|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Company Name:</span> {{ membership.work_info.company_name|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Company Contact:</span> {{ membership.work_info.company_contact|default:"-" }}</div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2"><span class="text-muted">Company Postal Code:</span> {{ membership.work_info.company_postal_code|default:"-" }}</div>
+                                                                <div class="mb-2"><span class="text-muted">Company Address:</span> {{ membership.work_info.company_address|default:"-" }}</div>
+                                                            </div>
+                                                            {% endif %}
+                
+                                                            <div class="col-12">
+                                                                <hr class="my-3">
+                                                                <h5 class="mb-3"><span class="badge badge-secondary">Offline Payment</span></h5>
+                                                            </div>
+                                                            <div class="row g-3 mb-3" id="offline-payments">
+                                                                {% with payments=membership.payments.all|dictsortreversed:"created_at" %}
+                                                                    {% if payments %}
+                                                                        <div class="col-12">
+                                                                            <p class="mb-2 small text-muted">Uploaded payment slip(s) (click to view full size)</p>
+                                                                            <div class="d-flex flex-wrap gap-2">
+                                                                                {% for p in payments %}
+                                                                                    {% if p.receipt_image %}
+                                                                                        <div class="card p-2" style="width: 140px;">
+                                                                                            <a href="{{ p.receipt_image.url }}" target="_blank" rel="noopener noreferrer">
+                                                                                                <img src="{{ p.receipt_image.url }}" alt="Receipt {{ p.receipt_no }}" class="img-fluid img-thumbnail" style="max-height:110px; object-fit:cover;">
+                                                                                            </a>
+                                                                                            <div class="mt-2 small">
+                                                                                                <div><strong>{{ p.receipt_no }}</strong></div>
+                                                                                                <div class="text-muted">{{ p.amount }} {{ p.currency }}</div>
+                                                                                                <div>
+                                                                                                    <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                                                                        {{ p.get_status_display }}
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    {% endif %}
+                                                                                {% empty %}
+                                                                                    <div class="text-muted small">No payment slips uploaded.</div>
+                                                                                {% endfor %}
+                                                                            </div>
+                                                                        </div>
+                                                                    {% else %}
+                                                                        <div class="col-12 text-muted small">No payment records.</div>
+                                                                    {% endif %}
+                                                                {% endwith %}
+                                                            </div>
+                                                        </div>
+                                                
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Full Name:</span> {{ membership.profile_info.full_name|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Gender:</span> {{ membership.profile_info.get_gender_display|default:membership.profile_info.gender|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Date of Birth:</span> {{ membership.profile_info.date_of_birth|date:"Y-m-d"|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">City of Birth:</span> {{ membership.profile_info.city_of_birth|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Country of Birth:</span> {{ membership.profile_info.get_country_of_birth_display|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Citizenship:</span> {{ membership.profile_info.get_citizenship_display|default:"-" }}</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Profile Picture</label>
-                                                <div class="mb-2">
-                                                    <img id="profile_picture_preview"
-                                                         src="{% if membership.profile_picture %}{{ membership.profile_picture.url }}{% endif %}"
-                                                         alt="Profile Preview"
-                                                         class="img-thumbnail"
-                                                         style="max-width: 150px;">
+                                            <div class="tab-pane fade" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
+                                                
+                                                {% if workflow_logs %}
+                                                <div class="card">
+                                                    <div class="card-header card-no-border pb-0">
+                                                        <h5 class="mb-1">Workflow History</h5>
+                                                        <p class="text-muted small mb-0">Status transitions and remarks</p>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <ul class="square-timeline">
+                                                            {% for log in workflow_logs %}
+                                                            <li class="timeline-event">
+                                                                <label class="timeline-event-icon p-2"></label>
+                                                                <div class="timeline-event-wrapper">
+                                                                  <p class="btn bg-light-primary border-light-warning text-warning">{{ log.action_time|date:"Y-m-d H:i" }} - {{ log.new_status.internal_status|default:"-" }}</p>
+                                                                  <h5>Description</h5><span class="text-muted">{{ log.old_status.internal_status|default:"-" }} → {{ log.new_status.internal_status|default:"-" }}</span>
+                                                                  {% if log.reason %}
+                                                                  <p class="pt-3 mb-4">{{ log.reason }}</p>
+                                                                  {% endif %}
+                                                                </div>
+                                                            </li>  
+                                                            {% empty %}
+                                                                <li class="list-group-item text-muted">No workflow history.</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
                                                 </div>
+                                                {% else %}
+                                                    <div class="text-muted py-3">No history yet.</div>
+                                                {% endif %}
                                             </div>
-
-                                            <div class="col-12">
-                                                <hr>
-                                                <h5 class="mb-3"><span class="badge rounded-pill badge-primary">Contact Info</span></h5>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Primary Contact:</span> {{ membership.contact_info.primary_contact_masked|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Secondary Contact:</span> {{ membership.contact_info.secondary_contact_masked|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">NRIC/FIN:</span> {{ membership.contact_info.nric_fin_masked|default:"-" }}</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Residential Status:</span> {{ membership.contact_info.get_residential_status_display|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Postal Code:</span> {{ membership.contact_info.postal_code|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Address:</span> {{ membership.contact_info.address|default:"-" }}</div>
-                                            </div>
-                                            {% endif %}
-                                            {% if membership.education_info and membership.work_info %}
-                                            <div class="col-12">
-                                                <hr>
-                                                <h5 class="mb-3"><span class="badge badge-primary">Education Info</span></h5>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Education Level:</span> {{ membership.education_info.education.name|default:membership.education_info.education|default:"-" }}</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Institution:</span> {{ membership.education_info.institution.name|default:membership.education_info.institution|default:"-" }}</div>
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="mb-2"><span class="text-muted">Other Societies:</span> {{ membership.education_info.other_societies|default:"-" }}</div>
-                                            </div>
-
-                                            <div class="col-12">
-                                                <hr class="my-3">
-                                                <h5 class="mb-3"><span class="badge badge-primary">Work Info</span></h5>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Occupation:</span> {{ membership.work_info.occupation|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Company Name:</span> {{ membership.work_info.company_name|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Company Contact:</span> {{ membership.work_info.company_contact|default:"-" }}</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2"><span class="text-muted">Company Postal Code:</span> {{ membership.work_info.company_postal_code|default:"-" }}</div>
-                                                <div class="mb-2"><span class="text-muted">Company Address:</span> {{ membership.work_info.company_address|default:"-" }}</div>
-                                            </div>
-                                            {% endif %}
-
-                                            <div class="col-12">
-                                                <hr class="my-3">
-                                                <h5 class="mb-3"><span class="badge badge-secondary">Offline Payment</span></h5>
-                                            </div>
-                                            <div class="row g-3 mb-3" id="offline-payments">
-                                                {% with payments=membership.payments.all|dictsortreversed:"created_at" %}
-                                                    {% if payments %}
-                                                        <div class="col-12">
-                                                            <p class="mb-2 small text-muted">Uploaded payment slip(s) (click to view full size)</p>
-                                                            <div class="d-flex flex-wrap gap-2">
-                                                                {% for p in payments %}
-                                                                    {% if p.receipt_image %}
-                                                                        <div class="card p-2" style="width: 140px;">
-                                                                            <a href="{{ p.receipt_image.url }}" target="_blank" rel="noopener noreferrer">
-                                                                                <img src="{{ p.receipt_image.url }}" alt="Receipt {{ p.receipt_no }}" class="img-fluid img-thumbnail" style="max-height:110px; object-fit:cover;">
-                                                                            </a>
-                                                                            <div class="mt-2 small">
-                                                                                <div><strong>{{ p.receipt_no }}</strong></div>
-                                                                                <div class="text-muted">{{ p.amount }} {{ p.currency }}</div>
-                                                                                <div>
+                                            <div class="tab-pane fade" id="bottom-contact" role="tabpanel" aria-labelledby="bottom-contact-tab">
+                                                {% with payments=payments|default:membership.payments.all %}
+                                                {% if payments %}
+                                                    {% regroup payments by period_year as payments_by_year %}
+                                                    <div class="row g-3">
+                                                        <div class="card-body"> 
+                                                            <div class="accordion dark-accordion" id="simpleaccordion">
+                                                            {% for group in payments_by_year %}
+                                                              <div class="accordion-item">
+                                                                <h2 class="accordion-header" id="h{{ forloop.counter0 }}">
+                                                                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} accordion-light-primary text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#c{{forloop.counter0}}" aria-expanded="{{ forloop.first|yesno:'true,false' }}" aria-controls="c{{forloop.counter0}}">Period Year: {{ group.grouper }}<i class="iconly-Arrow-Down-2 icli ms-auto icon"></i></button>
+                                                                </h2>
+                                                                <div class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" id="c{{forloop.counter0}}" aria-labelledby="h{{ forloop.counter0 }}" data-bs-parent="#simpleaccordion">   
+                                                                  <div class="accordion-body">
+                                                                    <div class="row">
+                                                                        <div class="card">
+                                                                        {% for p in group.list reversed %}
+                                                                            <li class="list-group-item px-0">
+                                                                                <div class="d-flex justify-content-between">
+                                                                                    <div>
+                                                                                        <div class="fw-bold">{{ p.amount }} {{ p.currency }}</div>
+                                                                                        <div class="text-muted small">Method: {{ p.get_method_display }}</div>
+                                                                                        <div class="text-muted small">Ref: {{ p.reference_no|default:p.receipt_no }}</div>{% if p.created_at %}<div class="text-success small">Paid at: {{ p.created_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                                        {% if p.paid_at %}<div class="text-success small">Approved at {{ p.paid_at|date:"Y-m-d H:i" }}</div>{% endif %}
+                                                                                        {% if p.status == 'failed' or p.status == 'cancelled' %} <div class="text-danger"> {{ p.description }} </div>{% endif %}
+                                                                                    </div>
                                                                                     <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
                                                                                         {{ p.get_status_display }}
                                                                                     </span>
                                                                                 </div>
-                                                                            </div>
+                                                                            </li>
+                                                                        {% empty %}
+                                                                            <li class="list-group-item text-muted">No payment records.</li>
+                                                                        {% endfor %}
                                                                         </div>
-                                                                    {% endif %}
-                                                                {% empty %}
-                                                                    <div class="text-muted small">No payment slips uploaded.</div>
-                                                                {% endfor %}
-                                                            </div>
-                                                        </div>
-                                                    {% else %}
-                                                        <div class="col-12 text-muted small">No payment records.</div>
-                                                    {% endif %}
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
+                                                              
+                                                            {% endfor %}
+                                                              </div>
+                                                            </div>  
+                                                          
+                                                    </div>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-muted py-3">No payment records.</div>
+                                                {% endif %}
                                                 {% endwith %}
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
-                                        
-                                        {% if workflow_logs %}
-                                        <div class="card">
-                                            <div class="card-header card-no-border pb-0">
-                                                <h5 class="mb-1">Workflow History</h5>
-                                                <p class="text-muted small mb-0">Status transitions and remarks</p>
-                                            </div>
-                                            <div class="card-body">
-                                                <ul class="square-timeline">
-                                                    {% for log in workflow_logs %}
-                                                    <li class="timeline-event">
-                                                        <label class="timeline-event-icon p-2"></label>
-                                                        <div class="timeline-event-wrapper">
-                                                          <p class="btn bg-light-primary border-light-warning text-warning">{{ log.action_time|date:"Y-m-d H:i" }} - {{ log.new_status.internal_status|default:"-" }}</p>
-                                                          <h5>Description</h5><span class="text-muted">{{ log.old_status.internal_status|default:"-" }} → {{ log.new_status.internal_status|default:"-" }}</span>
-                                                          {% if log.reason %}
-                                                          <p class="pt-3 mb-4">{{ log.reason }}</p>
-                                                          {% endif %}
-                                                        </div>
-                                                    </li>  
-                                                    {% empty %}
-                                                        <li class="list-group-item text-muted">No workflow history.</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        {% else %}
-                                            <div class="text-muted py-3">No history yet.</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="tab-pane fade" id="bottom-contact" role="tabpanel" aria-labelledby="bottom-contact-tab">
-                                        {% with payments=payments|default:membership.payments.all %}
-                                        {% if payments %}
-                                            {% regroup payments by period_year as payments_by_year %}
-                                            <div class="row g-3">
-                                                <div class="card-body"> 
-                                                    <div class="accordion dark-accordion" id="simpleaccordion">
-                                                    {% for group in payments_by_year %}
-                                                      <div class="accordion-item">
-                                                        <h2 class="accordion-header" id="h{{ forloop.counter0 }}">
-                                                          <button class="accordion-button collapsed accordion-light-primary text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#c{{forloop.counter0}}" aria-expanded="true" aria-controls="c{{forloop.counter0}}">Period Year: {{ group.grouper }}<i class="iconly-Arrow-Down-2 icli ms-auto icon"></i></button>
-                                                        </h2>
-                                                        <div class="accordion-collapse collapse" id="c{{forloop.counter0}}" aria-labelledby="h{{ forloop.counter0 }}" data-bs-parent="#simpleaccordion">   
-                                                          <div class="accordion-body">
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    {% include 'public/users/partials/_membership-card.html' %}
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                {% for p in group.list reversed %}
-                                                                    <li class="list-group-item px-0">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <div class="fw-bold">{{ p.amount }} {{ p.currency }}</div>
-                                                                                <div class="text-muted small">Method: {{ p.get_method_display }}</div>
-                                                                                <div class="text-muted small">Ref: {{ p.reference_no|default:p.receipt_no }}</div>{% if p.created_at %}<div class="text-success small">Paid at: {{ p.created_at|date:"Y-m-d H:i" }}</div>{% endif %}
-                                                                                {% if p.paid_at %}<div class="text-success small">Approved at {{ p.paid_at|date:"Y-m-d H:i" }}</div>{% endif %}
-                                                                                {% if p.status == 'failed' or p.status == 'cancelled' %} <div class="text-danger"> {{ p.description }} </div>{% endif %}
-                                                                            </div>
-                                                                            <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' or p.status == 'created' %}bg-warning text-dark{% elif p.status == 'failed' or p.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                                                                {{ p.get_status_display }}
-                                                                            </span>
-                                                                        </div>
-                                                                    </li>
-                                                                {% empty %}
-                                                                    <li class="list-group-item text-muted">No payment records.</li>
-                                                                {% endfor %}
-                                                                </div>
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                      
-                                                    {% endfor %}
-                                                      </div>
-                                                    </div>  
-                                                  
-                                            </div>
-                                            </div>
-                                        {% else %}
-                                            <div class="text-muted py-3">No payment records.</div>
-                                        {% endif %}
-                                        {% endwith %}
                                     </div>
                                 </div>
                             {% else %}
