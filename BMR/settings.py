@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("SECRET_KEY", default="")
+SECRET_KEY = 'django-insecure-35hf)n30^xp=8m^x67p4m#_t!((p3i7m#ww3kmymvskdap5qcg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -114,7 +114,16 @@ DATABASES = {
 #     }
 # }
 
-
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'BMR',
+#             'USER': 'postgres',
+#             'PASSWORD': 'Sn0wfl@ke12',
+#             'HOST': 'localhost',  # Set to 'localhost' if using a local database
+#             'PORT': 5434,
+#         }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -228,9 +237,6 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "http://srv1182669.hstgr.cloud",
-    "http://72.60.211.179",
-    "https://bmr.sg",
 ]
 
 # LOGGING START
@@ -284,7 +290,7 @@ GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 HITPAY_SALT = config('HITPAY_SALT', default='')
 HITPAY_API_KEY = config('HITPAY_API_KEY', default='')
 HITPAY_API_URL = config('HITPAY_API_URL', default='')
-HITPAY_WEBHOOK_URL = config('HITPAY_WEBHOOK_URL', default='')
+HITPAY_WEBHOOK_URL = 'https://pretty-badgers-rescue.loca.lt/api/membership/payments/webhooks/hitpay/'
 
 FERNET_KEY = config('FERNET_KEY', default='')
 

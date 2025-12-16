@@ -212,7 +212,7 @@
 
                 // Check if user is staff and route accordingly
                 const isStaff = response.data.data.user.is_staff; // Adjust path based on your API response structure
-                alert(isStaff);
+                
                 const dashboardUrl = isStaff ? '/i/dashboard/' : '/e/dashboard/';
 
                 showAlert('success', response.data.message + ' Redirecting...');

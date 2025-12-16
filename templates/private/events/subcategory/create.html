@@ -113,10 +113,10 @@
 
                             <div class="d-flex justify-content-between">
                                 <a href="{% url 'event_sub_category_list' %}" type="button" id="cancelBtn" class="btn btn-outline-danger">
-                                    <i class="fa fa-arrow-left me-2"></i>Cancel
+                                    Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fa fa-save me-2"></i>{% if mode == 'edit' %}Update{% else %}Create{% endif %}
+                                    {% if mode == 'edit' %}Update{% else %}Create{% endif %}
                                 </button>
                             </div>
                         </form>
