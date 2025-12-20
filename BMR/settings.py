@@ -84,10 +84,11 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'core.context_processors.event_category_menus',
-            ],
-        },
+            'django.contrib.messages.context_processors.messages',
+            'core.context_processors.event_category_menus',
+            'BMR.context_processors.google_settings',
+        ],
+    },
     },
 ]
 
@@ -114,16 +115,6 @@ DATABASES = {
 #     }
 # }
 
-# DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'BMR',
-#             'USER': 'postgres',
-#             'PASSWORD': 'Sn0wfl@ke12',
-#             'HOST': 'localhost',  # Set to 'localhost' if using a local database
-#             'PORT': 5434,
-#         }
-# }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

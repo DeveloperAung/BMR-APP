@@ -1,262 +1,179 @@
 <script>
+    // Configuration from Django context
     const GOOGLE_CLIENT_ID = "{{ GOOGLE_CLIENT_ID|default:'' }}";
+    
+    // Use window.location.origin to ensure consistency between Console and Code
+    const REDIRECT_URI = window.location.origin + '/google-callback/';
 
     function debugLog(message) {
         const debugElement = document.getElementById('debugConsole');
-        const timestamp = new Date().toLocaleTimeString();
-        debugElement.innerHTML += `[${timestamp}] ${message}<br>`;
-        debugElement.scrollTop = debugElement.scrollHeight;
+        if (debugElement) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugElement.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugElement.scrollTop = debugElement.scrollHeight;
+        }
         window.console.log(message);
     }
 
+    /**
+     * Initializes the Google Auth UI
+     */
     function initCustomGoogleAuth() {
         const googleBtn = document.getElementById('googleSignInBtn');
 
         if (!GOOGLE_CLIENT_ID) {
-            googleBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Google Client ID not configured';
+            googleBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Google Client ID Missing';
             googleBtn.disabled = true;
-            debugLog('❌ Google Client ID not configured');
+            debugLog('❌ Google Client ID not configured in settings.py');
             return;
         }
 
-        debugLog(`✅ Google Client ID configured: ${GOOGLE_CLIENT_ID.substring(0, 20)}...`);
+        debugLog(`✅ Google Auth Initialized (Client ID: ${GOOGLE_CLIENT_ID.substring(0, 10)}...)`);
 
         googleBtn.addEventListener('click', function() {
-            debugLog('🔘 Google Sign-In button clicked');
+            debugLog('🔘 Starting Google OAuth flow...');
             performGoogleOAuth();
         });
     }
 
+    /**
+     * Generates a random state string for security (CSRF protection)
+     */
+    function generateState() {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        const state = array[0].toString(36);
+        localStorage.setItem('oauth_state', state);
+        return state;
+    }
+
+    /**
+     * Opens the Google OAuth Popup
+     */
     function performGoogleOAuth() {
-        const authUrl = buildGoogleAuthUrl();
-        debugLog(`🔗 OAuth URL: ${authUrl}`);
+        const state = generateState();
+        
+        const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+        const params = new URLSearchParams({
+            client_id: GOOGLE_CLIENT_ID,
+            redirect_uri: REDIRECT_URI,
+            response_type: 'code',
+            scope: 'openid email profile',
+            access_type: 'offline',
+            prompt: 'select_account',
+            state: state  // Security requirement
+        });
 
-        // Clear any previous auth results
-        localStorage.removeItem('google_auth_result');
-        debugLog('🧹 Cleared previous auth results');
+        const authUrl = `${baseUrl}?${params.toString()}`;
+        
+        // Popup centering logic
+        const width = 500, height = 600;
+        const left = (window.innerWidth / 2) - (width / 2);
+        const top = (window.innerHeight / 2) - (height / 2);
 
-        // Open popup window
         const popup = window.open(
             authUrl,
             'google_oauth',
-            'width=500,height=600,scrollbars=yes,resizable=yes,toolbar=no,menubar=no'
+            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
         );
 
-        if (!popup) {
-            debugLog('❌ Popup was blocked');
-            showAlert('danger', 'Popup was blocked. Please allow popups and try again.');
+        if (!popup || popup.closed || typeof popup.closed == 'undefined') {
+            debugLog('❌ Popup blocked by browser');
+            showAlert('danger', 'Popup was blocked. Please enable popups for this site.');
             return;
         }
 
-        debugLog('✅ Popup opened successfully');
-        let messageReceived = false;
+        // Setup message listener for the popup result
+        const messageListener = async function(event) {
+            // Only accept messages from our own domain
+            if (event.origin !== window.location.origin) return;
 
-        // Listen for messages from popup
-        const messageListener = function(event) {
-            debugLog(`📨 Message received: ${JSON.stringify(event.data)}`);
+            const { type, code, error } = event.data;
 
-            if (event.origin !== window.location.origin) {
-                debugLog(`❌ Origin mismatch: ${event.origin} vs ${window.location.origin}`);
-                return;
-            }
-
-            if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-                debugLog('✅ Google auth success message received');
-                messageReceived = true;
-                popup.close();
-                handleAuthorizationCode(event.data.code);
+            if (type === 'GOOGLE_AUTH_SUCCESS') {
+                debugLog('✅ Authorization code received from popup');
                 window.removeEventListener('message', messageListener);
-            } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-                debugLog('❌ Google auth error message received');
-                messageReceived = true;
-                popup.close();
-                showAlert('danger', 'Google authentication failed: ' + event.data.error);
+                handleAuthorizationCode(code);
+            } else if (type === 'GOOGLE_AUTH_ERROR') {
+                debugLog(`❌ Auth Error: ${error}`);
                 window.removeEventListener('message', messageListener);
+                showAlert('danger', `Google Login Error: ${error}`);
             }
         };
 
         window.addEventListener('message', messageListener, false);
-        debugLog('👂 Message listener attached');
 
-        // Check for popup completion and localStorage fallback
+        // Backup: Watch if popup is closed manually without finishing
         const checkClosed = setInterval(function() {
             if (popup.closed) {
-                debugLog('🔒 Popup closed detected');
                 clearInterval(checkClosed);
-                window.removeEventListener('message', messageListener);
-
-                if (!messageReceived) {
-                    debugLog('⏳ No message received, checking localStorage fallback...');
-                    // Check localStorage for fallback result
-                    setTimeout(function() {
-                        const storedResult = localStorage.getItem('google_auth_result');
-                        if (storedResult) {
-                            debugLog(`📦 Found stored result: ${storedResult}`);
-                            try {
-                                const result = JSON.parse(storedResult);
-                                localStorage.removeItem('google_auth_result');
-
-                                if (result.type === 'GOOGLE_AUTH_SUCCESS') {
-                                    debugLog('✅ Processing stored success result');
-                                    handleAuthorizationCode(result.code);
-                                } else if (result.type === 'GOOGLE_AUTH_ERROR') {
-                                    debugLog('❌ Processing stored error result');
-                                    showAlert('danger', 'Google authentication failed: ' + result.error);
-                                }
-                            } catch (e) {
-                                debugLog(`❌ Error parsing stored result: ${e.message}`);
-                                showAlert('info', 'Google authentication was cancelled or incomplete.');
-                            }
-                        } else {
-                            debugLog('📭 No stored result found');
-                            showAlert('info', 'Google authentication was cancelled.');
-                        }
-                    }, 10000); // Wait longer for localStorage to be set
-                }
+                // Wait a moment for the message listener to catch up
+                setTimeout(() => {
+                    debugLog('ℹ️ Popup closed');
+                }, 1000);
             }
         }, 1000);
     }
 
-    function buildGoogleAuthUrl() {
-        const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
-        const params = new URLSearchParams({
-            client_id: GOOGLE_CLIENT_ID,
-            redirect_uri: window.location.origin + '/google-callback/',
-            response_type: 'code',
-            scope: 'openid email profile',
-            access_type: 'offline',
-            prompt: 'select_account'
-        });
-        console.log("buildGoogleAuth", params);
-        return `${baseUrl}?${params.toString()}`;
-    }
-
+    /**
+     * Sends the code to the Django Backend
+     */
     async function handleAuthorizationCode(code) {
-        debugLog(`🔑 Handling authorization code: ${code.substring(0, 20)}...`);
-        showAlert('info', 'Processing Google authentication...');
+        debugLog('📤 Exchanging code for tokens with backend...');
+        showAlert('info', 'Authenticating with Google...');
 
         try {
-            debugLog('📤 Sending code to Django backend...');
             const response = await axios.post('/api/auth/google-oauth/', {
                 code: code,
-                redirect_uri: window.location.origin + '/google-callback/'
-            });
-
-            debugLog(`📥 Backend response: ${JSON.stringify(response.data)}`);
-
-            if (response.data.success) {
-                localStorage.setItem('access_token', response.data.data.tokens.access);
-                localStorage.setItem('refresh_token', response.data.data.tokens.refresh);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.tokens.access}`;
-
-                // Check if user is staff and route accordingly
-                console.log(response.data);
-                const isStaff = response.data.data.user.is_staff; // Adjust path based on your API response structure
-                
-                const dashboardUrl = isStaff ? '/i/dashboard/' : '/e/dashboard/';
-
-                showAlert('success', response.data.message + ' Redirecting...');
-                setTimeout(() => {
-                    window.location.href = dashboardUrl;
-                }, 1200);
-            }
-        } catch (error) {
-            debugLog(`❌ Backend error: ${error.message}`);
-            console.error('Google OAuth error:', error);
-            const message = error.response?.data?.message || 'Google authentication failed';
-            showAlert('danger', message);
-        }
-    }
-
-    // Test functions
-    function testCallback() {
-        debugLog('🧪 Testing callback communication...');
-        const testUrl = '/google-callback/?code=test123';
-        const popup = window.open(testUrl, 'test_popup', 'width=500,height=600');
-
-        window.addEventListener('message', function(event) {
-            debugLog(`🧪 Test message received: ${JSON.stringify(event.data)}`);
-        }, false);
-    }
-
-    function checkStorage() {
-        debugLog('🧪 Checking localStorage...');
-        const stored = localStorage.getItem('google_auth_result');
-        if (stored) {
-            debugLog(`📦 Found: ${stored}`);
-        } else {
-            debugLog('📭 No stored auth result');
-        }
-    }
-
-    // Regular form login
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const submitBtn = document.getElementById('loginBtnText');
-
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging in...';
-
-        try {
-            const response = await axios.post('/api/auth/login/', {
-                email: email,
-                password: password
+                redirect_uri: REDIRECT_URI // Must match exactly what was sent to Google
             });
 
             if (response.data.success) {
-                localStorage.setItem('access_token', response.data.data.tokens.access);
-                localStorage.setItem('refresh_token', response.data.data.tokens.refresh);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.tokens.access}`;
-
-                // Check if user is staff and route accordingly
-                const isStaff = response.data.data.user.is_staff; // Adjust path based on your API response structure
+                debugLog('✅ Backend login successful');
                 
-                const dashboardUrl = isStaff ? '/i/dashboard/' : '/e/dashboard/';
+                const { tokens, user } = response.data.data;
+                
+                // Save tokens
+                localStorage.setItem('access_token', tokens.access);
+                localStorage.setItem('refresh_token', tokens.refresh);
+                localStorage.setItem('user_data', JSON.stringify(user));
+                
+                // Update axios for future requests
+                axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.access}`;
 
-                showAlert('success', response.data.message + ' Redirecting...');
+                showAlert('success', 'Logged in successfully! Redirecting...');
+                
+                // Determine dashboard based on user role
+                const dashboardUrl = user.is_staff ? '/i/dashboard/' : '/e/dashboard/';
+                
                 setTimeout(() => {
                     window.location.href = dashboardUrl;
-                }, 1500);
+                }, 1000);
             }
         } catch (error) {
-            const message = error.response?.data?.message || 'Login failed';
-            showAlert('danger', message);
-            submitBtn.innerHTML = 'Login';
+            const errorMsg = error.response?.data?.message || 'Failed to sync with backend';
+            debugLog(`❌ Backend exchange failed: ${errorMsg}`);
+            showAlert('danger', errorMsg);
         }
-    });
+    }
+
+    // --- Helper UI Functions ---
 
     function showAlert(type, message) {
-        const alertContainer = document.getElementById('alertContainer');
-        alertContainer.querySelectorAll(`.alert-${type}`).forEach(alert => alert.remove());
+        const container = document.getElementById('alertContainer');
+        if (!container) return;
 
         const alert = document.createElement('div');
         alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
         alert.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        alertContainer.appendChild(alert);
-
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
-            }
-        }, 8000);
+        container.appendChild(alert);
+        setTimeout(() => alert.remove(), 6000);
     }
 
-    // Initialize when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        debugLog('🚀 Page loaded, initializing...');
-        initCustomGoogleAuth();
-
-        // Set up test buttons
-        document.getElementById('testCallback').onclick = testCallback;
-        document.getElementById('checkStorage').onclick = checkStorage;
-
-        // Check for any stored auth results on page load
-        setTimeout(checkStorage, 1000);
-    });
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', initCustomGoogleAuth);
 </script>

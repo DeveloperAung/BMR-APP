@@ -1,251 +1,158 @@
 <script>
-    // Configure axios
-    axios.defaults.baseURL = window.location.origin;
-    axios.defaults.headers.common['Content-Type'] = 'application/json';
-
-    // Add token if available
-    const token = localStorage.getItem('access_token');
-    if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-
-    // Token refresh interceptor
-    axios.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-            const originalRequest = error.config;
-
-            if (error.response?.status === 401 && !originalRequest._retry) {
-                originalRequest._retry = true;
-
-                const refreshToken = localStorage.getItem('refresh_token');
-                if (refreshToken) {
-                    try {
-                        const response = await axios.post('/api/auth/token/refresh/', {
-                            refresh: refreshToken
-                        });
-
-                        const newToken = response.data.access;
-                        localStorage.setItem('access_token', newToken);
-                        axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-
-                        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-                        return axios(originalRequest);
-
-                    } catch (refreshError) {
-                        console.log('Token refresh failed, logging out...');
-                        logout();
-                    }
-                } else {
-                    logout();
+    (function() {
+        // Prevent double-init
+        if (window._JS_AUTH_INIT) return;
+        window._JS_AUTH_INIT = true;
+    
+        // CONFIGURATION
+        const GOOGLE_CLIENT_ID = "{{ GOOGLE_CLIENT_ID|default:'' }}";
+        // Dynamically determine Redirect URI based on current browser URL
+        // This ensures 'localhost' works on localhost and 'bmr-sg.cloud' works on cloud
+        const REDIRECT_URI = window.location.origin + '/google-callback/';
+    
+        function initGoogleAuth() {
+            const btn = document.getElementById('googleSignInBtn');
+            if (!btn) return;
+    
+            if (!GOOGLE_CLIENT_ID) {
+                console.error("Google Client ID missing");
+                btn.disabled = true;
+                return;
+            }
+    
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                startGoogleFlow(btn);
+            });
+        }
+    
+        function startGoogleFlow(btn) {
+            // 1. Show Loading Spinner
+            const originalText = btn.innerHTML;
+            setLoading(btn, true, 'Opening Google...');
+    
+            // 2. Generate State (CSRF)
+            const state = Math.random().toString(36).substring(7);
+            localStorage.setItem('oauth_state', state);
+    
+            // 3. Build Google URL
+            const params = new URLSearchParams({
+                client_id: GOOGLE_CLIENT_ID,
+                redirect_uri: REDIRECT_URI,
+                response_type: 'code',
+                scope: 'openid email profile',
+                access_type: 'offline',
+                prompt: 'select_account',
+                state: state
+            });
+            const url = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    
+            // 4. Open Popup
+            const w = 500, h = 600;
+            const left = (screen.width/2)-(w/2);
+            const top = (screen.height/2)-(h/2);
+            
+            let popup = window.open(url, 'google_login', `width=${w},height=${h},top=${top},left=${left}`);
+    
+            if (!popup) {
+                setLoading(btn, false, originalText);
+                alert("Please allow popups for Google Login.");
+                return;
+            }
+    
+            // 5. Listen for Response
+            let isComplete = false;
+            
+            const msgListener = function(event) {
+                // Verify origin if needed, but for now accept to support localhost/127 mixed
+                if (!event.data || !event.data.type) return;
+    
+                if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+                    isComplete = true;
+                    window.removeEventListener('message', msgListener);
+                    popup.close();
+                    
+                    // Exchange Code
+                    setLoading(btn, true, 'Verifying...');
+                    exchangeCode(event.data.code, btn, originalText);
+                
+                } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+                    isComplete = true;
+                    window.removeEventListener('message', msgListener);
+                    popup.close();
+                    setLoading(btn, false, originalText);
+                    alert("Login failed: " + event.data.error);
                 }
-            }
-            return Promise.reject(error);
-        }
-    );
-
-    // Enhanced logout function
-      async function logout() {
-        try {
-            // Try to invalidate refresh token on server
-            const refreshToken = localStorage.getItem('refresh_token');
-            if (refreshToken) {
-                const response = await fetch('/api/auth/logout/', {  // Use fetch for native/no-deps
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken(),  // Add if needed
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                    },
-                    body: JSON.stringify({ refresh: refreshToken })
-                });
-                // Optional: await response.json(); for logging
-            }
-        } catch (error) {
-            console.log('Server logout error (continuing anyway):', error);
-        }
-
-        // Clear all auth data
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user_data');  // If you store it
-
-        // Clear axios if present
-        if (typeof axios !== 'undefined') {
-            delete axios.defaults.headers.common['Authorization'];
-        }
-
-        // Show feedback
-        showGlobalAlert('success', 'Logged out successfully');
-
-        // Update navigation (key for no-reload UX)
-        updateNavigation();  // Implement: Hide auth nav, show unauth; reverse login logic
-
-        // Conditional redirect
-        const currentPath = window.location.pathname;
-        if (!['/', '/login/', '/register/'].includes(currentPath)) {
-            setTimeout(() => {
-                window.location.href = '/login/';
+            };
+    
+            window.addEventListener('message', msgListener);
+    
+            // 6. Polling (Backup if popup closed manually)
+            const timer = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(timer);
+                    if (!isComplete) {
+                        // Check fallback storage (fix for some mobile browsers)
+                        const fallback = localStorage.getItem('google_auth_complete');
+                        if (fallback) {
+                            localStorage.removeItem('google_auth_complete');
+                            const data = JSON.parse(fallback);
+                            if(data.type === 'GOOGLE_AUTH_SUCCESS') {
+                                 window.removeEventListener('message', msgListener);
+                                 setLoading(btn, true, 'Verifying...');
+                                 exchangeCode(data.code, btn, originalText);
+                                 return;
+                            }
+                        }
+    
+                        // Really closed without login
+                        window.removeEventListener('message', msgListener);
+                        setLoading(btn, false, originalText);
+                    }
+                }
             }, 1000);
         }
-    }
-
-    // Logout with confirmation
-    function logoutWithConfirmation() {
-        if (confirm('Are you sure you want to logout?')) {
-            logout();
-        }
-    }
-
-    // Update navigation based on auth status
-    function updateNavigation() {
-        const navigation = document.getElementById('mainNavigation');
-        const token = localStorage.getItem('access_token');
-
-        if (token) {
-            // Authenticated navigation
-            navigation.innerHTML = `
-                <a class="nav-link" href="/dashboard/">
-                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                </a>
-                <a class="nav-link" href="/api/docs/" target="_blank">
-                    <i class="fas fa-book me-1"></i>API Docs
-                </a>
-                <a class="nav-link" href="#" onclick="logoutWithConfirmation(); return false;">
-                    <i class="fas fa-sign-out-alt me-1"></i>Logout
-                </a>
-            `;
-        } else {
-            // Unauthenticated navigation
-            navigation.innerHTML = `
-                <a class="nav-link" href="/login/">
-                    <i class="fas fa-sign-in-alt me-1"></i>Login
-                </a>
-                <a class="nav-link" href="/register/">
-                    <i class="fas fa-user-plus me-1"></i>Register
-                </a>
-                <a class="nav-link" href="/api/docs/" target="_blank">
-                    <i class="fas fa-book me-1"></i>API Docs
-                </a>
-            `;
-        }
-    }
-
-    // Check for token expiration
-    function checkTokenExpiration() {
-        const token = localStorage.getItem('access_token');
-        if (token) {
+    
+        async function exchangeCode(code, btn, originalText) {
             try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const currentTime = Math.floor(Date.now() / 1000);
-
-                // If token is expired, logout
-                if (payload.exp < currentTime) {
-                    console.log('Token expired, logging out...');
-                    logout();
-                    return false;
+                const response = await axios.post('/api/auth/google-oauth/', {
+                    code: code,
+                    redirect_uri: REDIRECT_URI // Must match exactly
+                });
+    
+                if (response.data.success) {
+                    const { tokens, user } = response.data.data;
+                    
+                    // Save Tokens
+                    localStorage.setItem('access_token', tokens.access);
+                    localStorage.setItem('refresh_token', tokens.refresh);
+                    localStorage.setItem('user_data', JSON.stringify(user));
+                    
+                    // Redirect
+                    setLoading(btn, true, 'Redirecting...');
+                    const dashboard = user.is_staff ? '/i/dashboard/' : '/e/dashboard/';
+                    window.location.href = dashboard;
+                } else {
+                    throw new Error(response.data.message);
                 }
-
-                // If token expires in less than 5 minutes, warn user
-                const timeLeft = payload.exp - currentTime;
-                if (timeLeft < 300 && timeLeft > 0) {
-                    const minutes = Math.floor(timeLeft / 60);
-                    console.log(`Token expires in ${minutes} minutes`);
-                }
-            } catch (error) {
-                console.log('Invalid token format, logging out...');
-                logout();
-                return false;
+            } catch (err) {
+                console.error(err);
+                setLoading(btn, false, originalText);
+                const msg = err.response?.data?.message || err.message || "Login failed";
+                alert(msg);
             }
         }
-        return true;
-    }
-
-    async function loadNavbarUserInfo() {
-        try {
-            const token = localStorage.getItem('access_token');
-            if (!token) return;
-
-            const response = await fetch('/api/auth/profile/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    const userName = data.data.first_name && data.data.last_name
-                        ? `${data.data.first_name} ${data.data.last_name}`
-                        : data.data.username || 'User';
-
-                    const userNameElement = document.getElementById('navbarUserName');
-                    if (userNameElement) {
-                        userNameElement.textContent = userName;
-                    }
-                }
+    
+        function setLoading(btn, isLoading, text) {
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> ${text}`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = text; // text is actually the original HTML
             }
-        } catch (error) {
-            console.log('Could not load user info for navbar:', error);
         }
-    }
-
-    // Auto-logout setup
-    function setupAutoLogout() {
-        // Check token every minute
-        setInterval(checkTokenExpiration, 60000);
-    }
-
-    // Global alert function
-    function showGlobalAlert(type, message, containerId = 'alertContainer') {
-        // Try to find alert container
-        let container = document.getElementById(containerId);
-
-        // If no container found, create one
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'alertContainer';
-            container.style.position = 'fixed';
-            container.style.top = '20px';
-            container.style.right = '20px';
-            container.style.zIndex = '9999';
-            container.style.maxWidth = '400px';
-            document.body.appendChild(container);
-        }
-
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type} alert-dismissible fade show`;
-        alert.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        container.appendChild(alert);
-
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
-            }
-        }, 5000);
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        updateNavigation();
-        setupAutoLogout();
-        loadNavbarUserInfo();
-
-        // Check token on page load
-        checkTokenExpiration();
-    });
-
-    // Check auth status when page becomes visible (handles tab switching)
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            checkTokenExpiration();
-            updateNavigation();
-        }
-    });
-</script>
+    
+        document.addEventListener('DOMContentLoaded', initGoogleAuth);
+    })();
+    </script>

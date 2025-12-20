@@ -16,8 +16,12 @@ urlpatterns = [
     path('password/forgot/', views.forgot_password, name='forgot_password'),
     path('password/reset/', views.reset_password, name='reset_password'),
     path('password/change/', views.change_password, name='change_password'),
-    path('google/', views.google_auth, name='google_auth'),
-    path('google-oauth/', views.google_oauth_exchange, name='google_oauth_exchange'),
+    
+    # path('google/', views.google_auth, name='google_auth'),
+    # path('google-oauth/', views.google_oauth_exchange, name='google_oauth_exchange'),
+
+    path('google-oauth/', views.google_oauth_exchange, name='google_oauth_exchange'), # Keep this one
+    
     path('profile/', views.profile, name='profile'),
     path('profile/update/', views.update_profile, name='update_profile'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

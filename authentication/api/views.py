@@ -241,7 +241,6 @@ def google_auth(request):
     )
 
 
-# NEW: Google OAuth Code Exchange endpoint
 @extend_schema(
     tags=["Auth"],
     request={
@@ -261,35 +260,50 @@ def google_oauth_exchange(request):
     code = request.data.get('code')
     redirect_uri = request.data.get('redirect_uri')
 
-    if not code:
-        return fail(
-            message="Authorization code is required",
-        )
+    if not code or not redirect_uri:
+        return fail(message="Code and redirect_uri are required")
 
     try:
-        # Exchange authorization code for access token
+        # 1. Exchange the code for tokens
         token_url = 'https://oauth2.googleapis.com/token'
         token_data = {
             'client_id': settings.GOOGLE_CLIENT_ID,
             'client_secret': settings.GOOGLE_CLIENT_SECRET,
             'code': code,
             'grant_type': 'authorization_code',
-            'redirect_uri': redirect_uri
+            'redirect_uri': redirect_uri  # Must match exactly what the frontend used
         }
 
         token_response = http_requests.post(token_url, data=token_data)
-        token_response.raise_for_status()
-        token_info = token_response.json()
+        
+        if not token_response.ok:
+            return fail(
+                error=token_response.json(),
+                message="Google connection failed."
+            )
 
-        # Get user info using access token
-        user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
-        headers = {'Authorization': f"Bearer {token_info['access_token']}"}
-        user_response = http_requests.get(user_info_url, headers=headers)
-        user_response.raise_for_status()
-        user_info = user_response.json()
+        token_json = token_response.json()
+        id_token_jwt = token_json.get('id_token')
 
-        # Handle user creation/login
-        user = handle_google_user(user_info)
+        # 2. Verify the ID Token
+        id_info = id_token.verify_oauth2_token(
+            id_token_jwt, 
+            requests.Request(), 
+            settings.GOOGLE_CLIENT_ID
+        )
+
+        if id_info['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError('Wrong issuer.')
+
+        # 3. Create or Get User
+        user = handle_google_user(id_info)
+        
+        # 4. Login the user in Django Session (important for web view)
+        from django.contrib.auth import login as auth_login
+        if request.user.is_anonymous:
+             auth_login(request._request, user)
+
+        # 5. Generate API Tokens
         refresh = RefreshToken.for_user(user)
         user_serializer = UserSerializer(user)
 
@@ -301,21 +315,14 @@ def google_oauth_exchange(request):
                     'access': str(refresh.access_token),
                 }
             },
-            message="Google OAuth authentication successful",
-
+            message="Google Login Successful"
         )
 
-    except http_requests.exceptions.RequestException as e:
-        return fail(
-            error=str(e),
-            message="Failed to exchange authorization code"
-        )
+    except ValueError as e:
+        return fail(message="Invalid Token", error=str(e))
     except Exception as e:
-        return fail(
-            error=str(e),
-            message="Google OAuth authentication failed"
-        )
-
+        return fail(message="Authentication Error", error=str(e))
+    
 
 @extend_schema(
     tags=["Auth"],

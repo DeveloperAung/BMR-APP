@@ -1,0 +1,135 @@
+/* Users Dashboard Styles */
+.loading-spinner {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.bulk-actions {
+    display: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filters-section {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+.product-names {
+    display: flex;
+    align-items: center;
+}
+
+.light-product-box {
+    margin-right: 12px;
+}
+
+.results-info {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin: 15px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.pagination {
+    margin: 20px 0;
+}
+
+.pagination .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-color: #007bff;
+}
+
+/* Empty and Error States */
+.empty-state, .error-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-icon, .error-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.error-state h5 {
+    margin-bottom: 10px;
+}
+
+/* Bulk Actions Styling */
+.bulk-action-buttons .btn {
+    margin-left: 8px;
+}
+
+.selected-count {
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .filters-section .row > div {
+        margin-bottom: 15px;
+    }
+
+    .bulk-actions {
+        padding: 10px;
+    }
+
+    .bulk-actions .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .product-action {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+/* Loading States */
+.table[data-loading="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Hover Effects */
+.user-row:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.user-checkbox:checked + label {
+    background-color: #e3f2fd;
+}

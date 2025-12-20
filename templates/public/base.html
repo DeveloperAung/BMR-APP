@@ -26,10 +26,17 @@
               {% endblock %}
             </div>
         </section>
-            {% include 'partials/_js_import.html' %}
+            {% block js_import %}
+                {% include 'partials/_js_import.html' %}
+            {% endblock %}
        </body>
         {% include 'public/partials/footer.html' %}
     </div>
+    <script>
+      // Provide GOOGLE_CLIENT_ID to auth scripts if available in context
+      window.GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || "{{ GOOGLE_CLIENT_ID|default:'' }}";
+      window.REDIRECT_URI = window.REDIRECT_URI || (window.location.origin + '/google-callback/');
+    </script>
     {% include 'partials/_js_auth.html' %}
 
     {% block scripts %}
