@@ -29,7 +29,7 @@
                 <!-- Navigation Menu -->
                 <div class="">
                     <div class="list-group" id="list-tab" role="tablist">
-                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list" aria-controls="list-home" aria-selected="false" tabindex="-1"><span class="fa fa-solid fa-bars"></span></a>
+                        <a class="list-group-item list-group-item-action bg-primary" id="list-home-list" aria-controls="list-home" aria-selected="false" tabindex="-1"><i class="fa fa-solid fa-bars"></i></a>
                         <a class="list-group-item list-group-item-action  list-hover-primary {% if 'memberships/my-dashboard/' in request.path or '/my-dashboard/' in request.path or request.path == '/profile' %}active{% endif %}" id="list-home-profile" href="{% url 'my_dashboard' %}"
                             aria-controls="list-home" aria-selected="{% if 'memberships/profile/' in request.path or '/profile/' in request.path or request.path == '/profile' %}true{% else %}false{% endif %}" tabindex="-1">Dashboard
                         </a>

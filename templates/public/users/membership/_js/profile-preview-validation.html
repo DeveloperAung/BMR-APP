@@ -13,12 +13,10 @@
         return;
         }
         
-        // Validate file size (max 5MB)
+        // Soft warning for large files; they will be compressed before upload
         if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB');
-        this.value = '';
-        preview.style.display = 'none';
-        return;
+        const mb = Math.ceil(file.size / (1024 * 1024));
+        alert(`Image is ${mb}MB; it will be compressed to under 5MB before upload.`);
         }
 
         const reader = new FileReader();

@@ -17,6 +17,7 @@ export class MembershipFormHandler {
         this.notificationService = notificationService;
         this.pageNumber = pageNumber;
         this.submitButton = this.form.querySelector('button[type="submit"]');
+        this.compressedProfilePicture = null;
 
         // Manager handles API + repository
         this.manager = new MembershipManager({
@@ -69,25 +70,107 @@ export class MembershipFormHandler {
         const preview = this.form.querySelector('#profile_picture_preview');
 
         if (fileInput && preview) {
-            fileInput.addEventListener('change', (e) => {
+            fileInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                const maxSizeBytes = 5 * 1024 * 1024; // 5MB limit
-                if (file.size > maxSizeBytes) {
-                    this.notificationService.showWarning('Profile picture must be less than 5MB');
-                    fileInput.value = '';
+                this.compressedProfilePicture = null;
+
+                if (!file) {
+                    preview.style.display = 'none';
                     return;
                 }
 
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        preview.src = event.target.result;
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
+                try {
+                    const compressed = await this.compressImage(file, { maxSizeMB: 5, maxDimension: 1600 });
+                    const finalFile = compressed || file;
+
+                    if (finalFile.size > 5 * 1024 * 1024) {
+                        this.notificationService.showWarning('Profile picture is too large even after compression (must be under 5MB).');
+                        fileInput.value = '';
+                        preview.style.display = 'none';
+                        return;
+                    }
+
+                    this.compressedProfilePicture = finalFile;
+
+                    const dataUrl = await this.readFileAsDataURL(finalFile);
+                    preview.src = dataUrl;
+                    preview.style.display = 'block';
+                } catch (err) {
+                    console.error('Failed to prepare profile picture:', err);
+                    this.notificationService.showWarning('Could not process that image. Please try a different file.');
+                    fileInput.value = '';
+                    preview.style.display = 'none';
                 }
             });
         }
+    }
+
+    ensureJpegExtension(name) {
+        if (/\.jpe?g$/i.test(name)) return name;
+        const base = name.replace(/\.[^.]+$/, '') || 'profile';
+        return `${base}.jpg`;
+    }
+
+    getScaledDimensions(img, maxDimension) {
+        const width = img.width;
+        const height = img.height;
+        if (width <= maxDimension && height <= maxDimension) return { width, height };
+        const ratio = Math.min(maxDimension / width, maxDimension / height);
+        return {
+            width: Math.round(width * ratio),
+            height: Math.round(height * ratio)
+        };
+    }
+
+    readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    loadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
+        });
+    }
+
+    canvasToBlob(canvas, type, quality) {
+        return new Promise((resolve) => {
+            canvas.toBlob((blob) => resolve(blob), type, quality);
+        });
+    }
+
+    async compressImage(file, { maxSizeMB = 5, maxDimension = 1600 } = {}) {
+        const dataUrl = await this.readFileAsDataURL(file);
+        const img = await this.loadImage(dataUrl);
+        const { width, height } = this.getScaledDimensions(img, maxDimension);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const targetBytes = maxSizeMB * 1024 * 1024;
+        const qualities = [0.9, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.3];
+        for (const quality of qualities) {
+            const blob = await this.canvasToBlob(canvas, 'image/jpeg', quality);
+            if (!blob) continue;
+            if (blob.size <= targetBytes || quality === qualities[qualities.length - 1]) {
+                return new File([blob], this.ensureJpegExtension(file.name), {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                });
+            }
+        }
+
+        return file;
     }
 
     initializePhoneInputs() {
@@ -176,7 +259,7 @@ export class MembershipFormHandler {
         };
 
         // Handle profile picture separately if present
-        const profilePicture = formData.get('profile_picture');
+        const profilePicture = this.compressedProfilePicture || formData.get('profile_picture');
         if (profilePicture && profilePicture.size > 0) {
             // need to use FormData for multipart upload
             return {
