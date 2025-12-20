@@ -18,20 +18,11 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-35hf)n30^xp=8m^x67p4m#_t!((p3i7m#ww3kmymvskdap5qcg')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+DEBUG = config('DEBUG', default=True)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-35hf)n30^xp=8m^x67p4m#_t!((p3i7m#ww3kmymvskdap5qcg'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-
-
-# Application definition
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -224,14 +215,11 @@ SPECTACULAR_SETTINGS = {
 # LOGOUT_URL='/logout/'
 # LOGIN_REDIRECT_URL = '/'
 
-# CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://72.60.211.179",
-    "http://bmr-sg.cloud",
-    "http://srv1182669.hstgr.cloud"
-]
+# CORS Settings (comma-separated in .env as CORS_ALLOWED_ORIGINS)
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://localhost:8000,http://127.0.0.1:8000,http://72.60.211.179,https://bmr-sg.cloud,http://srv1182669.hstgr.cloud",
+).split(",")
 
 # LOGGING START
 LOG_DIR = os.path.join(BASE_DIR, "logs")  # Set logs directory
@@ -284,7 +272,7 @@ GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 HITPAY_SALT = config('HITPAY_SALT', default='')
 HITPAY_API_KEY = config('HITPAY_API_KEY', default='')
 HITPAY_API_URL = config('HITPAY_API_URL', default='')
-HITPAY_WEBHOOK_URL = 'https://pretty-badgers-rescue.loca.lt/api/membership/payments/webhooks/hitpay/'
+HITPAY_WEBHOOK_URL = config('HITPAY_WEBHOOK_URL', default='https://pretty-badgers-rescue.loca.lt/api/membership/payments/webhooks/hitpay/')
 
 FERNET_KEY = config('FERNET_KEY', default='')
 
