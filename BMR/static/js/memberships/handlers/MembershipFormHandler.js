@@ -72,11 +72,12 @@ export class MembershipFormHandler {
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    if (file.size > 2 * 1024 * 1024) { // 2MB limit
-                        this.notificationService.showWarning('Profile picture must be less than 2MB');
-                        fileInput.value = '';
-                        return;
-                    }
+                const maxSizeBytes = 5 * 1024 * 1024; // 5MB limit
+                if (file.size > maxSizeBytes) {
+                    this.notificationService.showWarning('Profile picture must be less than 5MB');
+                    fileInput.value = '';
+                    return;
+                }
 
                     const reader = new FileReader();
                     reader.onload = (event) => {

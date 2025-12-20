@@ -69,7 +69,7 @@ const renderProfile = (profile, membership) => {
         const ref = membership?.reference_no || card.dataset.reference_no || '';
         // const ref = membership?.reference_no || card.dataset.reference || '';
         const statusCode = membership?.workflow_status?.status_code || membership?.workflow_status || '';
-        const isDraft = ['10', '11', '12'].includes(statusCode);
+        const isDraft = ['10', '11', '17'].includes(statusCode);
         if (ref && !isDraft) {
             membershipLink.href = `/memberships/details/?ref=${encodeURIComponent(ref)}`;
         } else {

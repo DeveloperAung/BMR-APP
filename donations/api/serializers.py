@@ -18,31 +18,12 @@ class DonationSubCategorySerializer(serializers.ModelSerializer):
         fields = ("id", "title", "donation_category")
 
 
-class MemberDonationSerializer(serializers.ModelSerializer):
-    donation_category_title = serializers.CharField(source='donation_category.title', read_only=True)
-    donation_sub_category_title = serializers.CharField(source='donation_sub_category.title', read_only=True)
-    
-    class Meta:
-        model = __import__('donations.models', fromlist=['MemberDonation']).MemberDonation
-        fields = ("id", "member", "donation_category", "donation_sub_category", 
-                  "donation_category_title", "donation_sub_category_title",
-                  "amount", "donation_date", "notes", "status", "created_at")
-
-
-# class EventDonationOptionSerializer(serializers.ModelSerializer):
-#     donation_category = DonationCategorySerializer(read_only=True)
-#
-#     class Meta:
-#         model = EventDonationOption
-#         fields = ("id", "event", "donation_category", "amount", "is_active")
-#
-#
 # class DonationReadSerializer(serializers.ModelSerializer):
 #     donated_by = serializers.SerializerMethodField()
 #     event_option = EventDonationOptionSerializer(read_only=True)
 #     donation_category = DonationCategorySerializer(read_only=True)
 #     donation_sub_category = DonationSubCategorySerializer(read_only=True)
-#
+
 #     class Meta:
 #         model = Donation
 #         fields = (
@@ -58,13 +39,13 @@ class MemberDonationSerializer(serializers.ModelSerializer):
 #             "donated_by",
 #             "created_at",
 #         )
-#
+
 #     def get_donated_by(self, obj):
 #         if obj.donated_by:
 #             return {"id": obj.donated_by.id, "name": str(obj.donated_by)}
 #         return None
-#
-#
+
+
 # class DonationCreateSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Donation
@@ -77,7 +58,7 @@ class MemberDonationSerializer(serializers.ModelSerializer):
 #             "amount",
 #             "donation_date",
 #         )
-#
+
 #     def validate(self, attrs):
 #         # Basic validation: if event donation, event must be provided
 #         donation_type = attrs.get("donation_type")
@@ -89,7 +70,7 @@ class MemberDonationSerializer(serializers.ModelSerializer):
 #         if event_option and event and event_option.event_id != event.id:
 #             raise serializers.ValidationError({"event_option": "Event option does not belong to the selected event."})
 #         return attrs
-#
+
 #     def create(self, validated_data):
 #         request = self.context.get("request")
 #         user = getattr(request, "user", None)
@@ -98,8 +79,8 @@ class MemberDonationSerializer(serializers.ModelSerializer):
 #             donation.donated_by = user
 #         donation.save()
 #         return donation
-from rest_framework import serializers
-from ..models import DonationCategory, DonationSubCategory
+# from rest_framework import serializers
+# from ..models import DonationCategory, DonationSubCategory
 
 
 class DonationCategorySerializer(serializers.ModelSerializer):
