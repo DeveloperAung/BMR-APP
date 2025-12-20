@@ -155,17 +155,8 @@ export class PostFormHandler {
             return;
         }
 
-        if (file.type.startsWith('image/')) {
-            const processed = await this.compressImageIfNeeded(file);
-            if (!processed) {
-                e.target.value = '';
-                return;
-            }
-            this.compressedMediaFile = processed;
-        } else if (file.size > 5 * 1024 * 1024) {
-            this.notificationService.showWarning('Media files over 5MB are not allowed.');
-            e.target.value = '';
-        }
+        // Leave media files untouched (server handles size/processing).
+        this.compressedMediaFile = file;
     }
 
     async compressImageIfNeeded(file) {
