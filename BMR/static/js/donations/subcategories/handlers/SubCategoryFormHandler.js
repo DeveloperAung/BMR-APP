@@ -13,6 +13,8 @@ export class SubCategoryFormHandler {
         this.form = form;
         this.authService = authService;
         this.notificationService = notificationService;
+        this.submitButton = this.form.querySelector('button[type="submit"]');
+        this.isSubmitting = false;
 
         // Manager handles API + repository
         this.manager = new SubCategoryManager({
@@ -51,6 +53,9 @@ export class SubCategoryFormHandler {
     /** Handle form submission */
     async handleSubmit(event) {        
         event.preventDefault();
+        if (this.isSubmitting) {
+            return; // prevent double submit
+        }
         this.clearFieldErrors();
 
         if (!this.form.checkValidity()) {
@@ -60,6 +65,7 @@ export class SubCategoryFormHandler {
         }
 
         try {
+            this.setSubmitting(true);
             const data = this.getFormData();
             const subcategoryId = this.form.dataset.subcategoryId;            
             if (subcategoryId) {                
@@ -77,6 +83,8 @@ export class SubCategoryFormHandler {
             }, 1500);
         } catch (error) {
             ApiErrorHandler.handle(error, this.notificationService, { form: this.form });
+        } finally {
+            this.setSubmitting(false);
         }
     }
 
@@ -86,5 +94,16 @@ export class SubCategoryFormHandler {
             el.classList.remove('is-invalid');
         });
         this.form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    }
+
+    setSubmitting(isSubmitting) {
+        this.isSubmitting = isSubmitting;
+        if (this.submitButton) {
+            this.submitButton.disabled = isSubmitting;
+            const spinner = this.submitButton.querySelector('.spinner-border');
+            if (spinner) {
+                spinner.classList.toggle('d-none', !isSubmitting);
+            }
+        }
     }
 }

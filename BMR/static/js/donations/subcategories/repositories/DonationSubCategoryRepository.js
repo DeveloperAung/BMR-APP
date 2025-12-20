@@ -16,7 +16,6 @@ export class DonationSubCategoryRepository extends BaseRepository {
     }
 
     async submitSubCategory(subCategoryData) {
-        alert('DonationSubCategoryRepository: Service called submit category');
         if (!subCategoryData.title || subCategoryData.title.trim() === '') {
             throw new Error('Title is required');
         }
@@ -28,10 +27,8 @@ export class DonationSubCategoryRepository extends BaseRepository {
         }
 
         try {
-            alert('DonationSubCategoryRepository: Service called submit category');
             return await super.createItem(subCategoryData);
         } catch (error) {
-            console.log('DonationSubCategoryRepository: Service called create item');
             throw error;
         }
     }

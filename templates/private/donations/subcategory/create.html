@@ -136,12 +136,11 @@
 </div>
 
 {% block extra_js %}
-<script type="module">        
+<script type="module">
+    // Prevent the module's auto-init and run it exactly once here
+    window.__DONATION_SUBCATEGORY_NO_AUTO_INIT__ = true;
     import { initDonationSubCategoryCreate } from "{% static 'js/donations/subcategories/donationSubCategoryCreate.js' %}";
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        initDonationSubCategoryCreate();
-    });
+    document.addEventListener('DOMContentLoaded', initDonationSubCategoryCreate, { once: true });
 </script>
 {% endblock %}
 

@@ -141,13 +141,11 @@
     </div>
 </div>
     {% block extra_js %}
-    <script type="module">        
+    <script type="module">
+        // Prevent the module's auto-init and run it exactly once here
+        window.__DONATION_CATEGORY_NO_AUTO_INIT__ = true;
         import { initDonationCategoryCreate } from '{% static 'js/donations/categories/donationCategoryCreate.js' %}';
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing donation category form...');
-            initDonationCategoryCreate();
-        });
+        document.addEventListener('DOMContentLoaded', initDonationCategoryCreate, { once: true });
     </script>
     {% endblock %}
 {% endblock %}
